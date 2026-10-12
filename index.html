@@ -3,45 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Streben nach Gleichgewicht – SCAPE°</title>
-<meta name="description" content="SCAPE° – Das Streben nach Gleichgewicht: Eine Simulation in drei Stufen. Unterschied, Gradient, Strömung, Ausgleich.">
-<!--
-  Schrift: Laut CD ist Founders Grotesk (Klim Type Foundry, kommerzielle Lizenz) die einzige Hausschrift.
-  Ist sie lokal installiert, wird sie verwendet. Sonst greift ersatzweise eine neutrale Grotesk
-  (Helvetica Neue / Inter / Arial). Diese Ersetzung ist bewusst und nur für die Web-Version gedacht.
--->
+<title>Streben nach Gleichgewicht</title>
+<meta name="description" content="Das Streben nach Gleichgewicht: Eine Simulation in drei Stufen. Unterschied, Gradient, Strömung, Ausgleich.">
+<link rel="stylesheet" href="theme/theme.css">
+<!-- Gestaltung (Schrift, Farben, Logo, Farbthemen der Stufen) kommt aus theme/ – siehe theme/README.md.
+     Dieses CSS ist nur Layout und nutzt ausschließlich Variablen aus theme/theme.css. -->
 <style>
 :root{
-  --font:"Founders Grotesk","Helvetica Neue",Inter,Arial,sans-serif;
-  --black:#000; --white:#fff;
-  --orange:#EE7518; --yellow-pastel:#FFF487; --cream:#F2E4BA; --navy:#28348B;
-  --green:#62BA91; --mint:#CFE6CE; --teal:#007B73; --purple:#442683;
-  --lilac:#C5B8DB; --gold:#E09F00; --cyan:#0097BE; --ice:#D4EDF8;
-  --lavender:#E0E5F5; --yellow:#FFE547; --palegreen:#D0E8DC; --paleyellow:#FDF6B7;
-  --pink:#F8E1E6; --red:#E41513;
   --gutter:clamp(16px,4vw,48px);
-  --accent:var(--orange);
-  --accent-pale:var(--yellow-pastel);
+  --head-h:88px;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--white);color:var(--black);font-family:var(--font);font-size:17px;line-height:1.45;overflow-x:hidden}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:var(--fw-regular);font-size:17px;line-height:1.45;overflow-x:hidden}
 h1,h2,h3,p{margin:0}
 .caps{text-transform:uppercase;letter-spacing:.03em}
 a{color:inherit}
 button{font:inherit;color:inherit}
+b,strong{font-weight:var(--fw-medium)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
 /* ---------- Kopf ---------- */
-.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding:20px var(--gutter) 16px;border-bottom:2px solid var(--black);background:var(--white);position:sticky;top:0;z-index:20}
-.logo{display:inline-flex;flex-direction:column;text-decoration:none;color:var(--black);line-height:1}
-.logo-word{font-size:42px;font-weight:300;letter-spacing:.01em;line-height:.85}
-.logo-sub{display:flex;justify-content:space-between;font-size:9.5px;font-weight:500;letter-spacing:.04em;margin-top:5px}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding:20px var(--gutter) 16px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20;--logo-size:42px}
 .nav{display:flex;flex-wrap:wrap;gap:6px}
-.nav a{display:inline-flex;align-items:center;min-height:40px;padding:6px 12px;border:2px solid var(--black);text-decoration:none;font-weight:500;font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:var(--white)}
-.nav a[aria-current="page"]{background:var(--black);color:var(--white)}
-.nav a:hover{background:var(--yellow-pastel)}
-.nav a[aria-current="page"]:hover{background:var(--black)}
-.nav .num{font-weight:300;margin-right:6px}
+.nav a{display:inline-flex;align-items:center;min-height:40px;padding:6px 12px;border:2px solid var(--ink);text-decoration:none;font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:var(--paper)}
+.nav a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+.nav a:hover{background:var(--c-yellow-pastel)}
+.nav a[aria-current="page"]:hover{background:var(--ink)}
+.nav .num{font-weight:var(--fw-light);margin-right:6px}
 
 /* ---------- Plakat-Kopf mit drei Gestaltungsebenen ---------- */
 .poster{position:relative;overflow:hidden;min-height:340px;padding:44px var(--gutter) 52px;isolation:isolate}
@@ -49,115 +38,133 @@ button{font:inherit;color:inherit}
 .poster .f1{inset:0;background:var(--f1)}
 .poster .f2{top:0;right:0;width:30%;height:58%;background:var(--f2)}
 .poster .f3{bottom:0;right:0;width:30%;height:42%;background:var(--f3)}
-.poster .l2{position:absolute;z-index:-2;right:calc(30% - 70px);top:calc(58% - 70px);width:140px;height:140px}
-.poster .l3{position:absolute;z-index:-1;right:-14%;top:-36%;width:min(70vw,760px);height:auto;pointer-events:none}
+.poster .l2{color:var(--l2);position:absolute;z-index:-2;right:calc(30% - 70px);top:calc(58% - 70px);width:140px;height:140px}
+.poster .l3{color:var(--l3);position:absolute;z-index:-1;right:-14%;top:-36%;width:min(70vw,760px);height:auto;pointer-events:none}
 .poster-text{position:relative;max-width:min(64%,860px)}
-.kicker{font-weight:500;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
-.headline{font-weight:300;text-transform:uppercase;font-size:clamp(44px,8.6vw,124px);line-height:.86;letter-spacing:-.005em;margin-bottom:22px;overflow-wrap:anywhere}
+.kicker{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.headline{font-weight:var(--fw-light);text-transform:uppercase;font-size:clamp(44px,8.6vw,124px);line-height:.86;letter-spacing:-.005em;margin-bottom:22px;overflow-wrap:anywhere}
 .lead{font-size:clamp(17px,1.8vw,21px);max-width:40em}
-.chain{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:22px 0 0;font-weight:500;font-size:13px;letter-spacing:.05em;text-transform:uppercase}
-.chain li{padding:6px 10px;border:2px solid var(--black);background:var(--white);transition:background .3s,color .3s}
-.chain li.on{background:var(--black);color:var(--white)}
-.chain li.arrow{border:0;background:none;padding:6px 0;color:var(--black)}
+.chain{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:22px 0 0;font-weight:var(--fw-medium);font-size:13px;letter-spacing:.05em;text-transform:uppercase}
+.chain li{padding:6px 10px;border:2px solid var(--ink);background:var(--paper);transition:background .3s,color .3s}
+.chain li.on{background:var(--ink);color:var(--paper)}
+.chain li.arrow{border:0;background:none;padding:6px 0;color:var(--ink)}
 
 /* ---------- Stufen ---------- */
 .stage{display:none}
 .stage.active{display:block}
-.stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:28px;padding:28px var(--gutter) 48px;align-items:start}
-.sim-frame{display:grid;grid-template-columns:minmax(0,1fr) 84px;border:2px solid var(--black)}
-.sim-frame canvas{display:block;width:100%;height:auto;touch-action:manipulation;background:var(--white)}
+/* Handy: Versuchsauswahl, Simulation, Bedienung, Aufgaben untereinander.
+   Desktop: Simulation links, so groß wie der Bildschirm erlaubt; Auswahl,
+   Bedienung und Aufgaben rechts daneben – kein Scrollen nötig. */
+.stage-body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"pre" "view" "ctrl" "side";gap:12px 32px;padding:24px var(--gutter) 48px;align-items:start}
+.sim-pre{grid-area:pre;min-width:0}.sim-view{grid-area:view;min-width:0}.sim-ctrl{grid-area:ctrl;min-width:0}.side{grid-area:side}
+.sim-ctrl > .controls:first-child{margin-top:0}
+.sim-frame{display:grid;grid-template-columns:minmax(0,1fr) 84px;border:2px solid var(--ink)}
+.sim-frame canvas{display:block;width:100%;height:auto;touch-action:manipulation;background:var(--paper)}
 .sim-frame canvas.paint{touch-action:none;cursor:crosshair}
-.meter{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 8px;border-left:2px solid var(--black);background:var(--white);--v:1}
-.meter-label{font-weight:500;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;text-align:center;line-height:1.15}
-.meter-track{position:relative;flex:1;width:28px;min-height:120px;border:2px solid var(--black);background:var(--white)}
+.meter{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 8px;border-left:2px solid var(--ink);background:var(--paper);--v:1}
+.meter-label{font-weight:var(--fw-medium);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;text-align:center;line-height:1.15}
+.meter-track{position:relative;flex:1;width:28px;min-height:120px;border:2px solid var(--ink);background:var(--paper)}
 .meter-fill{position:absolute;left:0;right:0;bottom:0;height:calc(var(--v)*100%);background:var(--accent);transition:height .12s linear}
-.meter-zero{position:absolute;left:-8px;right:-8px;bottom:-2px;border-bottom:2px solid var(--black)}
-.meter-val{font-weight:500;font-size:13px;text-align:center;line-height:1.15;min-height:2.3em}
-.meter.is-zero .meter-val{background:var(--black);color:var(--white);padding:2px 4px}
+.meter-zero{position:absolute;left:-8px;right:-8px;bottom:-2px;border-bottom:2px solid var(--ink)}
+.meter-val{font-weight:var(--fw-medium);font-size:13px;text-align:center;line-height:1.15;min-height:2.3em}
+.meter.is-zero .meter-val{background:var(--ink);color:var(--paper);padding:2px 4px}
 .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
 .controls .grow{flex:1 1 220px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:8px 14px;border:2px solid var(--black);background:var(--white);font-weight:500;font-size:14px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:8px 14px;border:2px solid var(--ink);background:var(--paper);font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;text-decoration:none}
 .btn:hover{background:var(--accent-pale)}
 .btn.primary{background:var(--accent)}
-.btn[aria-pressed="true"]{background:var(--black);color:var(--white)}
-.btn.hold:active,.btn.hold.held{background:var(--black);color:var(--white)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btn.hold:active,.btn.hold.held{background:var(--ink);color:var(--paper)}
 .seg{display:flex;flex-wrap:wrap;gap:0}
 .seg .btn{margin-right:-2px}
-.readout{margin-top:12px;font-weight:500;font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:1.5em}
+.readout{margin-top:12px;font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:1.5em}
 .hint{margin-top:10px;font-size:16px;max-width:46em}
 .range{display:flex;align-items:center;gap:12px;flex:1 1 260px;min-height:46px}
-.range label{font-weight:500;font-size:14px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
-.range input{flex:1;min-width:0;accent-color:var(--black);height:32px}
-.clock{font-weight:500;font-size:14px;letter-spacing:.04em;min-width:6.5em}
+.range label{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.range input{flex:1;min-width:0;accent-color:var(--ink);height:32px}
+.clock{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;min-width:6.5em}
 
 .side{display:flex;flex-direction:column;gap:16px}
-.card{border:2px solid var(--black);padding:16px;background:var(--white)}
-.card h3{font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.card{border:2px solid var(--ink);padding:16px;background:var(--paper)}
+.card h3{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
 .card p{font-size:16px}
 .task{background:var(--accent-pale)}
 .task ul{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:8px}
 .task li{display:grid;grid-template-columns:26px 1fr;gap:8px;font-size:16px;align-items:start}
-.task li .box{width:22px;height:22px;border:2px solid var(--black);background:var(--white);margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500}
-.task li.done .box{background:var(--black);color:var(--white)}
+.task li .box{width:22px;height:22px;border:2px solid var(--ink);background:var(--paper);margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:var(--fw-medium)}
+.task li.done .box{background:var(--ink);color:var(--paper)}
 .task .btn{margin-top:12px}
-.status{margin-top:10px;font-weight:500;font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:1.4em}
-.insight{background:var(--white);position:relative}
+.status{margin-top:10px;font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:1.4em}
+.insight{background:var(--paper);position:relative}
 .insight p{font-size:19px;line-height:1.35}
-.insight.unlocked{background:var(--black);color:var(--white)}
+.insight.unlocked{background:var(--ink);color:var(--paper)}
 .insight.unlocked h3::after{content:" – FREIGESCHALTET"}
 
 /* ---------- Startseite ---------- */
-.intro{padding:32px var(--gutter) 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-bottom:2px solid var(--black)}
+.intro{padding:32px var(--gutter) 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-bottom:2px solid var(--ink)}
 .step{padding:0 18px 24px 0}
-.step .n{font-weight:300;font-size:48px;line-height:1}
-.step h3{font-weight:500;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin:6px 0}
+.step .n{font-weight:var(--fw-light);font-size:48px;line-height:1}
+.step h3{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin:6px 0}
 .step p{font-size:16px}
 .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0}
-.tile{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:300px;padding:24px var(--gutter) 24px 24px;text-decoration:none;color:var(--black);border-right:2px solid var(--black);isolation:isolate}
+.tile{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:300px;padding:24px var(--gutter) 24px 24px;text-decoration:none;color:var(--ink);border-right:2px solid var(--ink);isolation:isolate}
 .tile:first-child{padding-left:var(--gutter)}
 .tile:last-child{border-right:0}
-.tile .t-kicker{font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
-.tile .t-title{font-weight:300;font-size:clamp(30px,3.2vw,46px);line-height:.9;text-transform:uppercase}
+.tile .t-kicker{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.tile .t-title{font-weight:var(--fw-light);font-size:clamp(30px,3.2vw,46px);line-height:.9;text-transform:uppercase}
 .tile p{font-size:16px}
-.tile .go{font-weight:500;font-size:14px;letter-spacing:.06em;text-transform:uppercase;border-top:2px solid var(--black);padding-top:10px}
+.tile .go{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.06em;text-transform:uppercase;border-top:2px solid var(--ink);padding-top:10px}
 .tile svg{position:absolute;z-index:-1;pointer-events:none}
 .tile:hover .go{text-decoration:underline}
 
 /* ---------- Vergleich ---------- */
 .compare{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:28px var(--gutter) 16px}
-.cmp{border:2px solid var(--black);display:flex;flex-direction:column;background:var(--white)}
-.cmp canvas{display:block;width:100%;height:auto;border-bottom:2px solid var(--black)}
+.cmp{border:2px solid var(--ink);display:flex;flex-direction:column;background:var(--paper)}
+.cmp canvas{display:block;width:100%;height:auto;border-bottom:2px solid var(--ink)}
 .cmp .cmp-text{padding:14px}
-.cmp h3{font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
-.cmp .big{font-weight:300;font-size:26px;line-height:1.02;text-transform:uppercase;margin-bottom:8px}
+.cmp h3{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.cmp .big{font-weight:var(--fw-light);font-size:26px;line-height:1.02;text-transform:uppercase;margin-bottom:8px}
 .cmp p{font-size:15px}
-.hbar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:10px 14px;border-top:2px solid var(--black);margin-top:auto;font-weight:500;font-size:11px;letter-spacing:.05em;text-transform:uppercase;--v:1}
-.hbar .track{height:16px;border:2px solid var(--black);position:relative}
-.hbar .fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v)*100%);background:var(--orange)}
+.hbar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:10px 14px;border-top:2px solid var(--ink);margin-top:auto;font-weight:var(--fw-medium);font-size:11px;letter-spacing:.05em;text-transform:uppercase;--v:1}
+.hbar .track{height:16px;border:2px solid var(--ink);position:relative}
+.hbar .fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v)*100%);background:var(--c-orange)}
 .compare-foot{padding:8px var(--gutter) 48px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:end}
-.compare-foot p{font-size:clamp(20px,2.4vw,30px);font-weight:300;line-height:1.15;max-width:34em}
+.compare-foot p{font-size:clamp(20px,2.4vw,30px);font-weight:var(--fw-light);line-height:1.15;max-width:34em}
 
 /* ---------- Fuß ---------- */
-.foot{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;padding:36px var(--gutter);background:var(--navy);color:var(--white)}
-.foot .claim{font-weight:300;font-size:clamp(28px,4vw,54px);line-height:.92;text-transform:uppercase}
-.foot .info{font-weight:500;font-size:13px;letter-spacing:.05em;text-transform:uppercase;line-height:1.6}
+.foot{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;padding:36px var(--gutter);background:var(--foot-bg);color:var(--foot-ink)}
+.foot .claim{font-weight:var(--fw-light);font-size:clamp(28px,4vw,54px);line-height:.92;text-transform:uppercase}
+.foot .info{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.05em;text-transform:uppercase;line-height:1.6}
 
 /* ---------- Responsiv ---------- */
 @media (max-width:1100px){
   .compare{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tile{border-bottom:2px solid var(--black);padding-left:var(--gutter)}
+  .tile{border-bottom:2px solid var(--ink);padding-left:var(--gutter)}
   .tile:nth-child(2n){border-right:0}
 }
+@media (min-width:1000px){
+  .stage:not(#start) .poster{min-height:0;padding:22px var(--gutter) 24px}
+  .stage:not(#start) .headline{font-size:clamp(40px,4.2vw,64px);margin-bottom:12px}
+  .stage:not(#start) .kicker{margin-bottom:10px}
+  .stage:not(#start) .lead{font-size:18px}
+  .stage:not(#start) .chain{margin-top:14px}
+  .stage:not(#start) .poster .l3{top:-60%;width:min(44vw,560px)}
+  .stage-body{
+    --sim:clamp(480px,calc((100svh - var(--head-h) - 330px) * 1.5 + 88px),62vw);
+    grid-template-columns:var(--sim) minmax(300px,1fr);
+    grid-template-areas:"view pre" "view ctrl" "view side";
+    grid-template-rows:auto auto 1fr;
+  }
+  .sim-ctrl .range{flex-basis:100%}
+}
 @media (max-width:900px){
-  .stage-body{grid-template-columns:minmax(0,1fr)}
   .intro{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:640px){
   body{font-size:16px}
   .top{position:static;padding-top:16px}
-  .logo-word{font-size:34px}
-  .logo-sub{font-size:8px}
+  .top{--logo-size:34px}
   .nav{width:100%}
   .nav a{flex:1 1 auto;justify-content:center;font-size:13px;padding:6px 8px}
   .poster{min-height:0;padding:28px var(--gutter) 108px}
@@ -167,11 +174,11 @@ button{font:inherit;color:inherit}
   .poster .l2{right:auto;left:calc(58% - 46px);top:auto;bottom:32px;width:92px;height:92px}
   .poster .l3{width:150vw;right:-70%;top:-20%}
   .sim-frame{grid-template-columns:minmax(0,1fr)}
-  .meter{order:-1;flex-direction:row;border-left:0;border-bottom:2px solid var(--black);padding:8px 10px}
+  .meter{order:-1;flex-direction:row;border-left:0;border-bottom:2px solid var(--ink);padding:8px 10px}
   .meter-label br{display:none}
   .meter-track{height:22px;min-height:0;width:auto;flex:1}
   .meter-fill{top:0;bottom:0;height:auto;width:calc(var(--v)*100%);transition:width .12s linear}
-  .meter-zero{left:-2px;right:auto;top:-8px;bottom:-8px;border-bottom:0;border-left:2px solid var(--black)}
+  .meter-zero{left:-2px;right:auto;top:-8px;bottom:-8px;border-bottom:0;border-left:2px solid var(--ink)}
   .meter-val{min-height:0;min-width:5.5em}
   .btn{flex:1 1 auto}
   .seg{width:100%}
@@ -188,10 +195,7 @@ button{font:inherit;color:inherit}
 <body>
 
 <header class="top">
-  <a class="logo" href="#start" aria-label="SCAPE° – Wetter Klima Mensch, zur Startseite">
-    <span class="logo-word">SCAPE°</span>
-    <span class="logo-sub" aria-hidden="true"><span>WETTER</span><span>KLIMA</span><span>MENSCH</span></span>
-  </a>
+  <a class="logo" href="#start" data-brand="logo"></a>
   <nav class="nav" aria-label="Stufen">
     <a href="#start" data-route="start">Start</a>
     <a href="#stufe-1" data-route="stufe-1"><span class="num">1</span>Prinzip</a>
@@ -204,11 +208,11 @@ button{font:inherit;color:inherit}
 <main>
 
 <!-- ================= START ================= -->
-<section class="stage" id="start" data-stage="start" style="--accent:#EE7518;--accent-pale:#FFF487">
-  <div class="poster" style="--f1:#FFF487;--f2:#EE7518;--f3:#28348B">
+<section class="stage" id="start" data-stage="start" >
+  <div class="poster">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
-    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 50 A50 50 0 0 1 100 50 Z" fill="#62BA91"/><path d="M0 100 A50 50 0 0 1 100 100 Z" fill="#62BA91"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="#F8E1E6" stroke-width="3" vector-effect="non-scaling-stroke"><path d="M200 30 C200 30 90 170 90 240 a110 110 0 0 0 220 0 C310 170 200 30 200 30 Z" vector-effect="non-scaling-stroke"/><circle cx="200" cy="245" r="60" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 50 A50 50 0 0 1 100 50 Z" fill="currentColor"/><path d="M0 100 A50 50 0 0 1 100 100 Z" fill="currentColor"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" vector-effect="non-scaling-stroke"><path d="M200 30 C200 30 90 170 90 240 a110 110 0 0 0 220 0 C310 170 200 30 200 30 Z" vector-effect="non-scaling-stroke"/><circle cx="200" cy="245" r="60" vector-effect="non-scaling-stroke"/></svg>
     <div class="poster-text">
       <p class="kicker">Eine Simulation in drei Stufen</p>
       <h1 class="headline">Das Streben nach Gleich–<br>gewicht</h1>
@@ -230,26 +234,26 @@ button{font:inherit;color:inherit}
   </div>
 
   <div class="tiles">
-    <a class="tile" href="#stufe-1" style="background:#CFE6CE">
-      <svg viewBox="0 0 100 100" style="right:-40px;bottom:-40px;width:200px" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="none" stroke="#442683" stroke-width="1.2"/><circle cx="50" cy="50" r="30" fill="none" stroke="#442683" stroke-width="1.2"/></svg>
+    <a class="tile" href="#stufe-1" style="background:var(--tile)">
+      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-40px;bottom:-40px;width:200px" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
       <div><div class="t-kicker">Stufe 1 – Das Prinzip</div><div class="t-title">Teilchen–<br>kasten</div></div>
       <p>Zieh die Trennwand weg und sieh zu, wie sich Teilchen, Wärme und Farbe verteilen.</p>
       <div class="go">Los geht’s →</div>
     </a>
-    <a class="tile" href="#stufe-2" style="background:#D4EDF8">
-      <svg viewBox="0 0 100 100" style="right:-30px;top:-30px;width:170px" aria-hidden="true"><circle cx="50" cy="50" r="22" fill="#E09F00"/><path d="M50 4 L54 40 L96 50 L54 60 L50 96 L46 60 L4 50 L46 40 Z" fill="none" stroke="#C5B8DB" stroke-width="1.2"/></svg>
+    <a class="tile" href="#stufe-2" style="background:var(--tile)">
+      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-30px;top:-30px;width:170px" aria-hidden="true"><circle cx="50" cy="50" r="22" fill="currentColor"/><path d="M50 4 L54 40 L96 50 L54 60 L50 96 L46 60 L4 50 L46 40 Z" fill="none" style="stroke:var(--c-lilac)" stroke-width="1.2"/></svg>
       <div><div class="t-kicker">Stufe 2 – Wie Wind entsteht</div><div class="t-title">See–<br>wind</div></div>
       <p>Stell die Tageszeit ein. Die Sonne heizt das Land schneller als das Meer – und es weht.</p>
       <div class="go">Los geht’s →</div>
     </a>
-    <a class="tile" href="#stufe-3" style="background:#E0E5F5">
-      <svg viewBox="0 0 100 100" style="right:-50px;bottom:-60px;width:230px" aria-hidden="true"><path d="M30 70 a22 22 0 0 1 4 -43 a26 26 0 0 1 48 8 a18 18 0 0 1 -2 35 Z" fill="none" stroke="#0097BE" stroke-width="1.2"/></svg>
+    <a class="tile" href="#stufe-3" style="background:var(--tile)">
+      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-50px;bottom:-60px;width:230px" aria-hidden="true"><path d="M30 70 a22 22 0 0 1 4 -43 a26 26 0 0 1 48 8 a18 18 0 0 1 -2 35 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
       <div><div class="t-kicker">Stufe 3 – Das große Bild</div><div class="t-title">Wetter–<br>karte</div></div>
       <p>Mal selbst Hochs und Tiefs auf die Karte und schalte die Erdrotation ein.</p>
       <div class="go">Los geht’s →</div>
     </a>
-    <a class="tile" href="#vergleich" style="background:#FDF6B7">
-      <svg viewBox="0 0 100 100" style="right:-20px;bottom:-30px;width:160px" aria-hidden="true"><path d="M0 100 A50 50 0 0 1 100 100 Z" fill="#EE7518"/></svg>
+    <a class="tile" href="#vergleich" style="background:var(--tile)">
+      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-20px;bottom:-30px;width:160px" aria-hidden="true"><path d="M0 100 A50 50 0 0 1 100 100 Z" fill="currentColor"/></svg>
       <div><div class="t-kicker">Zum Schluss</div><div class="t-title">Ver–<br>gleich</div></div>
       <p>Wärme, Wasser, Strom und Wind: Vier Strömungen, ein Prinzip.</p>
       <div class="go">Ansehen →</div>
@@ -258,11 +262,11 @@ button{font:inherit;color:inherit}
 </section>
 
 <!-- ================= STUFE 1 ================= -->
-<section class="stage" id="stufe-1" data-stage="stufe-1" style="--accent:#E09F00;--accent-pale:#CFE6CE">
-  <div class="poster" style="--f1:#CFE6CE;--f2:#007B73;--f3:#442683">
+<section class="stage" id="stufe-1" data-stage="stufe-1" >
+  <div class="poster">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
-    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 0 A50 50 0 0 1 50 100 Z" fill="#E09F00"/><path d="M50 0 A50 50 0 0 0 50 100 Z" fill="#E09F00" transform="translate(-6 0)"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="#C5B8DB" stroke-width="3"><circle cx="160" cy="200" r="120" vector-effect="non-scaling-stroke"/><circle cx="250" cy="200" r="120" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 0 A50 50 0 0 1 50 100 Z" fill="currentColor"/><path d="M50 0 A50 50 0 0 0 50 100 Z" fill="currentColor" transform="translate(-6 0)"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><circle cx="160" cy="200" r="120" vector-effect="non-scaling-stroke"/><circle cx="250" cy="200" r="120" vector-effect="non-scaling-stroke"/></svg>
     <div class="poster-text">
       <p class="kicker">Stufe 1 – Das Prinzip</p>
       <h2 class="headline">Teilchen–<br>kasten</h2>
@@ -273,16 +277,20 @@ button{font:inherit;color:inherit}
     </div>
   </div>
   <div class="stage-body">
-    <div class="sim">
+    <div class="sim-pre">
       <div class="seg" role="group" aria-label="Versuch wählen" id="s1modes">
         <button class="btn" data-mode="dichte" aria-pressed="true">Dichte</button>
         <button class="btn" data-mode="waerme" aria-pressed="false">Warm &amp; kalt</button>
         <button class="btn" data-mode="farbe" aria-pressed="false">Farbe in Wasser</button>
       </div>
-      <div class="sim-frame" style="margin-top:12px">
+    </div>
+    <div class="sim-view">
+      <div class="sim-frame">
         <canvas id="c1" width="900" height="600" style="aspect-ratio:3/2" aria-label="Teilchenkasten mit Trennwand"></canvas>
         <div class="meter" id="m1"><span class="meter-label">Unter–<br>schied</span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val">100 %</span></div>
       </div>
+    </div>
+    <div class="sim-ctrl">
       <div class="controls">
         <button class="btn primary" id="s1wall">Wand wegziehen</button>
         <button class="btn" id="s1reset">Neu starten</button>
@@ -311,11 +319,11 @@ button{font:inherit;color:inherit}
 </section>
 
 <!-- ================= STUFE 2 ================= -->
-<section class="stage" id="stufe-2" data-stage="stufe-2" style="--accent:#44ABCC;--accent-pale:#D4EDF8">
-  <div class="poster" style="--f1:#D4EDF8;--f2:#E09F00;--f3:#44ABCC">
+<section class="stage" id="stufe-2" data-stage="stufe-2" >
+  <div class="poster">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
-    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M5 95 A45 45 0 0 1 95 95 L75 95 A25 25 0 0 0 25 95 Z" fill="#C5B8DB"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="#FFE547" stroke-width="3"><path d="M200 20 L222 178 L380 200 L222 222 L200 380 L178 222 L20 200 L178 178 Z" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M5 95 A45 45 0 0 1 95 95 L75 95 A25 25 0 0 0 25 95 Z" fill="currentColor"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M200 20 L222 178 L380 200 L222 222 L200 380 L178 222 L20 200 L178 178 Z" vector-effect="non-scaling-stroke"/></svg>
     <div class="poster-text">
       <p class="kicker">Stufe 2 – Wie Wind entsteht</p>
       <h2 class="headline">See–<br>wind</h2>
@@ -326,11 +334,13 @@ button{font:inherit;color:inherit}
     </div>
   </div>
   <div class="stage-body">
-    <div class="sim">
+    <div class="sim-view">
       <div class="sim-frame">
         <canvas id="c2" width="900" height="600" style="aspect-ratio:3/2" aria-label="Querschnitt durch Küste, Meer und Luft"></canvas>
         <div class="meter" id="m2"><span class="meter-label">Unter–<br>schied</span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val">–</span></div>
       </div>
+    </div>
+    <div class="sim-ctrl">
       <div class="controls">
         <div class="range"><label for="s2time">Tageszeit</label><input type="range" id="s2time" min="0" max="24" step="0.1" value="13"><span class="clock" id="s2clock">13:00 Uhr</span></div>
         <button class="btn" id="s2play" aria-pressed="true">Zeit läuft</button>
@@ -370,11 +380,11 @@ button{font:inherit;color:inherit}
 </section>
 
 <!-- ================= STUFE 3 ================= -->
-<section class="stage" id="stufe-3" data-stage="stufe-3" style="--accent:#0097BE;--accent-pale:#FFE547">
-  <div class="poster" style="--f1:#E0E5F5;--f2:#FFE547;--f3:#D0E8DC">
+<section class="stage" id="stufe-3" data-stage="stufe-3" >
+  <div class="poster">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
-    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 70 L20 40 L40 70 L60 40 L80 70 L100 40 L100 60 L80 90 L60 60 L40 90 L20 60 L0 90 Z" fill="#0097BE"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="#0097BE" stroke-width="3"><path d="M110 280 a70 70 0 0 1 10 -138 a90 90 0 0 1 170 20 a60 60 0 0 1 -10 118 Z" vector-effect="non-scaling-stroke"/><circle cx="150" cy="330" r="6" vector-effect="non-scaling-stroke"/><circle cx="210" cy="345" r="6" vector-effect="non-scaling-stroke"/><circle cx="270" cy="330" r="6" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 70 L20 40 L40 70 L60 40 L80 70 L100 40 L100 60 L80 90 L60 60 L40 90 L20 60 L0 90 Z" fill="currentColor"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M110 280 a70 70 0 0 1 10 -138 a90 90 0 0 1 170 20 a60 60 0 0 1 -10 118 Z" vector-effect="non-scaling-stroke"/><circle cx="150" cy="330" r="6" vector-effect="non-scaling-stroke"/><circle cx="210" cy="345" r="6" vector-effect="non-scaling-stroke"/><circle cx="270" cy="330" r="6" vector-effect="non-scaling-stroke"/></svg>
     <div class="poster-text">
       <p class="kicker">Stufe 3 – Das große Bild</p>
       <h2 class="headline">Wetter–<br>karte</h2>
@@ -385,15 +395,19 @@ button{font:inherit;color:inherit}
     </div>
   </div>
   <div class="stage-body">
-    <div class="sim">
+    <div class="sim-pre">
       <div class="seg" role="group" aria-label="Pinsel wählen" id="s3brush">
         <button class="btn" data-brush="1" aria-pressed="true">Hoch: Luft dazu</button>
         <button class="btn" data-brush="-1" aria-pressed="false">Tief: Luft weg</button>
       </div>
-      <div class="sim-frame" style="margin-top:12px">
+    </div>
+    <div class="sim-view">
+      <div class="sim-frame">
         <canvas id="c3" class="paint" width="900" height="600" style="aspect-ratio:3/2" aria-label="Wetterkarte zum Malen von Hochs und Tiefs"></canvas>
         <div class="meter" id="m3"><span class="meter-label">Unter–<br>schied</span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val">–</span></div>
       </div>
+    </div>
+    <div class="sim-ctrl">
       <div class="controls">
         <button class="btn" id="s3rot" aria-pressed="false">Erdrotation</button>
         <button class="btn" id="s3sun" aria-pressed="true">Sonne an</button>
@@ -423,11 +437,11 @@ button{font:inherit;color:inherit}
 </section>
 
 <!-- ================= VERGLEICH ================= -->
-<section class="stage" id="vergleich" data-stage="vergleich" style="--accent:#EE7518;--accent-pale:#FDF6B7">
-  <div class="poster" style="--f1:#FDF6B7;--f2:#C5B8DB;--f3:#EE7518">
+<section class="stage" id="vergleich" data-stage="vergleich" >
+  <div class="poster">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
-    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#D4EDF8"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="#EE7518" stroke-width="3"><path d="M120 60 L120 340 M120 60 a60 60 0 0 1 0 0" vector-effect="non-scaling-stroke"/><rect x="60" y="60" width="280" height="80" rx="40" vector-effect="non-scaling-stroke"/><rect x="60" y="180" width="280" height="80" rx="40" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="currentColor"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M120 60 L120 340 M120 60 a60 60 0 0 1 0 0" vector-effect="non-scaling-stroke"/><rect x="60" y="60" width="280" height="80" rx="40" vector-effect="non-scaling-stroke"/><rect x="60" y="180" width="280" height="80" rx="40" vector-effect="non-scaling-stroke"/></svg>
     <div class="poster-text">
       <p class="kicker">Zum Schluss</p>
       <h2 class="headline">Immer das–<br>selbe</h2>
@@ -465,29 +479,24 @@ button{font:inherit;color:inherit}
 </main>
 
 <footer class="foot">
-  <p class="claim">Wetter, Klima, Wandel. Wir erklären es.</p>
-  <p class="info">SCAPE°<br>Frankfurter Straße 39<br>63065 Offenbach am Main<br>Instagram: @scape_offenbach<br>scape@offenbach.de</p>
+  <p class="claim" data-brand="claim"></p>
+  <p class="info" data-brand="contact"></p>
 </footer>
 
+<script src="theme/theme.js"></script>
+<script src="js/brand.js"></script>
 <script>
 "use strict";
 /* =========================================================
    Hilfsfunktionen
    ========================================================= */
-const FONT = '"Founders Grotesk","Helvetica Neue",Inter,Arial,sans-serif';
+const FONT = THEME.font;   // Schrift und Farben aus theme/theme.js
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rnd = (a, b) => a + Math.random() * (b - a);
 const fmt = (n, d = 0) => n.toFixed(d).replace('.', ',').replace('-', '−');
-const C = {
-  black:'#000000', white:'#FFFFFF', orange:'#EE7518', yellowP:'#FFF487', cream:'#F2E4BA', navy:'#28348B',
-  green:'#62BA91', mint:'#CFE6CE', teal:'#007B73', purple:'#442683', purple2:'#523E91', lilac:'#C5B8DB',
-  gold:'#E09F00', cyan:'#0097BE', cyan2:'#44ABCC', cyan3:'#80C0DA', petrol:'#1F6C8E', ice:'#D4EDF8',
-  lavender:'#E0E5F5', yellow:'#FFE547', yellowS:'#FDC618', paleGreen:'#D0E8DC', paleYellow:'#FDF6B7',
-  pink:'#F8E1E6', red:'#E41513', red2:'#E8472E', blue:'#0253A0', blue2:'#3274BA', blueP:'#98B8DD',
-  sand:'#D4BFA3', grey:'#AEC4C2', amber:'#F59E24', salmon:'#EF887F'
-};
+const C = THEME.palette;
 
 function makeView(canvas, W, H) {
   const ctx = canvas.getContext('2d');
@@ -536,7 +545,15 @@ function setChain(el, phase) {
   });
 }
 
+/* Canvas-Text wird nie kleiner als MIN_PX Bildschirmpixel: Auf dem Handy wird die
+   Leinwand stark verkleinert, die Schrift darin wächst entsprechend mit. */
+const MIN_PX = 11.5;
+function minSize(ctx) {
+  const cw = ctx.canvas.clientWidth, a = ctx.getTransform().a;
+  return cw && a ? MIN_PX * ctx.canvas.width / (cw * a) : 0;
+}
 function text(ctx, str, x, y, size, color, weight = 500, align = 'left', base = 'alphabetic') {
+  size = Math.max(size, minSize(ctx));
   ctx.font = `${weight} ${size}px ${FONT}`;
   ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base;
   ctx.fillText(str, x, y);
@@ -677,7 +694,7 @@ const S1 = (() => {
     return s > 190 ? C.red : s > 140 ? C.orange : s > 95 ? C.yellowS : s > 60 ? C.cyan3 : C.blue;
   }
   function draw() {
-    const bg = mode === 'farbe' ? C.ice : mode === 'waerme' ? C.paleYellow : C.mint;
+    const bg = mode === 'farbe' ? C.ice : mode === 'waerme' ? C.yellowPale : C.mint;
     ctx.fillStyle = C.white; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = bg; ctx.fillRect(M, M, W - 2 * M, H - 2 * M);
     if (mode === 'farbe') {
@@ -841,9 +858,9 @@ const S2 = (() => {
       for (let i = 0; i < 8; i++) { const r = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(sx + Math.cos(r) * 42, sy + Math.sin(r) * 42); ctx.lineTo(sx + Math.cos(r) * 56, sy + Math.sin(r) * 56); ctx.stroke(); }
     } else if (night) {
       const h = (t + 6) % 24, a = Math.PI * (h - 0) / 12, mx = 450 - 390 * Math.cos(a), my = 360 - 300 * Math.sin(a);
-      ctx.fillStyle = C.yellowP; ctx.beginPath(); ctx.arc(mx, my, 24, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = C.yellowPastel; ctx.beginPath(); ctx.arc(mx, my, 24, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = C.navy; ctx.beginPath(); ctx.arc(mx + 10, my - 6, 21, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = C.yellowP; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = C.yellowPastel; ctx.lineWidth = 1.5;
       [[90, 70], [250, 40], [620, 60], [800, 110], [520, 150], [160, 190]].forEach(([x, y]) => {
         ctx.beginPath(); ctx.moveTo(x, y - 7); ctx.lineTo(x + 2, y - 2); ctx.lineTo(x + 7, y); ctx.lineTo(x + 2, y + 2); ctx.lineTo(x, y + 7); ctx.lineTo(x - 2, y + 2); ctx.lineTo(x - 7, y); ctx.lineTo(x - 2, y - 2); ctx.closePath(); ctx.stroke();
       });
@@ -870,7 +887,7 @@ const S2 = (() => {
 
     // Luftteilchen
     if (show.tracers) {
-      ctx.fillStyle = night ? C.yellowP : C.petrol;
+      ctx.fillStyle = night ? C.yellowPastel : C.petrol;
       for (const p of tracers) {
         const y = BASE - p.z;
         if (y > groundY(p.x) - 3) continue;
@@ -890,7 +907,7 @@ const S2 = (() => {
     ctx.fillStyle = C.red2; ctx.fillRect(690, gy - 56, 70, 56);
     ctx.fillStyle = C.purple; ctx.beginPath(); ctx.moveTo(680, gy - 56); ctx.lineTo(725, gy - 96); ctx.lineTo(770, gy - 56); ctx.closePath(); ctx.fill();
     ctx.fillStyle = C.black; ctx.fillRect(742, gy - 104, 12, 30);
-    ctx.fillStyle = night ? C.yellowP : C.ice; ctx.fillRect(704, gy - 40, 16, 16); ctx.fillRect(730, gy - 40, 16, 16);
+    ctx.fillStyle = night ? C.yellowPastel : C.ice; ctx.fillRect(704, gy - 40, 16, 16); ctx.fillRect(730, gy - 40, 16, 16);
 
     // Rauch
     if (show.smoke) {
@@ -913,7 +930,7 @@ const S2 = (() => {
     ctx.beginPath(); ctx.moveTo(bx - 34, BASE - 12); ctx.lineTo(bx + 34, BASE - 12); ctx.lineTo(bx + 22, BASE + 6); ctx.lineTo(bx - 22, BASE + 6); ctx.closePath(); ctx.fill();
     ctx.fillStyle = C.black; ctx.fillRect(bx - 2, BASE - 92, 4, 80);
     const sail = clamp(u0 * 0.35, -26, 26);
-    ctx.fillStyle = C.yellowP; ctx.strokeStyle = C.black; ctx.lineWidth = 2;
+    ctx.fillStyle = C.yellowPastel; ctx.strokeStyle = C.black; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(bx + 2, BASE - 90); ctx.quadraticCurveTo(bx + 30 + sail, BASE - 50, bx + 2, BASE - 18); ctx.closePath(); ctx.fill(); ctx.stroke();
 
     // Pfeile
@@ -1162,8 +1179,9 @@ const S3 = (() => {
       ctx.strokeStyle = brush > 0 ? C.blue : C.red; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
       ctx.beginPath(); ctx.arc(pointer.x, pointer.y, 3 * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
     }
-    text(ctx, rotOn ? 'ERDROTATION AN' : 'ERDROTATION AUS', 14, 28, 15, C.black);
-    text(ctx, sunOn ? 'SONNE AN' : 'SONNE AUS', 14, 50, 15, C.black);
+    const lh = Math.max(15, minSize(ctx)) * 1.35;
+    text(ctx, rotOn ? 'ERDROTATION AN' : 'ERDROTATION AUS', 14, 10 + lh, 15, C.black);
+    text(ctx, sunOn ? 'SONNE AN' : 'SONNE AUS', 14, 10 + 2 * lh, 15, C.black);
   }
   let readT = 0;
   function frame(dt) {
@@ -1253,7 +1271,7 @@ const CMP = (() => {
     // 1 Wärme
     let v = views[0], c = v.ctx;
     if (v.fit()) {
-      c.fillStyle = C.paleYellow; c.fillRect(0, 0, W, H);
+      c.fillStyle = C.yellowPale; c.fillRect(0, 0, W, H);
       const x0 = 30, w = 240, sw = w / rod.length;
       rod.forEach((t, i) => { c.fillStyle = heat(t); c.fillRect(x0 + i * sw, 84, sw + 0.5, 34); });
       c.strokeStyle = C.black; c.lineWidth = 2; c.strokeRect(x0, 84, w, 34);
@@ -1287,7 +1305,7 @@ const CMP = (() => {
       c.fillStyle = C.red; c.fillRect(100, 140, 50, 40); c.fillStyle = C.blue; c.fillRect(150, 140, 50, 40);
       c.strokeRect(100, 140, 100, 40);
       text(c, '+', 125, 172, 30, C.white, 500, 'center'); text(c, '−', 175, 172, 30, C.white, 500, 'center');
-      const lit = I > 0.2 ? C.yellow : I > 0.06 ? C.yellowP : C.white;
+      const lit = I > 0.2 ? C.yellow : I > 0.06 ? C.yellowPastel : C.white;
       c.fillStyle = lit; c.beginPath(); c.arc(150, 50, 22, 0, Math.PI * 2); c.fill(); c.stroke();
       c.beginPath(); c.moveTo(136, 36); c.lineTo(164, 64); c.moveTo(164, 36); c.lineTo(136, 64); c.stroke();
       // Ladungen wandern entlang des Drahts (technische Stromrichtung + → −)

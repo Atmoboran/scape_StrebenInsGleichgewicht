@@ -10,9 +10,14 @@ Ein Messgerät am Rand zeigt immer die Größe des Unterschieds.
 - **Vergleich** (`#vergleich`): Wärme, Wasser, Strom und Wind nebeneinander.
 
 ## Benutzung
-Einfach `index.html` im Browser öffnen – eine einzelne Datei, keine Abhängigkeiten, funktioniert offline und auf dem Handy.
+`index.html` im Browser öffnen – keine Abhängigkeiten, kein Build, funktioniert offline und auf dem Handy.
 Jede Stufe ist über ihren Anker direkt aufrufbar (z. B. `index.html#stufe-2`).
+
+## Layout
+- **Handy:** Versuchsauswahl, Simulation, Bedienung und Aufgaben untereinander. Beschriftungen in den Simulationen wachsen mit, damit sie nie kleiner als gut 11 px werden.
+- **Desktop (ab 1000 px):** Simulation links, nur so groß, dass sie ohne Scrollen ganz sichtbar ist; Versuchsauswahl, Bedienung, Aufgaben und Erkenntnis rechts daneben. Der Plakatkopf der Stufen wird schmal.
 
 ## Gestaltung
 Nach dem SCAPE°-Corporate-Design (Bureau Mitte): Farbfelder, Flächenformen, Linienillustrationen, Versalien für Überschriften.
-Hausschrift ist Founders Grotesk (lizenzpflichtig); ist sie nicht installiert, wird ersatzweise Helvetica Neue / Inter / Arial verwendet.
+Die Gestaltung liegt getrennt vom übrigen Code im Ordner `theme/`: Schrift, Palette, Rollenfarben, Wortmarke, Claim und Adresse sowie die Farbthemen der Stufen und Kacheln (`theme/theme.css`) und die Zeichenfarben der Simulationen (`theme/theme.js`). Für eine Version mit anderem Erscheinungsbild genügt es, `theme/` anzupassen (siehe `theme/README.md`).
+Hausschrift ist Founders Grotesk (lizenzpflichtig, nicht im Repository); ist sie weder installiert noch unter `theme/fonts/` abgelegt, wird ersatzweise Helvetica Neue / Inter / Arial verwendet.
