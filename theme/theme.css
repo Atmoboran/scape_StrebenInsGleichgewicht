@@ -94,8 +94,8 @@
 :root {
   --stage-bg: var(--c-white);          /* behind the canvases */
 }
-[data-stage="start"]     { --accent: var(--c-orange); --accent-pale: var(--c-yellow-pastel); --f1: var(--c-yellow-pastel); --f2: var(--c-orange); --f3: var(--c-navy);   --shape: var(--c-green);  --outline: var(--c-pink); }
-[data-stage="stufe-1"]   { --accent: var(--c-gold);   --accent-pale: var(--c-mint);          --f1: var(--c-mint);          --f2: var(--c-teal);   --f3: var(--c-purple); --shape: var(--c-gold);   --outline: var(--c-lilac); }
-[data-stage="stufe-2"]   { --accent: var(--c-cyan-2); --accent-pale: var(--c-ice);           --f1: var(--c-ice);           --f2: var(--c-gold);   --f3: var(--c-cyan-2); --shape: var(--c-lilac);  --outline: var(--c-yellow); }
-[data-stage="stufe-3"]   { --accent: var(--c-cyan);   --accent-pale: var(--c-yellow);        --f1: var(--c-lavender);      --f2: var(--c-yellow); --f3: var(--c-pale-green); --shape: var(--c-cyan); --outline: var(--c-cyan); }
-[data-stage="vergleich"] { --accent: var(--c-orange); --accent-pale: var(--c-yellow-pale);   --f1: var(--c-yellow-pale);   --f2: var(--c-lilac);  --f3: var(--c-orange); --shape: var(--c-ice);    --outline: var(--c-orange); }
+[data-stage="start"]     { --accent: var(--c-red);     --accent-pale: var(--c-cream);       --f1: var(--c-cream);       --f2: var(--c-red);          --f3: var(--c-petrol);  --shape: var(--c-yellow); --outline: var(--c-white); }
+[data-stage="stufe-1"]   { --accent: var(--c-green-strong); --accent-pale: var(--c-green-pale); --f1: var(--c-green-pale); --f2: var(--c-green-strong); --f3: var(--c-navy); --shape: var(--c-amber); --outline: var(--c-white); }
+[data-stage="stufe-2"]   { --accent: var(--c-petrol);  --accent-pale: var(--c-ice);         --f1: var(--c-ice);         --f2: var(--c-petrol);       --f3: var(--c-amber);   --shape: var(--c-red-2);  --outline: var(--c-white); }
+[data-stage="stufe-3"]   { --accent: var(--c-blue);    --accent-pale: var(--c-sand);        --f1: var(--c-sand);        --f2: var(--c-blue);         --f3: var(--c-salmon);  --shape: var(--c-yellow); --outline: var(--c-white); }
+[data-stage="vergleich"] { --accent: var(--c-purple-2); --accent-pale: var(--c-yellow-pale); --f1: var(--c-yellow-pale); --f2: var(--c-purple-2);   --f3: var(--c-cyan-3);  --shape: var(--c-orange); --outline: var(--c-white); }
