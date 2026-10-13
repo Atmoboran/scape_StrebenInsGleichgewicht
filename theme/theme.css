@@ -1,7 +1,7 @@
 /* =========================================================================
    THEME – everything that makes this app look like SCAPE°.
-   The app's own CSS only uses the custom properties defined here, so a
-   different institution changes this file (plus theme.js) and nothing else.
+   css/kit.css and css/app.css only use the custom properties defined here,
+   so another institution changes this file (plus theme.js) and nothing else.
 
    SCAPE° corporate design (Bureau Mitte), in short:
    * Founders Grotesk only. Headlines very large, light, in caps; labels
@@ -13,27 +13,11 @@
      vocabulary and may be used.
    ========================================================================= */
 
-/* Founders Grotesk (Klim Type Foundry) is commercial and not shipped.
-   With a web licence, drop the woff2 files into theme/fonts/ (see the
-   README there). A copy installed on the exhibit computer is used too. */
-@font-face {
-  font-family: "Founders Grotesk";
-  src: local("Founders Grotesk Light"), local("FoundersGrotesk-Light"),
-       url("fonts/FoundersGrotesk-Light.woff2") format("woff2");
-  font-weight: 300; font-display: swap;
-}
-@font-face {
-  font-family: "Founders Grotesk";
-  src: local("Founders Grotesk Regular"), local("FoundersGrotesk-Regular"),
-       url("fonts/FoundersGrotesk-Regular.woff2") format("woff2");
-  font-weight: 400; font-display: swap;
-}
-@font-face {
-  font-family: "Founders Grotesk";
-  src: local("Founders Grotesk Medium"), local("FoundersGrotesk-Medium"),
-       url("fonts/FoundersGrotesk-Medium.woff2") format("woff2");
-  font-weight: 500; font-display: swap;
-}
+/* Founders Grotesk (Klim Type Foundry) is commercial and not shipped. It is
+   used when installed on the device; otherwise the system fallback applies. */
+@font-face { font-family: "Founders Grotesk"; src: local("Founders Grotesk Light"), local("FoundersGrotesk-Light"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "Founders Grotesk"; src: local("Founders Grotesk Regular"), local("FoundersGrotesk-Regular"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Founders Grotesk"; src: local("Founders Grotesk Medium"), local("FoundersGrotesk-Medium"); font-weight: 500; font-display: swap; }
 
 :root {
   /* ---- Type ------------------------------------------------------------ */
@@ -42,7 +26,6 @@
   --fw-regular: 400;    /* running text */
   --fw-medium: 500;     /* labels, buttons, small caps headings, emphasis */
   --caps: uppercase;    /* headlines and labels; "none" for a brand without caps */
-  --tracking-caps: .05em;
 
   /* ---- Palette (scape-corporate-design, section 4) --------------------- */
   --c-black: #000000;   --c-white: #FFFFFF;
@@ -67,22 +50,25 @@
   --paper: var(--c-white);        /* page background */
   --line: var(--c-black);         /* borders of buttons, cards, frames */
   --line-width: 2px;
-  --accent: var(--c-orange);      /* primary button, active highlight */
-  --accent-pale: var(--c-yellow-pastel); /* hover, tip cards */
-  --accent-ink: var(--c-black);   /* text on --accent */
-  --active: var(--c-black);       /* pressed toggle / selected tab */
+  --rule-soft: #d9d9d9;           /* grid lines and axes inside charts only */
+  --primary: var(--c-yellow-bright); /* THE main action button */
+  --primary-ink: var(--c-black);
+  --active: var(--c-black);       /* selected / switched-on state */
   --active-ink: var(--c-white);
+  --accent: var(--c-orange);      /* decoration of the current part */
+  --accent-pale: var(--c-yellow-pastel); /* hover */
+  --merke: var(--c-yellow-pale);  /* "Merke" box */
   --focus: var(--c-cyan);         /* keyboard focus ring */
-  --backdrop: rgba(0, 0, 0, .55); /* behind dialogs */
+  --stage-bg: var(--c-cream);     /* behind simulations */
 
-  /* Colour fields of the poster header (CD "Gestaltungsebene 1"):
-     a pastel, a strong tone, a pastel, a strong tone. */
-  --field-1: var(--c-yellow-pastel);
-  --field-2: var(--c-orange);
-  --field-3: var(--c-cream);
-  --field-4: var(--c-navy);
-  --shape: var(--c-green);        /* Ebene 2: small solid shape */
-  --outline: var(--c-pink);       /* Ebene 3: large cropped outline */
+  /* Poster header (CD "Gestaltungsebenen"): background field, two fields on
+     the right, a small solid shape and a large cropped outline. Each app
+     overrides these with its own signature combination. */
+  --f1: var(--c-yellow-pastel);
+  --f2: var(--c-orange);
+  --f3: var(--c-navy);
+  --shape: var(--c-green);
+  --outline: var(--c-pink);
 
   /* Footer */
   --foot-bg: var(--c-navy);
@@ -100,16 +86,16 @@
 .logo-word { font-family: var(--font); font-weight: var(--fw-light); font-size: var(--logo-size, 40px); letter-spacing: .01em; line-height: .85; white-space: nowrap; }
 .logo-sub { display: flex; justify-content: space-between; gap: .5em; margin-top: calc(var(--logo-size, 40px) * .13); font-family: var(--font); font-weight: var(--fw-medium); font-size: calc(var(--logo-size, 40px) * .23); letter-spacing: .04em; text-transform: uppercase; }
 
-/* ---- Streben nach Gleichgewicht: Farbthemen der Stufen --------------------
-   Je Stufe: Akzent (Knöpfe, Messgerät), Pastell (Aufgabenkarte, Hover),
-   die drei Farbfelder des Plakatkopfs (--f1 … --f3), die kleine Fläche (--l2)
-   und die große Linie (--l3). Kräftige Töne immer mit Pastelltönen. */
-[data-stage="start"]{ --accent:#EE7518; --accent-pale:#FFF487; --f1:#FFF487; --f2:#EE7518; --f3:#28348B; --l2:#62BA91; --l3:#F8E1E6; }
-[data-stage="stufe-1"]{ --accent:#E09F00; --accent-pale:#CFE6CE; --f1:#CFE6CE; --f2:#007B73; --f3:#442683; --l2:#E09F00; --l3:#C5B8DB; }
-[data-stage="stufe-2"]{ --accent:#44ABCC; --accent-pale:#D4EDF8; --f1:#D4EDF8; --f2:#E09F00; --f3:#44ABCC; --l2:#C5B8DB; --l3:#FFE547; }
-[data-stage="stufe-3"]{ --accent:#0097BE; --accent-pale:#FFE547; --f1:#E0E5F5; --f2:#FFE547; --f3:#D0E8DC; --l2:#0097BE; --l3:#0097BE; }
-[data-stage="vergleich"]{ --accent:#EE7518; --accent-pale:#FDF6B7; --f1:#FDF6B7; --f2:#C5B8DB; --f3:#EE7518; --l2:#D4EDF8; --l3:#EE7518; }
-.tile:nth-child(1){ --tile:#CFE6CE; --tile-shape:#442683; }
-.tile:nth-child(2){ --tile:#D4EDF8; --tile-shape:#E09F00; }
-.tile:nth-child(3){ --tile:#E0E5F5; --tile-shape:#0097BE; }
-.tile:nth-child(4){ --tile:#FDF6B7; --tile-shape:#EE7518; }
+/* ---- Streben nach Gleichgewicht: colour theme of every part --------------
+   Each part (start, stage 1–3, comparison) has its own CD combination:
+   accent (difference meter, decoration), pastel (task box, hover), the three
+   poster fields (--f1 … --f3), the small solid shape (--shape) and the large
+   outline (--outline). Strong tones always next to pastels. */
+:root {
+  --stage-bg: var(--c-white);          /* behind the canvases */
+}
+[data-stage="start"]     { --accent: var(--c-orange); --accent-pale: var(--c-yellow-pastel); --f1: var(--c-yellow-pastel); --f2: var(--c-orange); --f3: var(--c-navy);   --shape: var(--c-green);  --outline: var(--c-pink); }
+[data-stage="stufe-1"]   { --accent: var(--c-gold);   --accent-pale: var(--c-mint);          --f1: var(--c-mint);          --f2: var(--c-teal);   --f3: var(--c-purple); --shape: var(--c-gold);   --outline: var(--c-lilac); }
+[data-stage="stufe-2"]   { --accent: var(--c-cyan-2); --accent-pale: var(--c-ice);           --f1: var(--c-ice);           --f2: var(--c-gold);   --f3: var(--c-cyan-2); --shape: var(--c-lilac);  --outline: var(--c-yellow); }
+[data-stage="stufe-3"]   { --accent: var(--c-cyan);   --accent-pale: var(--c-yellow);        --f1: var(--c-lavender);      --f2: var(--c-yellow); --f3: var(--c-pale-green); --shape: var(--c-cyan); --outline: var(--c-cyan); }
+[data-stage="vergleich"] { --accent: var(--c-orange); --accent-pale: var(--c-yellow-pale);   --f1: var(--c-yellow-pale);   --f2: var(--c-lilac);  --f3: var(--c-orange); --shape: var(--c-ice);    --outline: var(--c-orange); }

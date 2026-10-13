@@ -1,1379 +1,330 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Streben nach Gleichgewicht</title>
-<meta name="description" content="Das Streben nach Gleichgewicht: Eine Simulation in drei Stufen. Unterschied, Gradient, Strömung, Ausgleich.">
+<title>Das Streben nach Gleichgewicht</title>
+<meta name="description" content="">
+<!-- Structure only. Design: theme/ · texts: content/texts.de.js · layout: css/ · behaviour: js/ -->
+<script src="js/view.js" data-app="streben"></script>
 <link rel="stylesheet" href="theme/theme.css">
-<!-- Gestaltung (Schrift, Farben, Logo, Farbthemen der Stufen) kommt aus theme/ – siehe theme/README.md.
-     Dieses CSS ist nur Layout und nutzt ausschließlich Variablen aus theme/theme.css. -->
-<style>
-:root{
-  --gutter:clamp(16px,4vw,48px);
-  --head-h:88px;
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:var(--fw-regular);font-size:17px;line-height:1.45;overflow-x:hidden}
-h1,h2,h3,p{margin:0}
-.caps{text-transform:uppercase;letter-spacing:.03em}
-a{color:inherit}
-button{font:inherit;color:inherit}
-b,strong{font-weight:var(--fw-medium)}
-:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-
-/* ---------- Kopf ---------- */
-.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding:20px var(--gutter) 16px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20;--logo-size:42px}
-.nav{display:flex;flex-wrap:wrap;gap:6px}
-.nav a{display:inline-flex;align-items:center;min-height:40px;padding:6px 12px;border:2px solid var(--ink);text-decoration:none;font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:var(--paper)}
-.nav a[aria-current="page"]{background:var(--ink);color:var(--paper)}
-.nav a:hover{background:var(--c-yellow-pastel)}
-.nav a[aria-current="page"]:hover{background:var(--ink)}
-.nav .num{font-weight:var(--fw-light);margin-right:6px}
-
-/* ---------- Plakat-Kopf mit drei Gestaltungsebenen ---------- */
-.poster{position:relative;overflow:hidden;min-height:340px;padding:44px var(--gutter) 52px;isolation:isolate}
-.poster .f{position:absolute;z-index:-3}
-.poster .f1{inset:0;background:var(--f1)}
-.poster .f2{top:0;right:0;width:30%;height:58%;background:var(--f2)}
-.poster .f3{bottom:0;right:0;width:30%;height:42%;background:var(--f3)}
-.poster .l2{color:var(--l2);position:absolute;z-index:-2;right:calc(30% - 70px);top:calc(58% - 70px);width:140px;height:140px}
-.poster .l3{color:var(--l3);position:absolute;z-index:-1;right:-14%;top:-36%;width:min(70vw,760px);height:auto;pointer-events:none}
-.poster-text{position:relative;max-width:min(64%,860px)}
-.kicker{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
-.headline{font-weight:var(--fw-light);text-transform:uppercase;font-size:clamp(44px,8.6vw,124px);line-height:.86;letter-spacing:-.005em;margin-bottom:22px;overflow-wrap:anywhere}
-.lead{font-size:clamp(17px,1.8vw,21px);max-width:40em}
-.chain{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:22px 0 0;font-weight:var(--fw-medium);font-size:13px;letter-spacing:.05em;text-transform:uppercase}
-.chain li{padding:6px 10px;border:2px solid var(--ink);background:var(--paper);transition:background .3s,color .3s}
-.chain li.on{background:var(--ink);color:var(--paper)}
-.chain li.arrow{border:0;background:none;padding:6px 0;color:var(--ink)}
-
-/* ---------- Stufen ---------- */
-.stage{display:none}
-.stage.active{display:block}
-/* Handy: Versuchsauswahl, Simulation, Bedienung, Aufgaben untereinander.
-   Desktop: Simulation links, so groß wie der Bildschirm erlaubt; Auswahl,
-   Bedienung und Aufgaben rechts daneben – kein Scrollen nötig. */
-.stage-body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"pre" "view" "ctrl" "side";gap:12px 32px;padding:24px var(--gutter) 48px;align-items:start}
-.sim-pre{grid-area:pre;min-width:0}.sim-view{grid-area:view;min-width:0}.sim-ctrl{grid-area:ctrl;min-width:0}.side{grid-area:side}
-.sim-ctrl > .controls:first-child{margin-top:0}
-.sim-frame{display:grid;grid-template-columns:minmax(0,1fr) 84px;border:2px solid var(--ink)}
-.sim-frame canvas{display:block;width:100%;height:auto;touch-action:manipulation;background:var(--paper)}
-.sim-frame canvas.paint{touch-action:none;cursor:crosshair}
-.meter{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 8px;border-left:2px solid var(--ink);background:var(--paper);--v:1}
-.meter-label{font-weight:var(--fw-medium);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;text-align:center;line-height:1.15}
-.meter-track{position:relative;flex:1;width:28px;min-height:120px;border:2px solid var(--ink);background:var(--paper)}
-.meter-fill{position:absolute;left:0;right:0;bottom:0;height:calc(var(--v)*100%);background:var(--accent);transition:height .12s linear}
-.meter-zero{position:absolute;left:-8px;right:-8px;bottom:-2px;border-bottom:2px solid var(--ink)}
-.meter-val{font-weight:var(--fw-medium);font-size:13px;text-align:center;line-height:1.15;min-height:2.3em}
-.meter.is-zero .meter-val{background:var(--ink);color:var(--paper);padding:2px 4px}
-.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
-.controls .grow{flex:1 1 220px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:8px 14px;border:2px solid var(--ink);background:var(--paper);font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;text-decoration:none}
-.btn:hover{background:var(--accent-pale)}
-.btn.primary{background:var(--accent)}
-.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.btn.hold:active,.btn.hold.held{background:var(--ink);color:var(--paper)}
-.seg{display:flex;flex-wrap:wrap;gap:0}
-.seg .btn{margin-right:-2px}
-.readout{margin-top:12px;font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:1.5em}
-.hint{margin-top:10px;font-size:16px;max-width:46em}
-.range{display:flex;align-items:center;gap:12px;flex:1 1 260px;min-height:46px}
-.range label{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
-.range input{flex:1;min-width:0;accent-color:var(--ink);height:32px}
-.clock{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;min-width:6.5em}
-
-.side{display:flex;flex-direction:column;gap:16px}
-.card{border:2px solid var(--ink);padding:16px;background:var(--paper)}
-.card h3{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
-.card p{font-size:16px}
-.task{background:var(--accent-pale)}
-.task ul{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:8px}
-.task li{display:grid;grid-template-columns:26px 1fr;gap:8px;font-size:16px;align-items:start}
-.task li .box{width:22px;height:22px;border:2px solid var(--ink);background:var(--paper);margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:var(--fw-medium)}
-.task li.done .box{background:var(--ink);color:var(--paper)}
-.task .btn{margin-top:12px}
-.status{margin-top:10px;font-weight:var(--fw-medium);font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:1.4em}
-.insight{background:var(--paper);position:relative}
-.insight p{font-size:19px;line-height:1.35}
-.insight.unlocked{background:var(--ink);color:var(--paper)}
-.insight.unlocked h3::after{content:" – FREIGESCHALTET"}
-
-/* ---------- Startseite ---------- */
-.intro{padding:32px var(--gutter) 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-bottom:2px solid var(--ink)}
-.step{padding:0 18px 24px 0}
-.step .n{font-weight:var(--fw-light);font-size:48px;line-height:1}
-.step h3{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin:6px 0}
-.step p{font-size:16px}
-.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0}
-.tile{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:300px;padding:24px var(--gutter) 24px 24px;text-decoration:none;color:var(--ink);border-right:2px solid var(--ink);isolation:isolate}
-.tile:first-child{padding-left:var(--gutter)}
-.tile:last-child{border-right:0}
-.tile .t-kicker{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
-.tile .t-title{font-weight:var(--fw-light);font-size:clamp(30px,3.2vw,46px);line-height:.9;text-transform:uppercase}
-.tile p{font-size:16px}
-.tile .go{font-weight:var(--fw-medium);font-size:14px;letter-spacing:.06em;text-transform:uppercase;border-top:2px solid var(--ink);padding-top:10px}
-.tile svg{position:absolute;z-index:-1;pointer-events:none}
-.tile:hover .go{text-decoration:underline}
-
-/* ---------- Vergleich ---------- */
-.compare{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:28px var(--gutter) 16px}
-.cmp{border:2px solid var(--ink);display:flex;flex-direction:column;background:var(--paper)}
-.cmp canvas{display:block;width:100%;height:auto;border-bottom:2px solid var(--ink)}
-.cmp .cmp-text{padding:14px}
-.cmp h3{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
-.cmp .big{font-weight:var(--fw-light);font-size:26px;line-height:1.02;text-transform:uppercase;margin-bottom:8px}
-.cmp p{font-size:15px}
-.hbar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:10px 14px;border-top:2px solid var(--ink);margin-top:auto;font-weight:var(--fw-medium);font-size:11px;letter-spacing:.05em;text-transform:uppercase;--v:1}
-.hbar .track{height:16px;border:2px solid var(--ink);position:relative}
-.hbar .fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v)*100%);background:var(--c-orange)}
-.compare-foot{padding:8px var(--gutter) 48px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:end}
-.compare-foot p{font-size:clamp(20px,2.4vw,30px);font-weight:var(--fw-light);line-height:1.15;max-width:34em}
-
-/* ---------- Fuß ---------- */
-.foot{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;padding:36px var(--gutter);background:var(--foot-bg);color:var(--foot-ink)}
-.foot .claim{font-weight:var(--fw-light);font-size:clamp(28px,4vw,54px);line-height:.92;text-transform:uppercase}
-.foot .info{font-weight:var(--fw-medium);font-size:13px;letter-spacing:.05em;text-transform:uppercase;line-height:1.6}
-
-/* ---------- Responsiv ---------- */
-@media (max-width:1100px){
-  .compare{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tile{border-bottom:2px solid var(--ink);padding-left:var(--gutter)}
-  .tile:nth-child(2n){border-right:0}
-}
-@media (min-width:1000px){
-  .stage:not(#start) .poster{min-height:0;padding:22px var(--gutter) 24px}
-  .stage:not(#start) .headline{font-size:clamp(40px,4.2vw,64px);margin-bottom:12px}
-  .stage:not(#start) .kicker{margin-bottom:10px}
-  .stage:not(#start) .lead{font-size:18px}
-  .stage:not(#start) .chain{margin-top:14px}
-  .stage:not(#start) .poster .l3{top:-60%;width:min(44vw,560px)}
-  .stage-body{
-    --sim:clamp(480px,calc((100svh - var(--head-h) - 330px) * 1.5 + 88px),62vw);
-    grid-template-columns:var(--sim) minmax(300px,1fr);
-    grid-template-areas:"view pre" "view ctrl" "view side";
-    grid-template-rows:auto auto 1fr;
-  }
-  .sim-ctrl .range{flex-basis:100%}
-}
-@media (max-width:900px){
-  .intro{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:640px){
-  body{font-size:16px}
-  .top{position:static;padding-top:16px}
-  .top{--logo-size:34px}
-  .nav{width:100%}
-  .nav a{flex:1 1 auto;justify-content:center;font-size:13px;padding:6px 8px}
-  .poster{min-height:0;padding:28px var(--gutter) 108px}
-  .poster-text{max-width:100%}
-  .poster .f2{top:auto;bottom:0;left:0;right:auto;width:58%;height:78px}
-  .poster .f3{bottom:0;right:0;width:42%;height:78px}
-  .poster .l2{right:auto;left:calc(58% - 46px);top:auto;bottom:32px;width:92px;height:92px}
-  .poster .l3{width:150vw;right:-70%;top:-20%}
-  .sim-frame{grid-template-columns:minmax(0,1fr)}
-  .meter{order:-1;flex-direction:row;border-left:0;border-bottom:2px solid var(--ink);padding:8px 10px}
-  .meter-label br{display:none}
-  .meter-track{height:22px;min-height:0;width:auto;flex:1}
-  .meter-fill{top:0;bottom:0;height:auto;width:calc(var(--v)*100%);transition:width .12s linear}
-  .meter-zero{left:-2px;right:auto;top:-8px;bottom:-8px;border-bottom:0;border-left:2px solid var(--ink)}
-  .meter-val{min-height:0;min-width:5.5em}
-  .btn{flex:1 1 auto}
-  .seg{width:100%}
-  .seg .btn{flex:1 1 0;padding:8px 6px;font-size:13px}
-  .intro,.tiles,.compare{grid-template-columns:minmax(0,1fr)}
-  .tile{border-right:0;min-height:220px}
-  .compare-foot,.foot{grid-template-columns:minmax(0,1fr)}
-}
-@media (prefers-reduced-motion:reduce){
-  .meter-fill,.chain li{transition:none}
-}
-</style>
+<link rel="stylesheet" href="css/kit.css">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 
 <header class="top">
   <a class="logo" href="#start" data-brand="logo"></a>
-  <nav class="nav" aria-label="Stufen">
-    <a href="#start" data-route="start">Start</a>
-    <a href="#stufe-1" data-route="stufe-1"><span class="num">1</span>Prinzip</a>
-    <a href="#stufe-2" data-route="stufe-2"><span class="num">2</span>Seewind</a>
-    <a href="#stufe-3" data-route="stufe-3"><span class="num">3</span>Wetterkarte</a>
-    <a href="#vergleich" data-route="vergleich">Vergleich</a>
-  </nav>
+  <div class="top-right">
+    <nav class="nav" data-t-aria="nav.aria">
+      <a href="#stufe-1" data-route="stufe-1"><span class="num">1</span><span data-t="nav.s1"></span></a>
+      <a href="#stufe-2" data-route="stufe-2"><span class="num">2</span><span data-t="nav.s2"></span></a>
+      <a href="#stufe-3" data-route="stufe-3"><span class="num">3</span><span data-t="nav.s3"></span></a>
+      <a href="#vergleich" data-route="vergleich" data-t="nav.cmp"></a>
+    </nav>
+    <button type="button" class="view-toggle"></button>
+  </div>
 </header>
 
 <main>
 
 <!-- ================= START ================= -->
-<section class="stage" id="start" data-stage="start" >
+<section class="part" id="part-start" data-stage="start" hidden>
   <div class="poster">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
     <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 50 A50 50 0 0 1 100 50 Z" fill="currentColor"/><path d="M0 100 A50 50 0 0 1 100 100 Z" fill="currentColor"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" vector-effect="non-scaling-stroke"><path d="M200 30 C200 30 90 170 90 240 a110 110 0 0 0 220 0 C310 170 200 30 200 30 Z" vector-effect="non-scaling-stroke"/><circle cx="200" cy="245" r="60" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true"><path d="M200 30 C200 30 90 170 90 240 a110 110 0 0 0 220 0 C310 170 200 30 200 30 Z"/><circle cx="200" cy="245" r="60"/></svg>
     <div class="poster-text">
-      <p class="kicker">Eine Simulation in drei Stufen</p>
-      <h1 class="headline">Das Streben nach Gleich–<br>gewicht</h1>
-      <p class="lead">Überall, wo es einen Unterschied gibt, kommt etwas in Bewegung – so lange, bis der Unterschied verschwunden ist. Das gilt für Teilchen in einem Kasten, für den Wind an der Küste und für das Wetter auf der ganzen Welt.</p>
-      <ol class="chain" aria-label="Das Prinzip">
-        <li class="on">Unterschied</li><li class="arrow" aria-hidden="true">→</li>
-        <li class="on">Gradient</li><li class="arrow" aria-hidden="true">→</li>
-        <li class="on">Strömung</li><li class="arrow" aria-hidden="true">→</li>
-        <li class="on">Ausgleich</li>
+      <p class="kicker" data-t="start.kicker"></p>
+      <h1 class="headline" data-t-html="start.headline"></h1>
+      <p class="lead" data-t="start.lead"></p>
+      <ol class="chain all" data-t-aria="chain.aria">
+        <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li>
+        <li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li>
+        <li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li>
+        <li data-t="chain.eq"></li>
       </ol>
     </div>
   </div>
-
-  <div class="intro">
-    <div class="step"><div class="n">1</div><h3>Unterschied</h3><p>Hier ist mehr, dort ist weniger: mehr Teilchen, mehr Wärme, mehr Farbe, mehr Luft.</p></div>
-    <div class="step"><div class="n">2</div><h3>Gradient</h3><p>Der Unterschied verteilt sich über eine Strecke. Je steiler das Gefälle, desto stärker der Antrieb.</p></div>
-    <div class="step"><div class="n">3</div><h3>Strömung</h3><p>Es fließt etwas – immer vom Mehr zum Weniger. Bei Luft nennen wir das Wind.</p></div>
-    <div class="step"><div class="n">4</div><h3>Ausgleich</h3><p>Die Strömung baut den Unterschied ab. Das Messgerät am Rand läuft gegen null.</p></div>
-  </div>
-
-  <div class="tiles">
-    <a class="tile" href="#stufe-1" style="background:var(--tile)">
-      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-40px;bottom:-40px;width:200px" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-      <div><div class="t-kicker">Stufe 1 – Das Prinzip</div><div class="t-title">Teilchen–<br>kasten</div></div>
-      <p>Zieh die Trennwand weg und sieh zu, wie sich Teilchen, Wärme und Farbe verteilen.</p>
-      <div class="go">Los geht’s →</div>
-    </a>
-    <a class="tile" href="#stufe-2" style="background:var(--tile)">
-      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-30px;top:-30px;width:170px" aria-hidden="true"><circle cx="50" cy="50" r="22" fill="currentColor"/><path d="M50 4 L54 40 L96 50 L54 60 L50 96 L46 60 L4 50 L46 40 Z" fill="none" style="stroke:var(--c-lilac)" stroke-width="1.2"/></svg>
-      <div><div class="t-kicker">Stufe 2 – Wie Wind entsteht</div><div class="t-title">See–<br>wind</div></div>
-      <p>Stell die Tageszeit ein. Die Sonne heizt das Land schneller als das Meer – und es weht.</p>
-      <div class="go">Los geht’s →</div>
-    </a>
-    <a class="tile" href="#stufe-3" style="background:var(--tile)">
-      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-50px;bottom:-60px;width:230px" aria-hidden="true"><path d="M30 70 a22 22 0 0 1 4 -43 a26 26 0 0 1 48 8 a18 18 0 0 1 -2 35 Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-      <div><div class="t-kicker">Stufe 3 – Das große Bild</div><div class="t-title">Wetter–<br>karte</div></div>
-      <p>Mal selbst Hochs und Tiefs auf die Karte und schalte die Erdrotation ein.</p>
-      <div class="go">Los geht’s →</div>
-    </a>
-    <a class="tile" href="#vergleich" style="background:var(--tile)">
-      <svg viewBox="0 0 100 100" style="color:var(--tile-shape);right:-20px;bottom:-30px;width:160px" aria-hidden="true"><path d="M0 100 A50 50 0 0 1 100 100 Z" fill="currentColor"/></svg>
-      <div><div class="t-kicker">Zum Schluss</div><div class="t-title">Ver–<br>gleich</div></div>
-      <p>Wärme, Wasser, Strom und Wind: Vier Strömungen, ein Prinzip.</p>
-      <div class="go">Ansehen →</div>
-    </a>
+  <div class="page">
+    <div class="intro">
+      <div class="step"><div class="n">1</div><h3 data-t="chain.diff"></h3><p data-t="start.steps.diff"></p></div>
+      <div class="step"><div class="n">2</div><h3 data-t="chain.grad"></h3><p data-t="start.steps.grad"></p></div>
+      <div class="step"><div class="n">3</div><h3 data-t="chain.flow"></h3><p data-t="start.steps.flow"></p></div>
+      <div class="step"><div class="n">4</div><h3 data-t="chain.eq"></h3><p data-t="start.steps.eq"></p></div>
+    </div>
+    <h2 class="h2-short" data-t="start.partsTitle"></h2>
+    <ul class="parts">
+      <li><a href="#stufe-1" data-t-html="start.parts.s1"></a></li>
+      <li><a href="#stufe-2" data-t-html="start.parts.s2"></a></li>
+      <li><a href="#stufe-3" data-t-html="start.parts.s3"></a></li>
+      <li><a href="#vergleich" data-t-html="start.parts.cmp"></a></li>
+    </ul>
+    <div class="next-part"><a class="btn big primary" href="#stufe-1" data-t="start.next"></a></div>
   </div>
 </section>
 
-<!-- ================= STUFE 1 ================= -->
-<section class="stage" id="stufe-1" data-stage="stufe-1" >
-  <div class="poster">
+<!-- ================= STAGE 1 – particle box ================= -->
+<section class="part" id="part-stufe-1" data-stage="stufe-1" hidden>
+  <div class="poster small">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
     <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 0 A50 50 0 0 1 50 100 Z" fill="currentColor"/><path d="M50 0 A50 50 0 0 0 50 100 Z" fill="currentColor" transform="translate(-6 0)"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><circle cx="160" cy="200" r="120" vector-effect="non-scaling-stroke"/><circle cx="250" cy="200" r="120" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true"><circle cx="160" cy="200" r="120"/><circle cx="250" cy="200" r="120"/></svg>
     <div class="poster-text">
-      <p class="kicker">Stufe 1 – Das Prinzip</p>
-      <h2 class="headline">Teilchen–<br>kasten</h2>
-      <p class="lead">Links drängeln sich viele Teilchen, rechts sind nur wenige. Was passiert, wenn du die Trennwand wegziehst?</p>
-      <ol class="chain" id="chain1" aria-label="Das Prinzip">
-        <li>Unterschied</li><li class="arrow" aria-hidden="true">→</li><li>Gradient</li><li class="arrow" aria-hidden="true">→</li><li>Strömung</li><li class="arrow" aria-hidden="true">→</li><li>Ausgleich</li>
-      </ol>
+      <p class="kicker" data-t="s1.kicker"></p>
+      <h2 class="headline" data-t-html="s1.headline"></h2>
+      <p class="lead" data-t="s1.lead"></p>
     </div>
   </div>
-  <div class="stage-body">
-    <div class="sim-pre">
-      <div class="seg" role="group" aria-label="Versuch wählen" id="s1modes">
-        <button class="btn" data-mode="dichte" aria-pressed="true">Dichte</button>
-        <button class="btn" data-mode="waerme" aria-pressed="false">Warm &amp; kalt</button>
-        <button class="btn" data-mode="farbe" aria-pressed="false">Farbe in Wasser</button>
+  <div class="page">
+    <div class="lab">
+      <div class="lab-pre">
+        <ol class="chain" id="chain1" data-t-aria="chain.aria">
+          <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.eq"></li>
+        </ol>
+        <div class="row">
+          <div class="seg" role="group" data-t-aria="s1.modesAria" id="s1modes">
+            <button type="button" class="btn" data-mode="dichte" aria-pressed="true" data-t="s1.modes.dichte"></button>
+            <button type="button" class="btn" data-mode="waerme" aria-pressed="false" data-t="s1.modes.waerme"></button>
+            <button type="button" class="btn" data-mode="farbe" aria-pressed="false" data-t="s1.modes.farbe"></button>
+          </div>
+          <button type="button" class="info" aria-controls="s1-note" data-t-aria="s1.infoAria"></button>
+        </div>
+        <div class="info-note" id="s1-note" hidden data-t-html="s1.meterNote"></div>
+      </div>
+      <div class="lab-stage">
+        <div class="stage-frame square fit sim-frame" id="f1">
+          <div class="meter" id="m1"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
+          <canvas id="c1" data-t-aria="s1.canvasAria"></canvas>
+        </div>
+      </div>
+      <div class="lab-post">
+        <div class="controls">
+          <button type="button" class="btn big primary" id="s1wall" data-t="s1.wallOpen"></button>
+          <button type="button" class="btn big" id="s1reset"><span><span data-t="s1.reset"></span><span class="sub" data-t="s1.resetSub"></span></span></button>
+        </div>
+        <p class="readout" id="s1read" aria-live="polite"></p>
+        <p class="hint" id="s1hint"></p>
+        <div class="tasks" id="s1tasks">
+          <h3 data-t="s1.tasks.title"></h3>
+          <p class="task-intro" data-t="s1.tasks.intro"></p>
+          <ul>
+            <li data-task="dichte"><span class="box"></span><span data-t="s1.tasks.dichte"></span></li>
+            <li data-task="waerme"><span class="box"></span><span data-t="s1.tasks.waerme"></span></li>
+            <li data-task="farbe"><span class="box"></span><span data-t="s1.tasks.farbe"></span></li>
+          </ul>
+          <p class="status" id="s1status" aria-live="polite"></p>
+        </div>
+        <div class="merke locked" data-for="s1tasks">
+          <h3 data-t="kit.merke"></h3>
+          <p data-t="s1.merke"></p>
+          <span class="locked-note"></span>
+        </div>
       </div>
     </div>
-    <div class="sim-view">
-      <div class="sim-frame">
-        <canvas id="c1" width="900" height="600" style="aspect-ratio:3/2" aria-label="Teilchenkasten mit Trennwand"></canvas>
-        <div class="meter" id="m1"><span class="meter-label">Unter–<br>schied</span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val">100 %</span></div>
-      </div>
+    <div class="topics">
+      <details class="topic"><summary data-t="s1.topics.back.title"></summary><div class="topic-body" data-t-html="s1.topics.back.body"></div></details>
+      <details class="topic"><summary data-t="s1.topics.model.title"></summary><div class="topic-body" data-t-html="s1.topics.model.body"></div></details>
     </div>
-    <div class="sim-ctrl">
-      <div class="controls">
-        <button class="btn primary" id="s1wall">Wand wegziehen</button>
-        <button class="btn" id="s1reset">Neu starten</button>
-      </div>
-      <p class="readout" id="s1read"></p>
-      <p class="hint" id="s1hint"></p>
-    </div>
-    <aside class="side">
-      <div class="card task">
-        <h3>Aufgabe</h3>
-        <p>Bring in allen drei Versuchen den Unterschied unter 10 %.</p>
-        <ul id="s1tasks">
-          <li data-t="dichte"><span class="box"></span><span>Dichte: viele und wenige Teilchen</span></li>
-          <li data-t="waerme"><span class="box"></span><span>Wärme: schnelle und langsame Teilchen</span></li>
-          <li data-t="farbe"><span class="box"></span><span>Konzentration: Farbe im Wasser</span></li>
-        </ul>
-        <p class="status" id="s1status"></p>
-      </div>
-      <div class="card insight" id="s1insight">
-        <h3>Erkenntnis</h3>
-        <p>Ob Dichte, Wärme oder Konzentration: Jeder Unterschied baut sich von selbst ab. Andersherum passiert es nie – setz die Wand wieder ein, die Teilchen sortieren sich nicht zurück.</p>
-      </div>
-      <a class="btn" href="#stufe-2">Weiter zu Stufe 2 →</a>
-    </aside>
+    <div class="next-part"><a class="btn big" href="#stufe-2" data-t="s1.next"></a></div>
   </div>
 </section>
 
-<!-- ================= STUFE 2 ================= -->
-<section class="stage" id="stufe-2" data-stage="stufe-2" >
-  <div class="poster">
+<!-- ================= STAGE 2 – sea breeze ================= -->
+<section class="part" id="part-stufe-2" data-stage="stufe-2" hidden>
+  <div class="poster small">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
     <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M5 95 A45 45 0 0 1 95 95 L75 95 A25 25 0 0 0 25 95 Z" fill="currentColor"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M200 20 L222 178 L380 200 L222 222 L200 380 L178 222 L20 200 L178 178 Z" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true"><path d="M200 20 L222 178 L380 200 L222 222 L200 380 L178 222 L20 200 L178 178 Z"/></svg>
     <div class="poster-text">
-      <p class="kicker">Stufe 2 – Wie Wind entsteht</p>
-      <h2 class="headline">See–<br>wind</h2>
-      <p class="lead">Ein Schnitt durch Meer, Küste und Luft. Die Sonne heizt das Land schneller als das Wasser. Was macht die Luft darüber?</p>
-      <ol class="chain" id="chain2" aria-label="Das Prinzip">
-        <li>Unterschied</li><li class="arrow" aria-hidden="true">→</li><li>Gradient</li><li class="arrow" aria-hidden="true">→</li><li>Strömung</li><li class="arrow" aria-hidden="true">→</li><li>Ausgleich</li>
-      </ol>
+      <p class="kicker" data-t="s2.kicker"></p>
+      <h2 class="headline" data-t-html="s2.headline"></h2>
+      <p class="lead" data-t="s2.lead"></p>
     </div>
   </div>
-  <div class="stage-body">
-    <div class="sim-view">
-      <div class="sim-frame">
-        <canvas id="c2" width="900" height="600" style="aspect-ratio:3/2" aria-label="Querschnitt durch Küste, Meer und Luft"></canvas>
-        <div class="meter" id="m2"><span class="meter-label">Unter–<br>schied</span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val">–</span></div>
+  <div class="page">
+    <div class="lab">
+      <div class="lab-pre">
+        <ol class="chain" id="chain2" data-t-aria="chain.aria">
+          <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.eq"></li>
+        </ol>
+        <div class="controls">
+          <div class="range"><label for="s2time" data-t="s2.time"></label><input type="range" id="s2time" min="0" max="24" step="0.1" value="13"><output id="s2clock" for="s2time"></output></div>
+          <button type="button" class="btn" id="s2play" aria-pressed="true" data-t="s2.playOn"></button>
+        </div>
+      </div>
+      <div class="lab-stage">
+        <div class="stage-frame wide fit sim-frame" id="f2">
+          <div class="meter" id="m2"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
+          <canvas id="c2" data-t-aria="s2.canvasAria"></canvas>
+        </div>
+      </div>
+      <div class="lab-post">
+        <div class="controls">
+          <button type="button" class="btn hold" id="s2heatLand" data-t="s2.heatLand"></button>
+          <button type="button" class="btn hold" id="s2heatSea" data-t="s2.heatSea"></button>
+          <button type="button" class="btn" id="s2sun" aria-pressed="true" data-t="s2.sunOn"></button>
+        </div>
+        <div class="row">
+          <div class="seg" role="group" data-t-aria="s2.showAria">
+            <button type="button" class="btn" data-toggle="arrows" aria-pressed="true" data-t="s2.show.arrows"></button>
+            <button type="button" class="btn" data-toggle="isobars" aria-pressed="true" data-t="s2.show.isobars"></button>
+            <button type="button" class="btn" data-toggle="smoke" aria-pressed="true" data-t="s2.show.smoke"></button>
+            <button type="button" class="btn" data-toggle="tracers" aria-pressed="true" data-t="s2.show.tracers"></button>
+          </div>
+          <button type="button" class="info" aria-controls="s2-note" data-t-aria="s2.infoAria"></button>
+        </div>
+        <div class="info-note" id="s2-note" hidden data-t-html="s2.note"></div>
+        <p class="readout" id="s2read" aria-live="polite"></p>
+        <p class="hint" data-t="s2.hint"></p>
+        <div class="tasks" id="s2tasks">
+          <h3 data-t="s2.tasks.title"></h3>
+          <p class="task-intro" data-t-html="s2.tasks.intro"></p>
+          <button type="button" class="btn primary" id="s2task" data-t="s2.tasks.start"></button>
+          <ul>
+            <li data-task="boat"><span class="box"></span><span data-t="s2.tasks.boat"></span></li>
+            <li data-task="night"><span class="box"></span><span data-t="s2.tasks.night"></span></li>
+          </ul>
+          <p class="status" id="s2status" aria-live="polite"></p>
+        </div>
+        <div class="merke locked" data-for="s2tasks">
+          <h3 data-t="kit.merke"></h3>
+          <p data-t="s2.merke"></p>
+          <span class="locked-note"></span>
+        </div>
       </div>
     </div>
-    <div class="sim-ctrl">
-      <div class="controls">
-        <div class="range"><label for="s2time">Tageszeit</label><input type="range" id="s2time" min="0" max="24" step="0.1" value="13"><span class="clock" id="s2clock">13:00 Uhr</span></div>
-        <button class="btn" id="s2play" aria-pressed="true">Zeit läuft</button>
-      </div>
-      <div class="controls">
-        <button class="btn hold" id="s2heatLand">Land heizen</button>
-        <button class="btn hold" id="s2heatSea">Meer heizen</button>
-        <button class="btn" id="s2sun" aria-pressed="true">Sonne an</button>
-      </div>
-      <div class="controls">
-        <button class="btn" data-toggle="arrows" aria-pressed="true">Pfeile</button>
-        <button class="btn" data-toggle="isobars" aria-pressed="true">Isobaren</button>
-        <button class="btn" data-toggle="smoke" aria-pressed="true">Rauch</button>
-        <button class="btn" data-toggle="tracers" aria-pressed="true">Luftteilchen</button>
-      </div>
-      <p class="readout" id="s2read"></p>
-      <p class="hint">Die Isobaren sind Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief. Halte „Land heizen“ oder „Meer heizen“ gedrückt, um selbst nachzuhelfen.</p>
+    <div class="topics">
+      <details class="topic"><summary data-t="s2.topics.why.title"></summary><div class="topic-body" data-t-html="s2.topics.why.body"></div></details>
+      <details class="topic"><summary data-t="s2.topics.model.title"></summary><div class="topic-body" data-t-html="s2.topics.model.body"></div></details>
     </div>
-    <aside class="side">
-      <div class="card task">
-        <h3>Aufgabe</h3>
-        <p>Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b></p>
-        <button class="btn primary" id="s2task">Aufgabe starten</button>
-        <ul>
-          <li id="s2t1"><span class="box"></span><span>Segler ans Ufer gebracht</span></li>
-          <li id="s2t2"><span class="box"></span><span>Nachts Landwind beobachtet (Zeit nach 21 Uhr)</span></li>
-        </ul>
-        <p class="status" id="s2status"></p>
-      </div>
-      <div class="card insight" id="s2insight">
-        <h3>Erkenntnis</h3>
-        <p>Wind ist Luft, die einen Druckunterschied ausgleicht. Tagsüber weht er vom kühlen Meer zum warmen Land (Seewind), nachts umgekehrt (Landwind).</p>
-      </div>
-      <a class="btn" href="#stufe-3">Weiter zu Stufe 3 →</a>
-    </aside>
+    <div class="next-part"><a class="btn big" href="#stufe-3" data-t="s2.next"></a></div>
   </div>
 </section>
 
-<!-- ================= STUFE 3 ================= -->
-<section class="stage" id="stufe-3" data-stage="stufe-3" >
-  <div class="poster">
+<!-- ================= STAGE 3 – weather map ================= -->
+<section class="part" id="part-stufe-3" data-stage="stufe-3" hidden>
+  <div class="poster small">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
     <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 70 L20 40 L40 70 L60 40 L80 70 L100 40 L100 60 L80 90 L60 60 L40 90 L20 60 L0 90 Z" fill="currentColor"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M110 280 a70 70 0 0 1 10 -138 a90 90 0 0 1 170 20 a60 60 0 0 1 -10 118 Z" vector-effect="non-scaling-stroke"/><circle cx="150" cy="330" r="6" vector-effect="non-scaling-stroke"/><circle cx="210" cy="345" r="6" vector-effect="non-scaling-stroke"/><circle cx="270" cy="330" r="6" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true"><path d="M110 280 a70 70 0 0 1 10 -138 a90 90 0 0 1 170 20 a60 60 0 0 1 -10 118 Z"/><circle cx="150" cy="330" r="6"/><circle cx="210" cy="345" r="6"/><circle cx="270" cy="330" r="6"/></svg>
     <div class="poster-text">
-      <p class="kicker">Stufe 3 – Das große Bild</p>
-      <h2 class="headline">Wetter–<br>karte</h2>
-      <p class="lead">Mal mit dem Finger Hochs und Tiefs auf die Karte. Je enger die Isobaren liegen, desto stärker weht der Wind.</p>
-      <ol class="chain" id="chain3" aria-label="Das Prinzip">
-        <li>Unterschied</li><li class="arrow" aria-hidden="true">→</li><li>Gradient</li><li class="arrow" aria-hidden="true">→</li><li>Strömung</li><li class="arrow" aria-hidden="true">→</li><li>Ausgleich</li>
-      </ol>
+      <p class="kicker" data-t="s3.kicker"></p>
+      <h2 class="headline" data-t-html="s3.headline"></h2>
+      <p class="lead" data-t="s3.lead"></p>
     </div>
   </div>
-  <div class="stage-body">
-    <div class="sim-pre">
-      <div class="seg" role="group" aria-label="Pinsel wählen" id="s3brush">
-        <button class="btn" data-brush="1" aria-pressed="true">Hoch: Luft dazu</button>
-        <button class="btn" data-brush="-1" aria-pressed="false">Tief: Luft weg</button>
+  <div class="page">
+    <div class="lab">
+      <div class="lab-pre">
+        <ol class="chain" id="chain3" data-t-aria="chain.aria">
+          <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.eq"></li>
+        </ol>
+        <div class="seg" role="group" data-t-aria="s3.brushAria" id="s3brush">
+          <button type="button" class="btn" data-brush="1" aria-pressed="true" data-t="s3.brushHigh"></button>
+          <button type="button" class="btn" data-brush="-1" aria-pressed="false" data-t="s3.brushLow"></button>
+        </div>
+      </div>
+      <div class="lab-stage">
+        <div class="stage-frame square fit sim-frame" id="f3">
+          <div class="meter" id="m3"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
+          <canvas id="c3" class="paint" data-t-aria="s3.canvasAria"></canvas>
+        </div>
+      </div>
+      <div class="lab-post">
+        <div class="controls">
+          <button type="button" class="btn" id="s3rot" aria-pressed="false" data-t="s3.rot"></button>
+          <button type="button" class="info" aria-controls="s3-note" data-t-aria="s3.rotInfoAria"></button>
+          <button type="button" class="btn" id="s3sun" aria-pressed="true" data-t="s3.sunOn"></button>
+          <button type="button" class="btn" id="s3arrows" aria-pressed="false" data-t="s3.arrows"></button>
+          <button type="button" class="btn" id="s3reset" data-t="s3.reset"></button>
+        </div>
+        <div class="info-note" id="s3-note" hidden data-t-html="s3.rotNote"></div>
+        <p class="readout" id="s3read" aria-live="polite"></p>
+        <p class="hint" data-t="s3.hint"></p>
+        <div class="tasks" id="s3tasks">
+          <h3 data-t="s3.tasks.title"></h3>
+          <ul>
+            <li data-task="bft6"><span class="box"></span><span data-t="s3.tasks.bft6"></span></li>
+            <li data-task="wirbel"><span class="box"></span><span data-t="s3.tasks.wirbel"></span></li>
+            <li data-task="still"><span class="box"></span><span data-t="s3.tasks.still"></span></li>
+          </ul>
+          <p class="status" id="s3status" aria-live="polite"></p>
+        </div>
+        <div class="merke locked" data-for="s3tasks">
+          <h3 data-t="kit.merke"></h3>
+          <p data-t="s3.merke"></p>
+          <span class="locked-note"></span>
+        </div>
       </div>
     </div>
-    <div class="sim-view">
-      <div class="sim-frame">
-        <canvas id="c3" class="paint" width="900" height="600" style="aspect-ratio:3/2" aria-label="Wetterkarte zum Malen von Hochs und Tiefs"></canvas>
-        <div class="meter" id="m3"><span class="meter-label">Unter–<br>schied</span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val">–</span></div>
-      </div>
+    <div class="topics">
+      <details class="topic"><summary data-t="s3.topics.rot.title"></summary><div class="topic-body" data-t-html="s3.topics.rot.body"></div></details>
+      <details class="topic"><summary data-t="s3.topics.model.title"></summary><div class="topic-body" data-t-html="s3.topics.model.body"></div></details>
     </div>
-    <div class="sim-ctrl">
-      <div class="controls">
-        <button class="btn" id="s3rot" aria-pressed="false">Erdrotation</button>
-        <button class="btn" id="s3sun" aria-pressed="true">Sonne an</button>
-        <button class="btn" data-toggle3="arrows" aria-pressed="false">Pfeile</button>
-        <button class="btn" id="s3reset">Karte leeren</button>
-      </div>
-      <p class="readout" id="s3read"></p>
-      <p class="hint">Halte den Finger oder die Maus auf die Karte: Mit „Hoch“ häufst du Luft an, mit „Tief“ nimmst du sie weg. Die Linien sind Isobaren. Mit Erdrotation wird der Wind nach rechts abgelenkt und kreist gegen den Uhrzeigersinn um das Tief.</p>
-    </div>
-    <aside class="side">
-      <div class="card task">
-        <h3>Aufgaben</h3>
-        <ul id="s3tasks">
-          <li data-t="bft6"><span class="box"></span><span>Erzeuge Windstärke 6 am Leuchtturm an der Küste.</span></li>
-          <li data-t="wirbel"><span class="box"></span><span>Lass den Wind um ein kräftiges Tief kreisen.</span></li>
-          <li data-t="still"><span class="box"></span><span>Schalte die Sonne aus und warte auf Windstille.</span></li>
-        </ul>
-        <p class="status" id="s3status"></p>
-      </div>
-      <div class="card insight" id="s3insight">
-        <h3>Erkenntnis</h3>
-        <p>Die Sonne erzeugt ständig neue Unterschiede, die Natur gleicht sie ständig aus. Wetter ist genau dieses Wechselspiel.</p>
-      </div>
-      <a class="btn" href="#vergleich">Zum Vergleich →</a>
-    </aside>
+    <div class="next-part"><a class="btn big" href="#vergleich" data-t="s3.next"></a></div>
   </div>
 </section>
 
-<!-- ================= VERGLEICH ================= -->
-<section class="stage" id="vergleich" data-stage="vergleich" >
-  <div class="poster">
+<!-- ================= COMPARISON ================= -->
+<section class="part" id="part-vergleich" data-stage="vergleich" hidden>
+  <div class="poster small">
     <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
     <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="currentColor"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M120 60 L120 340 M120 60 a60 60 0 0 1 0 0" vector-effect="non-scaling-stroke"/><rect x="60" y="60" width="280" height="80" rx="40" vector-effect="non-scaling-stroke"/><rect x="60" y="180" width="280" height="80" rx="40" vector-effect="non-scaling-stroke"/></svg>
+    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true"><path d="M120 60 L120 340"/><rect x="60" y="60" width="280" height="80" rx="40"/><rect x="60" y="180" width="280" height="80" rx="40"/></svg>
     <div class="poster-text">
-      <p class="kicker">Zum Schluss</p>
-      <h2 class="headline">Immer das–<br>selbe</h2>
-      <p class="lead">Vier Dinge, die strömen – und alle tun das Gleiche: Sie fließen vom Mehr zum Weniger, bis der Unterschied weg ist.</p>
+      <p class="kicker" data-t="cmp.kicker"></p>
+      <h2 class="headline" data-t-html="cmp.headline"></h2>
+      <p class="lead" data-t="cmp.lead"></p>
     </div>
   </div>
-  <div class="compare">
-    <div class="cmp">
-      <canvas id="k1" width="300" height="200" style="aspect-ratio:3/2" aria-label="Wärme fließt durch einen Metallstab"></canvas>
-      <div class="cmp-text"><h3>Wärme</h3><p class="big">von warm nach kalt</p><p>Die schnellen Teilchen im warmen Ende stoßen die langsamen an, bis der ganze Stab gleich warm ist.</p></div>
-      <div class="hbar" id="kb1"><span>Unterschied</span><span class="track"><span class="fill"></span></span><span class="v">100 %</span></div>
+  <div class="page">
+    <div class="compare">
+      <div class="cmp">
+        <div class="stage-frame cmp-frame"><canvas id="k1" data-t-aria="cmp.heat.aria"></canvas></div>
+        <div class="cmp-text"><h3 data-t="cmp.heat.title"></h3><p class="big" data-t="cmp.heat.big"></p><p data-t="cmp.heat.text"></p></div>
+        <div class="hbar" id="kb1"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
+      </div>
+      <div class="cmp">
+        <div class="stage-frame cmp-frame"><canvas id="k2" data-t-aria="cmp.water.aria"></canvas></div>
+        <div class="cmp-text"><h3 data-t="cmp.water.title"></h3><p class="big" data-t="cmp.water.big"></p><p data-t="cmp.water.text"></p></div>
+        <div class="hbar" id="kb2"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
+      </div>
+      <div class="cmp">
+        <div class="stage-frame cmp-frame"><canvas id="k3" data-t-aria="cmp.current.aria"></canvas></div>
+        <div class="cmp-text"><h3 data-t="cmp.current.title"></h3><p class="big" data-t="cmp.current.big"></p><p data-t="cmp.current.text"></p></div>
+        <div class="hbar" id="kb3"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
+      </div>
+      <div class="cmp">
+        <div class="stage-frame cmp-frame"><canvas id="k4" data-t-aria="cmp.wind.aria"></canvas></div>
+        <div class="cmp-text"><h3 data-t="cmp.wind.title"></h3><p class="big" data-t="cmp.wind.big"></p><p data-t="cmp.wind.text"></p></div>
+        <div class="hbar" id="kb4"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
+      </div>
     </div>
-    <div class="cmp">
-      <canvas id="k2" width="300" height="200" style="aspect-ratio:3/2" aria-label="Wasser fließt bergab zwischen zwei Becken"></canvas>
-      <div class="cmp-text"><h3>Wasser</h3><p class="big">fließt bergab</p><p>Vom hohen zum niedrigen Wasserstand, bis beide Becken gleich hoch stehen.</p></div>
-      <div class="hbar" id="kb2"><span>Unterschied</span><span class="track"><span class="fill"></span></span><span class="v">100 %</span></div>
+    <div class="compare-foot">
+      <p data-t="cmp.foot"></p>
+      <button type="button" class="btn big" id="kreset"><span><span data-t="cmp.reset"></span><span class="sub" data-t="cmp.resetSub"></span></span></button>
     </div>
-    <div class="cmp">
-      <canvas id="k3" width="300" height="200" style="aspect-ratio:3/2" aria-label="Strom fließt von Plus nach Minus"></canvas>
-      <div class="cmp-text"><h3>Strom</h3><p class="big">von + nach −</p><p>Eine Spannung ist ein Unterschied. Der Strom fließt, die Lampe leuchtet, bis die Spannung weg ist.</p></div>
-      <div class="hbar" id="kb3"><span>Unterschied</span><span class="track"><span class="fill"></span></span><span class="v">100 %</span></div>
-    </div>
-    <div class="cmp">
-      <canvas id="k4" width="300" height="200" style="aspect-ratio:3/2" aria-label="Wind weht vom Hoch zum Tief"></canvas>
-      <div class="cmp-text"><h3>Wind</h3><p class="big">vom Hoch zum Tief</p><p>Luft strömt dorthin, wo weniger Luft ist, bis der Druck überall gleich ist.</p></div>
-      <div class="hbar" id="kb4"><span>Unterschied</span><span class="track"><span class="fill"></span></span><span class="v">100 %</span></div>
-    </div>
-  </div>
-  <div class="compare-foot">
-    <p>Unterschied → Gradient → Strömung → Ausgleich. Die Sonne sorgt dafür, dass dieses Spiel auf der Erde nie aufhört. Darum gibt es Wetter.</p>
-    <button class="btn primary" id="kreset">Nochmal ansehen</button>
+    <div class="next-part"><a class="btn big" href="#start" data-t="cmp.next"></a></div>
   </div>
 </section>
 
 </main>
 
 <footer class="foot">
-  <p class="claim" data-brand="claim"></p>
-  <p class="info" data-brand="contact"></p>
+  <p class="brand-line" data-brand="line"></p>
 </footer>
 
 <script src="theme/theme.js"></script>
+<script src="content/texts.de.js"></script>
+<script src="js/texts.js"></script>
 <script src="js/brand.js"></script>
-<script>
-"use strict";
-/* =========================================================
-   Hilfsfunktionen
-   ========================================================= */
-const FONT = THEME.font;   // Schrift und Farben aus theme/theme.js
-const $ = (s, el = document) => el.querySelector(s);
-const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const rnd = (a, b) => a + Math.random() * (b - a);
-const fmt = (n, d = 0) => n.toFixed(d).replace('.', ',').replace('-', '−');
-const C = THEME.palette;
-
-function makeView(canvas, W, H) {
-  const ctx = canvas.getContext('2d');
-  let lw = 0, lh = 0;
-  return {
-    ctx, W, H, canvas,
-    fit() {
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-      if (!w || !h) return false;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      if (w !== lw || h !== lh) {
-        lw = w; lh = h;
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-      }
-      ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
-      return true;
-    },
-    local(e) {
-      const r = canvas.getBoundingClientRect();
-      return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
-    }
-  };
-}
-
-class Meter {
-  constructor(el) { this.el = el; this.val = el.querySelector('.meter-val, .v'); this.last = ''; }
-  set(frac, text) {
-    frac = clamp(frac, 0, 1);
-    this.el.style.setProperty('--v', frac.toFixed(3));
-    const t = text != null ? text : Math.round(frac * 100) + ' %';
-    if (t !== this.last) { this.val.textContent = t; this.last = t; }
-    this.el.classList.toggle('is-zero', frac < 0.04);
-  }
-}
-
-function setChain(el, phase) {
-  // phase 0: nur Unterschied, 2: Unterschied → Strömung, 3: Ausgleich erreicht
-  const items = $$('li:not(.arrow)', el);
-  items.forEach((li, i) => {
-    let on;
-    if (phase === 3) on = i === 3;
-    else if (phase === 2) on = i <= 2;
-    else on = i <= phase;
-    li.classList.toggle('on', on);
-  });
-}
-
-/* Canvas-Text wird nie kleiner als MIN_PX Bildschirmpixel: Auf dem Handy wird die
-   Leinwand stark verkleinert, die Schrift darin wächst entsprechend mit. */
-const MIN_PX = 11.5;
-function minSize(ctx) {
-  const cw = ctx.canvas.clientWidth, a = ctx.getTransform().a;
-  return cw && a ? MIN_PX * ctx.canvas.width / (cw * a) : 0;
-}
-function text(ctx, str, x, y, size, color, weight = 500, align = 'left', base = 'alphabetic') {
-  size = Math.max(size, minSize(ctx));
-  ctx.font = `${weight} ${size}px ${FONT}`;
-  ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = base;
-  ctx.fillText(str, x, y);
-}
-
-function arrow(ctx, x, y, dx, dy, color, width = 3, head = 10) {
-  const len = Math.hypot(dx, dy);
-  if (len < 2) return;
-  const ux = dx / len, uy = dy / len;
-  const h = Math.min(head, len * 0.6);
-  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.lineCap = 'butt';
-  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + dx - ux * h * 0.8, y + dy - uy * h * 0.8); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x + dx, y + dy);
-  ctx.lineTo(x + dx - ux * h - uy * h * 0.55, y + dy - uy * h + ux * h * 0.55);
-  ctx.lineTo(x + dx - ux * h + uy * h * 0.55, y + dy - uy * h - ux * h * 0.55);
-  ctx.closePath(); ctx.fill();
-}
-
-const BFT = [0.3, 1.6, 3.4, 5.5, 8.0, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7];
-const beaufort = ms => { let b = 0; while (b < BFT.length && ms >= BFT[b]) b++; return b; };
-
-function holdButton(btn, onChange) {
-  const on = e => { e.preventDefault(); btn.classList.add('held'); onChange(true); };
-  const off = () => { btn.classList.remove('held'); onChange(false); };
-  btn.addEventListener('pointerdown', on);
-  ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach(ev => btn.addEventListener(ev, off));
-  btn.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { if (!e.repeat) on(e); } });
-  btn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') off(); });
-  btn.addEventListener('contextmenu', e => e.preventDefault());
-}
-
-function pressToggle(btn, state, labels) {
-  btn.setAttribute('aria-pressed', state ? 'true' : 'false');
-  if (labels) btn.textContent = state ? labels[0] : labels[1];
-}
-
-/* =========================================================
-   STUFE 1 – Teilchenkasten
-   ========================================================= */
-const S1 = (() => {
-  const W = 900, H = 600, M = 22, WX = 450, WT = 8, CELL = 16;
-  const view = makeView($('#c1'), W, H), ctx = view.ctx;
-  const meter = new Meter($('#m1'));
-  const wallBtn = $('#s1wall'), read = $('#s1read'), hint = $('#s1hint');
-  const GW = Math.ceil(W / CELL), GH = Math.ceil(H / CELL);
-  const grid = Array.from({ length: GW * GH }, () => []);
-  const HINTS = {
-    dichte: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Zieh die Wand weg (oder tippe auf die Wand)!',
-    waerme: 'Wärme ist Bewegung: Links flitzen schnelle, warme Teilchen (rot), rechts trödeln langsame, kalte (blau). Wenn sie zusammenstoßen, geben die schnellen Schwung ab.',
-    farbe: 'Ein Tropfen Farbe im Wasser. Die unsichtbar kleinen Wasserteilchen schubsen die Farbteilchen herum, bis das ganze Glas gleich gefärbt ist.'
-  };
-  let mode = 'dichte', P = [], wallOpen = false, wallBottom = H - M, d0 = 1, frac = 1;
-  const done = { dichte: false, waerme: false, farbe: false };
-
-  function spawn(n, x0, x1, smin, smax, kind, r) {
-    for (let i = 0; i < n; i++) {
-      const a = rnd(0, Math.PI * 2), s = rnd(smin, smax);
-      P.push({ x: rnd(x0 + r + 2, x1 - r - 2), y: rnd(M + r + 2, H - M - r - 2), vx: Math.cos(a) * s, vy: Math.sin(a) * s, r, kind, px: 0 });
-    }
-  }
-  function reset() {
-    P = []; wallOpen = false; wallBottom = H - M;
-    const L0 = M, L1 = WX - WT / 2, R0 = WX + WT / 2, R1 = W - M;
-    if (mode === 'dichte') { spawn(250, L0, L1, 70, 150, 'p', 6); spawn(40, R0, R1, 70, 150, 'p', 6); }
-    if (mode === 'waerme') { spawn(130, L0, L1, 210, 270, 'p', 6); spawn(130, R0, R1, 35, 70, 'p', 6); }
-    if (mode === 'farbe') { spawn(170, L0, L1, 70, 120, 'w', 5); spawn(170, R0, R1, 70, 120, 'w', 5); spawn(70, L0, L1, 70, 120, 'd', 5); }
-    d0 = Math.max(1e-6, measure()); frac = 1;
-    wallBtn.textContent = 'Wand wegziehen';
-    hint.textContent = HINTS[mode];
-  }
-  function measure() {
-    if (mode === 'dichte') {
-      let l = 0; for (const p of P) if (p.x < WX) l++;
-      return Math.abs(l - (P.length - l)) / P.length;
-    }
-    if (mode === 'waerme') {
-      let el = 0, nl = 0, er = 0, nr = 0;
-      for (const p of P) { const e = p.vx * p.vx + p.vy * p.vy; if (p.x < WX) { el += e; nl++; } else { er += e; nr++; } }
-      el /= Math.max(1, nl); er /= Math.max(1, nr);
-      return Math.abs(el - er) / (el + er || 1);
-    }
-    let l = 0, n = 0; for (const p of P) if (p.kind === 'd') { n++; if (p.x < WX) l++; }
-    return Math.abs(l - (n - l)) / n;
-  }
-  function toggleWall() {
-    wallOpen = !wallOpen;
-    wallBtn.textContent = wallOpen ? 'Wand einsetzen' : 'Wand wegziehen';
-  }
-  function step(dt) {
-    const target = wallOpen ? M : H - M;
-    wallBottom += clamp(target - wallBottom, -900 * dt, 900 * dt);
-    const wallOn = wallBottom > M + 1;
-    for (const p of P) {
-      p.px = p.x;
-      p.x += p.vx * dt; p.y += p.vy * dt;
-      if (p.x < M + p.r) { p.x = M + p.r; p.vx = Math.abs(p.vx); }
-      if (p.x > W - M - p.r) { p.x = W - M - p.r; p.vx = -Math.abs(p.vx); }
-      if (p.y < M + p.r) { p.y = M + p.r; p.vy = Math.abs(p.vy); }
-      if (p.y > H - M - p.r) { p.y = H - M - p.r; p.vy = -Math.abs(p.vy); }
-      if (wallOn && p.y - p.r < wallBottom) {
-        const half = WT / 2 + p.r;
-        if (p.px < WX && p.x > WX - half) { p.x = WX - half; p.vx = -Math.abs(p.vx); }
-        else if (p.px >= WX && p.x < WX + half) { p.x = WX + half; p.vx = Math.abs(p.vx); }
-      }
-    }
-    // Stöße zwischen Teilchen (elastisch, gleiche Masse)
-    for (const c of grid) c.length = 0;
-    for (let i = 0; i < P.length; i++) {
-      const p = P[i];
-      const gx = clamp((p.x / CELL) | 0, 0, GW - 1), gy = clamp((p.y / CELL) | 0, 0, GH - 1);
-      grid[gy * GW + gx].push(i);
-    }
-    for (let i = 0; i < P.length; i++) {
-      const a = P[i];
-      const gx = clamp((a.x / CELL) | 0, 0, GW - 1), gy = clamp((a.y / CELL) | 0, 0, GH - 1);
-      for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
-        const cx = gx + ox, cy = gy + oy;
-        if (cx < 0 || cy < 0 || cx >= GW || cy >= GH) continue;
-        for (const j of grid[cy * GW + cx]) {
-          if (j <= i) continue;
-          const b = P[j];
-          const dx = b.x - a.x, dy = b.y - a.y, rr = a.r + b.r, d2 = dx * dx + dy * dy;
-          if (d2 >= rr * rr || d2 === 0) continue;
-          // nicht durch die Wand hindurch stoßen
-          if (wallOn && (a.x < WX) !== (b.x < WX) && Math.min(a.y, b.y) < wallBottom) continue;
-          const d = Math.sqrt(d2), nx = dx / d, ny = dy / d;
-          const rel = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
-          if (rel > 0) { a.vx -= rel * nx; a.vy -= rel * ny; b.vx += rel * nx; b.vy += rel * ny; }
-          const push = (rr - d) / 2;
-          a.x -= nx * push; a.y -= ny * push; b.x += nx * push; b.y += ny * push;
-        }
-      }
-    }
-  }
-  function heatColor(p) {
-    const s = Math.hypot(p.vx, p.vy);
-    return s > 190 ? C.red : s > 140 ? C.orange : s > 95 ? C.yellowS : s > 60 ? C.cyan3 : C.blue;
-  }
-  function draw() {
-    const bg = mode === 'farbe' ? C.ice : mode === 'waerme' ? C.yellowPale : C.mint;
-    ctx.fillStyle = C.white; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = bg; ctx.fillRect(M, M, W - 2 * M, H - 2 * M);
-    if (mode === 'farbe') {
-      // Farbwolke: große, halbtransparente Tupfen
-      ctx.fillStyle = 'rgba(68,38,131,0.13)';
-      for (const p of P) if (p.kind === 'd') { ctx.beginPath(); ctx.arc(p.x, p.y, 30, 0, Math.PI * 2); ctx.fill(); }
-      ctx.fillStyle = C.cyan3;
-      for (const p of P) if (p.kind === 'w') { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); }
-      ctx.fillStyle = C.purple;
-      for (const p of P) if (p.kind === 'd') { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
-    } else {
-      for (const p of P) {
-        ctx.fillStyle = mode === 'waerme' ? heatColor(p) : C.purple;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-    // Wand
-    if (wallBottom > M + 1) {
-      ctx.fillStyle = C.black; ctx.fillRect(WX - WT / 2, M, WT, wallBottom - M);
-      ctx.fillRect(WX - 16, wallBottom - 6, 32, 6);
-    }
-    ctx.strokeStyle = C.black; ctx.lineWidth = 4; ctx.strokeRect(M, M, W - 2 * M, H - 2 * M);
-    text(ctx, 'LINKS', M + 14, M + 30, 18, C.black);
-    text(ctx, 'RECHTS', W - M - 14, M + 30, 18, C.black, 500, 'right');
-  }
-  function readout() {
-    if (mode === 'dichte') {
-      let l = 0; for (const p of P) if (p.x < WX) l++;
-      return `Links ${l} Teilchen · rechts ${P.length - l} Teilchen`;
-    }
-    if (mode === 'waerme') {
-      let sl = 0, nl = 0, sr = 0, nr = 0;
-      for (const p of P) { const s = Math.hypot(p.vx, p.vy); if (p.x < WX) { sl += s; nl++; } else { sr += s; nr++; } }
-      return `Tempo links Ø ${Math.round(sl / Math.max(1, nl) / 10)} · rechts Ø ${Math.round(sr / Math.max(1, nr) / 10)}`;
-    }
-    let l = 0, n = 0; for (const p of P) if (p.kind === 'd') { n++; if (p.x < WX) l++; }
-    return `Farbteilchen links ${l} · rechts ${n - l}`;
-  }
-  let readT = 0;
-  function frame(dt) {
-    if (!view.fit()) return;
-    step(dt / 2); step(dt / 2);
-    const raw = measure() / d0;
-    frac += (Math.min(1, raw) - frac) * Math.min(1, dt * 4);
-    meter.set(frac);
-    draw();
-    readT -= dt; if (readT <= 0) { read.textContent = readout(); readT = 0.25; }
-    const flowing = wallOpen;
-    setChain($('#chain1'), frac < 0.05 ? 3 : flowing ? 2 : 1);
-    if (wallOpen && frac < 0.1 && !done[mode]) {
-      done[mode] = true;
-      $(`#s1tasks li[data-t="${mode}"]`).classList.add('done');
-      $(`#s1tasks li[data-t="${mode}"] .box`).textContent = '✓';
-      const all = Object.values(done).every(Boolean);
-      $('#s1status').textContent = all ? 'Alle drei geschafft!' : 'Geschafft! Probier den nächsten Versuch.';
-      if (all) $('#s1insight').classList.add('unlocked');
-    }
-  }
-  $$('#s1modes .btn').forEach(b => b.addEventListener('click', () => {
-    mode = b.dataset.mode;
-    $$('#s1modes .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
-    reset();
-  }));
-  wallBtn.addEventListener('click', toggleWall);
-  $('#s1reset').addEventListener('click', reset);
-  view.canvas.addEventListener('pointerdown', e => { const p = view.local(e); if (Math.abs(p.x - WX) < 70) toggleWall(); });
-  reset();
-  return { frame };
-})();
-
-/* =========================================================
-   STUFE 2 – Seewind / Landwind
-   ========================================================= */
-const S2 = (() => {
-  const W = 900, H = 600, BASE = 430, HC = 390, COAST = 450;
-  const view = makeView($('#c2'), W, H), ctx = view.ctx;
-  const meter = new Meter($('#m2'));
-  const slider = $('#s2time'), clock = $('#s2clock'), read = $('#s2read'), status = $('#s2status');
-  const show = { arrows: true, isobars: true, smoke: true, tracers: true };
-  let t = 13, playing = true, sunOn = true;
-  let Tl = 24, Ts = 17, landBoost = 0, seaBoost = 0, holdLand = false, holdSea = false;
-  let dT = 0;
-  const tracers = Array.from({ length: 150 }, () => ({ x: rnd(0, W), z: rnd(0, HC) }));
-  const smoke = []; let smokeT = 0;
-  const boat = { x: 220 };
-  const task = { active: false, time: 30, done: false };
-  let sawLandwind = false;
-
-  const sunF = h => Math.max(0, Math.sin(Math.PI * (h - 6) / 12));
-  const groundY = x => x < COAST ? BASE : BASE - Math.min(1, (x - COAST) / 70) * 16;
-  // Strömungsfunktion einer einzelnen Zirkulationszelle
-  function vel(x, z) {
-    const A = 10 * dT * HC / Math.PI;
-    const u = A * (Math.PI / HC) * Math.sin(Math.PI * x / W) * Math.cos(Math.PI * z / HC);
-    const w = -A * (Math.PI / W) * Math.cos(Math.PI * x / W) * Math.sin(Math.PI * z / HC);
-    return [u, w];
-  }
-  function fmtTime(h) {
-    const hh = Math.floor(h) % 24, mm = Math.floor((h - Math.floor(h)) * 60);
-    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')} Uhr`;
-  }
-  function update(dt) {
-    if (playing) { t = (t + dt * 0.5) % 24; slider.value = t.toFixed(1); }
-    clock.textContent = fmtTime(t);
-    const s = sunOn ? sunF(t) : 0;
-    const TlEq = sunOn ? 11 + 16 * s : 16, TsEq = sunOn ? 16 + 1.5 * s : 16;
-    landBoost = holdLand ? Math.min(15, landBoost + 6 * dt) : landBoost * Math.exp(-dt / 6);
-    seaBoost = holdSea ? Math.min(15, seaBoost + 6 * dt) : seaBoost * Math.exp(-dt / 6);
-    Tl += (TlEq + landBoost - Tl) * Math.min(1, dt / 0.7);   // Land reagiert schnell
-    Ts += (TsEq + seaBoost - Ts) * Math.min(1, dt / 3.0);    // Wasser reagiert träge
-    dT = Tl - Ts;
-
-    for (const p of tracers) {
-      const [u, w] = vel(p.x, p.z);
-      p.x += (u + rnd(-6, 6)) * dt; p.z += (w + rnd(-6, 6)) * dt;
-      if (p.x < 0 || p.x > W || p.z < 2 || p.z > HC || Math.random() < dt * 0.05) { p.x = rnd(0, W); p.z = rnd(5, HC - 5); }
-    }
-    if (show.smoke) {
-      smokeT -= dt;
-      if (smokeT <= 0) { smokeT = 0.12; smoke.push({ x: 748, z: BASE - 318, r: 5, age: 0 }); }
-    }
-    for (const s2 of smoke) {
-      const [u, w] = vel(s2.x, s2.z);
-      s2.x += u * dt * 1.2; s2.z += (w * 1.2 + 14) * dt; s2.r += 7 * dt; s2.age += dt;
-    }
-    while (smoke.length && (smoke[0].age > 6 || smoke.length > 70)) smoke.shift();
-
-    // Segler: wird vom Bodenwind geschoben
-    const [ub] = vel(boat.x, 0);
-    boat.x = clamp(boat.x + ub * 0.5 * dt, 40, COAST - 30);
-    if (task.active) {
-      task.time -= dt;
-      if (boat.x >= COAST - 32) {
-        task.active = false; task.done = true;
-        status.textContent = `Geschafft! Noch ${Math.ceil(task.time)} s übrig.`;
-        $('#s2t1').classList.add('done'); $('#s2t1 .box').textContent = '✓';
-        checkInsight();
-      } else if (task.time <= 0) {
-        task.active = false; status.textContent = 'Zeit um! Tipp: Das Land muss wärmer werden als das Meer.';
-      } else status.textContent = `Noch ${Math.ceil(task.time)} s`;
-    }
-    const night = t >= 21 || t < 5;
-    if (!sawLandwind && night && sunOn && dT < -2) {
-      sawLandwind = true; $('#s2t2').classList.add('done'); $('#s2t2 .box').textContent = '✓'; checkInsight();
-    }
-  }
-  function checkInsight() { if (task.done && sawLandwind) $('#s2insight').classList.add('unlocked'); }
-
-  function draw() {
-    const s = sunOn ? sunF(t) : 0;
-    const night = sunOn && s <= 0;
-    const sky = !sunOn ? C.lavender : night ? C.navy : s < 0.26 ? C.pink : C.ice;
-    const ink = night ? C.white : C.black;
-    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-
-    // Himmelskörper
-    if (sunOn && s > 0) {
-      const a = Math.PI * (t - 6) / 12, sx = 450 - 390 * Math.cos(a), sy = 360 - 300 * Math.sin(a);
-      ctx.fillStyle = C.yellowS; ctx.beginPath(); ctx.arc(sx, sy, 32, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = C.gold; ctx.lineWidth = 2;
-      for (let i = 0; i < 8; i++) { const r = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(sx + Math.cos(r) * 42, sy + Math.sin(r) * 42); ctx.lineTo(sx + Math.cos(r) * 56, sy + Math.sin(r) * 56); ctx.stroke(); }
-    } else if (night) {
-      const h = (t + 6) % 24, a = Math.PI * (h - 0) / 12, mx = 450 - 390 * Math.cos(a), my = 360 - 300 * Math.sin(a);
-      ctx.fillStyle = C.yellowPastel; ctx.beginPath(); ctx.arc(mx, my, 24, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = C.navy; ctx.beginPath(); ctx.arc(mx + 10, my - 6, 21, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = C.yellowPastel; ctx.lineWidth = 1.5;
-      [[90, 70], [250, 40], [620, 60], [800, 110], [520, 150], [160, 190]].forEach(([x, y]) => {
-        ctx.beginPath(); ctx.moveTo(x, y - 7); ctx.lineTo(x + 2, y - 2); ctx.lineTo(x + 7, y); ctx.lineTo(x + 2, y + 2); ctx.lineTo(x, y + 7); ctx.lineTo(x - 2, y + 2); ctx.lineTo(x - 7, y); ctx.lineTo(x - 2, y - 2); ctx.closePath(); ctx.stroke();
-      });
-    }
-
-    // Isobaren (Linien gleichen Drucks)
-    if (show.isobars) {
-      const a = 0.12;
-      ctx.strokeStyle = night ? C.lilac : C.purple2; ctx.lineWidth = 2;
-      for (let k = 0; k < 8; k++) {
-        const L = 1010 - 6 * k;
-        ctx.beginPath(); let started = false;
-        for (let x = 0; x <= W; x += 10) {
-          const d = -0.5 * dT * Math.tanh((x - COAST) / 120);
-          const z = (1013 + d - L) / (a + 2 * d / HC);
-          if (z < 0 || z > HC + 30) { started = false; continue; }
-          const y = BASE - z;
-          if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-      }
-      text(ctx, 'ISOBAREN', 12, 26, 14, night ? C.lilac : C.purple2);
-    }
-
-    // Luftteilchen
-    if (show.tracers) {
-      ctx.fillStyle = night ? C.yellowPastel : C.petrol;
-      for (const p of tracers) {
-        const y = BASE - p.z;
-        if (y > groundY(p.x) - 3) continue;
-        ctx.fillRect(p.x - 2, y - 2, 4, 4);
-      }
-    }
-
-    // Boden: Meer, Strand, Land
-    ctx.fillStyle = C.cyan2; ctx.fillRect(0, BASE, COAST + 10, H - BASE);
-    ctx.fillStyle = C.cream;
-    ctx.beginPath(); ctx.moveTo(COAST - 30, H); ctx.lineTo(COAST - 30, BASE + 4); ctx.lineTo(COAST, BASE); ctx.lineTo(COAST + 70, BASE - 16); ctx.lineTo(COAST + 70, H); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = C.green;
-    ctx.beginPath(); ctx.moveTo(COAST + 50, H); ctx.lineTo(COAST + 50, BASE - 12); ctx.lineTo(COAST + 70, BASE - 16); ctx.lineTo(W, BASE - 16); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
-
-    // Haus mit Schornstein
-    const gy = BASE - 16;
-    ctx.fillStyle = C.red2; ctx.fillRect(690, gy - 56, 70, 56);
-    ctx.fillStyle = C.purple; ctx.beginPath(); ctx.moveTo(680, gy - 56); ctx.lineTo(725, gy - 96); ctx.lineTo(770, gy - 56); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = C.black; ctx.fillRect(742, gy - 104, 12, 30);
-    ctx.fillStyle = night ? C.yellowPastel : C.ice; ctx.fillRect(704, gy - 40, 16, 16); ctx.fillRect(730, gy - 40, 16, 16);
-
-    // Rauch
-    if (show.smoke) {
-      ctx.fillStyle = night ? 'rgba(174,196,194,0.55)' : 'rgba(31,108,142,0.28)';
-      for (const p of smoke) { ctx.beginPath(); ctx.arc(p.x, BASE - p.z, p.r, 0, Math.PI * 2); ctx.fill(); }
-    }
-
-    // Windfahne an der Küste
-    const fx = COAST + 30, fTop = BASE - 110;
-    ctx.fillStyle = C.black; ctx.fillRect(fx - 2, fTop, 4, 110 - 8);
-    const [u0] = vel(COAST, 20);
-    const len = clamp(Math.abs(u0) * 0.5, 6, 70) * Math.sign(u0 || 1);
-    const flap = Math.sin(performance.now() / 120) * Math.min(6, Math.abs(u0) * 0.05);
-    ctx.fillStyle = C.orange;
-    ctx.beginPath(); ctx.moveTo(fx, fTop); ctx.lineTo(fx + len, fTop + 12 + flap); ctx.lineTo(fx, fTop + 24); ctx.closePath(); ctx.fill();
-
-    // Segler
-    const bx = boat.x;
-    ctx.fillStyle = C.navy;
-    ctx.beginPath(); ctx.moveTo(bx - 34, BASE - 12); ctx.lineTo(bx + 34, BASE - 12); ctx.lineTo(bx + 22, BASE + 6); ctx.lineTo(bx - 22, BASE + 6); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = C.black; ctx.fillRect(bx - 2, BASE - 92, 4, 80);
-    const sail = clamp(u0 * 0.35, -26, 26);
-    ctx.fillStyle = C.yellowPastel; ctx.strokeStyle = C.black; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(bx + 2, BASE - 90); ctx.quadraticCurveTo(bx + 30 + sail, BASE - 50, bx + 2, BASE - 18); ctx.closePath(); ctx.fill(); ctx.stroke();
-
-    // Pfeile
-    if (show.arrows) {
-      const col = night ? C.white : C.black;
-      for (let x = 70; x < W; x += 95) for (let z = 30; z < HC; z += 72) {
-        const y = BASE - z;
-        if (y > groundY(x) - 10) continue;
-        const [u, w] = vel(x, z);
-        const sp = Math.hypot(u, w); if (sp < 4) continue;
-        const k = Math.min(1, 46 / sp) * 0.75;
-        arrow(ctx, x - u * k / 2, y + w * k / 2, u * k, -w * k, col, 3, 11);
-      }
-    }
-
-    // Hoch und Tief
-    if (Math.abs(dT) > 0.6) {
-      const landLow = dT > 0;
-      const big = (lbl, x, y, col) => text(ctx, lbl, x, y, 64, col, 300, 'center');
-      big(landLow ? 'H' : 'T', 340, BASE - 26, ink);
-      big(landLow ? 'T' : 'H', 620, BASE - 40, ink);
-      text(ctx, landLow ? 'T' : 'H', 340, 78, 34, ink, 300, 'center');
-      text(ctx, landLow ? 'H' : 'T', 620, 78, 34, ink, 300, 'center');
-      if (Math.abs(dT) > 2) {
-        text(ctx, 'WARME LUFT STEIGT AUF', landLow ? 620 : 225, 220, 15, ink, 500, 'center');
-        text(ctx, 'KÜHLE LUFT SINKT AB', landLow ? 225 : 620, 220, 15, ink, 500, 'center');
-      }
-    }
-
-    // Temperaturen
-    text(ctx, `MEER ${fmt(Ts, 0)} °C`, 225, 530, 26, C.black, 500, 'center');
-    text(ctx, `LAND ${fmt(Tl, 0)} °C`, 690, 530, 26, C.black, 500, 'center');
-    if (landBoost > 0.5) text(ctx, 'LAND WIRD GEHEIZT', 690, 565, 15, C.black, 500, 'center');
-    if (seaBoost > 0.5) text(ctx, 'MEER WIRD GEHEIZT', 225, 565, 15, C.black, 500, 'center');
-    if (task.active) {
-      ctx.fillStyle = C.black; ctx.fillRect(W - 150, 14, 136, 40);
-      text(ctx, `⏱ ${Math.ceil(task.time)} S`, W - 82, 42, 22, C.white, 500, 'center');
-    }
-  }
-  let readT = 0;
-  function frame(dt) {
-    if (!view.fit()) return;
-    update(dt); draw();
-    const dp = 0.25 * Math.abs(dT);
-    meter.set(dp / 4, `${fmt(dp, 1)} hPa`);
-    setChain($('#chain2'), Math.abs(dT) < 0.6 ? 3 : 2);
-    readT -= dt;
-    if (readT <= 0) {
-      readT = 0.2;
-      const ms = 0.8 * Math.abs(dT), b = beaufort(ms);
-      const kind = Math.abs(dT) < 0.6 ? 'Windstille' : dT > 0 ? 'Seewind (vom Meer zum Land)' : 'Landwind (vom Land zum Meer)';
-      read.textContent = `${kind} · ${fmt(ms, 1)} m/s · Windstärke ${b} · Druckunterschied ${fmt(0.25 * Math.abs(dT), 1)} hPa`;
-    }
-  }
-
-  slider.addEventListener('input', () => { t = parseFloat(slider.value) % 24; });
-  $('#s2play').addEventListener('click', e => { playing = !playing; pressToggle(e.currentTarget, playing, ['Zeit läuft', 'Zeit angehalten']); });
-  $('#s2sun').addEventListener('click', e => { sunOn = !sunOn; pressToggle(e.currentTarget, sunOn, ['Sonne an', 'Sonne aus']); });
-  holdButton($('#s2heatLand'), v => holdLand = v);
-  holdButton($('#s2heatSea'), v => holdSea = v);
-  $$('[data-toggle]').forEach(b => b.addEventListener('click', () => {
-    const k = b.dataset.toggle; show[k] = !show[k]; b.setAttribute('aria-pressed', show[k] ? 'true' : 'false');
-    if (k === 'smoke' && !show[k]) smoke.length = 0;
-  }));
-  $('#s2task').addEventListener('click', () => {
-    t = 5.5; slider.value = t; playing = false; sunOn = true;
-    pressToggle($('#s2play'), false, ['Zeit läuft', 'Zeit angehalten']);
-    pressToggle($('#s2sun'), true, ['Sonne an', 'Sonne aus']);
-    Tl = 11; Ts = 16; landBoost = 0; seaBoost = 0; dT = Tl - Ts;
-    boat.x = 160; task.active = true; task.time = 30;
-    status.textContent = 'Los! Noch 30 s';
-  });
-  return { frame };
-})();
-
-/* =========================================================
-   STUFE 3 – Wetterkarte
-   ========================================================= */
-const S3 = (() => {
-  const W = 900, H = 600, NX = 60, NY = 40, CW = W / NX, CH = H / NY;
-  const view = makeView($('#c3'), W, H), ctx = view.ctx;
-  const meter = new Meter($('#m3'));
-  const read = $('#s3read'), status = $('#s3status');
-  let p = new Float32Array(NX * NY), q = new Float32Array(NX * NY);
-  const U = new Float32Array(NX * NY), V = new Float32Array(NX * NY);
-  let brush = 1, rotOn = false, rot = 0, sunOn = true, showArrows = false;
-  let pointer = null, painting = false, painted = false, sunTimer = 2;
-  const events = [];
-  const LAND = [[560, 0], [520, 70], [548, 150], [478, 238], [436, 322], [478, 410], [392, 500], [350, 600], [900, 600], [900, 0]];
-  const ISLAND = [[130, 420], [190, 392], [236, 430], [208, 488], [148, 480]];
-  const LIGHT = { x: 440, y: 322 };
-  const parts = Array.from({ length: 650 }, () => newPart({}));
-  const done = { bft6: false, wirbel: false, still: false };
-  let stillArmed = false;
-
-  function newPart(o) { o.x = rnd(0, W); o.y = rnd(0, H); o.life = rnd(1.5, 4); o.trail = []; return o; }
-  const idx = (i, j) => j * NX + i;
-  function inPoly(poly, x, y) {
-    let c = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const [xi, yi] = poly[i], [xj, yj] = poly[j];
-      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
-    }
-    return c;
-  }
-  const isLand = (x, y) => inPoly(LAND, x, y) || inPoly(ISLAND, x, y);
-  function addBlob(cx, cy, amount, sigma = 3) {
-    const gi = cx / CW - 0.5, gj = cy / CH - 0.5, R = Math.ceil(sigma * 3);
-    for (let j = Math.max(1, Math.floor(gj - R)); j <= Math.min(NY - 2, Math.ceil(gj + R)); j++)
-      for (let i = Math.max(1, Math.floor(gi - R)); i <= Math.min(NX - 2, Math.ceil(gi + R)); i++) {
-        const d2 = (i - gi) ** 2 + (j - gj) ** 2;
-        const k = idx(i, j);
-        p[k] = clamp(p[k] + amount * Math.exp(-d2 / (2 * sigma * sigma)), -32, 32);
-      }
-  }
-  function reset() {
-    p.fill(0); events.length = 0; painted = false;
-    addBlob(250, 230, 14, 4.5); addBlob(690, 300, -14, 4);
-    for (const o of parts) newPart(o);
-  }
-  function sample(arr, x, y) {
-    const gx = clamp(x / CW - 0.5, 0, NX - 1.001), gy = clamp(y / CH - 0.5, 0, NY - 1.001);
-    const i = gx | 0, j = gy | 0, fx = gx - i, fy = gy - j;
-    const a = arr[idx(i, j)], b = arr[idx(i + 1, j)], c = arr[idx(i, j + 1)], d = arr[idx(i + 1, j + 1)];
-    return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
-  }
-  function update(dt) {
-    // Pinsel
-    if (painting && pointer) { addBlob(pointer.x, pointer.y, brush * 16 * dt); painted = true; }
-    // Sonne erzeugt neue Unterschiede: Land wird warm → Tief, Meer bleibt kühl → Hoch
-    if (sunOn) {
-      sunTimer -= dt;
-      if (sunTimer <= 0) {
-        sunTimer = rnd(2.5, 4.5);
-        const x = rnd(80, W - 80), y = rnd(80, H - 80);
-        events.push({ x, y, amp: isLand(x, y) ? -9 : 7, left: 3 });
-      }
-    }
-    for (let e = events.length - 1; e >= 0; e--) {
-      const ev = events[e];
-      const d = Math.min(dt, ev.left); ev.left -= d;
-      addBlob(ev.x, ev.y, ev.amp * d / 3, 3.5);
-      if (ev.left <= 0) events.splice(e, 1);
-    }
-    // Ausgleich: Diffusion. Mit Erdrotation kreist die Luft um das Tief und füllt es langsamer.
-    const target = rotOn ? 1.22 : 0;
-    rot += clamp(target - rot, -1.2 * dt, 1.2 * dt);
-    const D = (sunOn ? 2.2 : 7) * (0.25 + 0.75 * Math.cos(rot));
-    const k = Math.min(0.24, D * dt);
-    for (let j = 1; j < NY - 1; j++) for (let i = 1; i < NX - 1; i++) {
-      const c = idx(i, j);
-      q[c] = p[c] + k * (p[c - 1] + p[c + 1] + p[c - NX] + p[c + NX] - 4 * p[c]);
-    }
-    for (let i = 0; i < NX; i++) { q[idx(i, 0)] = 0; q[idx(i, NY - 1)] = 0; }
-    for (let j = 0; j < NY; j++) { q[idx(0, j)] = 0; q[idx(NX - 1, j)] = 0; }
-    [p, q] = [q, p];
-
-    // Wind: vom Hoch zum Tief (−Gradient), mit Erdrotation nach rechts abgelenkt
-    const cr = Math.cos(rot), sr = Math.sin(rot), K = 4;   // m/s pro hPa je Rasterfeld
-    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
-      const gx = (p[idx(Math.min(NX - 1, i + 1), j)] - p[idx(Math.max(0, i - 1), j)]) / 2;
-      const gy = (p[idx(i, Math.min(NY - 1, j + 1))] - p[idx(i, Math.max(0, j - 1))]) / 2;
-      const ux = -gx * K, uy = -gy * K;
-      U[idx(i, j)] = cr * ux - sr * uy;
-      V[idx(i, j)] = sr * ux + cr * uy;
-    }
-    for (const o of parts) {
-      const u = sample(U, o.x, o.y), v = sample(V, o.x, o.y);
-      o.x += u * 9 * dt; o.y += v * 9 * dt; o.life -= dt;
-      o.trail.push(o.x, o.y); if (o.trail.length > 16) o.trail.splice(0, 2);
-      if (o.life <= 0 || o.x < 0 || o.x > W || o.y < 0 || o.y > H) newPart(o);
-    }
-  }
-  const SEG = { 1: [[3, 2]], 2: [[2, 1]], 3: [[3, 1]], 4: [[0, 1]], 5: [[3, 0], [2, 1]], 6: [[0, 2]], 7: [[3, 0]], 8: [[3, 0]], 9: [[0, 2]], 10: [[0, 1], [3, 2]], 11: [[0, 1]], 12: [[3, 1]], 13: [[2, 1]], 14: [[3, 2]] };
-  function isobars(level) {
-    ctx.beginPath();
-    for (let j = 0; j < NY - 1; j++) for (let i = 0; i < NX - 1; i++) {
-      const a = p[idx(i, j)], b = p[idx(i + 1, j)], c = p[idx(i + 1, j + 1)], d = p[idx(i, j + 1)];
-      const n = (a > level ? 8 : 0) | (b > level ? 4 : 0) | (c > level ? 2 : 0) | (d > level ? 1 : 0);
-      const segs = SEG[n]; if (!segs) continue;
-      const pt = e => {
-        let x, y;
-        if (e === 0) { x = i + (level - a) / (b - a); y = j; }
-        else if (e === 1) { x = i + 1; y = j + (level - b) / (c - b); }
-        else if (e === 2) { x = i + (level - d) / (c - d); y = j + 1; }
-        else { x = i; y = j + (level - a) / (d - a); }
-        return [(x + 0.5) * CW, (y + 0.5) * CH];
-      };
-      for (const [e1, e2] of segs) { const [x1, y1] = pt(e1), [x2, y2] = pt(e2); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
-    }
-    ctx.stroke();
-  }
-  function extrema() {
-    const out = [];
-    for (let j = 2; j < NY - 2; j++) for (let i = 2; i < NX - 2; i++) {
-      const v = p[idx(i, j)]; if (Math.abs(v) < 4) continue;
-      let isMax = true, isMin = true;
-      for (let b = -2; b <= 2 && (isMax || isMin); b++) for (let a = -2; a <= 2; a++) {
-        if (!a && !b) continue;
-        const w = p[idx(i + a, j + b)];
-        if (w >= v) isMax = false; if (w <= v) isMin = false;
-      }
-      if ((isMax && v > 0) || (isMin && v < 0)) out.push({ x: (i + 0.5) * CW, y: (j + 0.5) * CH, v });
-    }
-    out.sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
-    return out.slice(0, 8);
-  }
-  function poly(pts, col) { ctx.fillStyle = col; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.fill(); }
-  function draw(stats) {
-    ctx.fillStyle = C.lavender; ctx.fillRect(0, 0, W, H);
-    poly(LAND, C.paleGreen); poly(ISLAND, C.paleGreen);
-    // Isobaren alle 2 hPa
-    ctx.strokeStyle = C.cyan; ctx.lineWidth = 2;
-    for (let L = -32; L <= 32; L += 2) { if (L === 0) continue; isobars(L); }
-    // Windspuren
-    ctx.strokeStyle = C.purple; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
-    ctx.beginPath();
-    for (const o of parts) {
-      const tr = o.trail; if (tr.length < 4) continue;
-      ctx.moveTo(tr[0], tr[1]); for (let k = 2; k < tr.length; k += 2) ctx.lineTo(tr[k], tr[k + 1]);
-    }
-    ctx.stroke();
-    if (showArrows) {
-      for (let j = 2; j < NY; j += 4) for (let i = 2; i < NX; i += 4) {
-        const u = U[idx(i, j)], v = V[idx(i, j)], sp = Math.hypot(u, v); if (sp < 0.8) continue;
-        const k = Math.min(48, sp * 4) / sp;
-        const x = (i + 0.5) * CW, y = (j + 0.5) * CH;
-        arrow(ctx, x - u * k / 2, y - v * k / 2, u * k, v * k, C.black, 2.5, 9);
-      }
-    }
-    // Hoch- und Tiefkerne
-    for (const e of stats.ext) {
-      const hi = e.v > 0;
-      text(ctx, hi ? 'H' : 'T', e.x, e.y + 14, 44, hi ? C.blue : C.red, 500, 'center');
-      text(ctx, String(Math.round(1013 + e.v)), e.x, e.y + 34, 13, C.black, 500, 'center');
-    }
-    // Leuchtturm mit Messstation
-    const { x, y } = LIGHT;
-    ctx.fillStyle = C.black; ctx.beginPath(); ctx.moveTo(x - 9, y + 4); ctx.lineTo(x + 9, y + 4); ctx.lineTo(x + 5, y - 30); ctx.lineTo(x - 5, y - 30); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = C.yellow; ctx.fillRect(x - 7, y - 40, 14, 10);
-    ctx.fillStyle = C.red; ctx.fillRect(x - 7, y - 16, 14, 6);
-    ctx.fillStyle = C.black; ctx.fillRect(x - 128, y - 22, 108, 34);
-    text(ctx, `BFT ${stats.bft}`, x - 74, y + 2, 20, stats.bft >= 6 ? C.yellow : C.white, 500, 'center');
-    // Pinselvorschau
-    if (pointer) {
-      ctx.strokeStyle = brush > 0 ? C.blue : C.red; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
-      ctx.beginPath(); ctx.arc(pointer.x, pointer.y, 3 * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-    }
-    const lh = Math.max(15, minSize(ctx)) * 1.35;
-    text(ctx, rotOn ? 'ERDROTATION AN' : 'ERDROTATION AUS', 14, 10 + lh, 15, C.black);
-    text(ctx, sunOn ? 'SONNE AN' : 'SONNE AUS', 14, 10 + 2 * lh, 15, C.black);
-  }
-  let readT = 0;
-  function frame(dt) {
-    if (!view.fit()) return;
-    update(dt);
-    let mn = Infinity, mx = -Infinity;
-    for (let k = 0; k < p.length; k++) { if (p[k] < mn) mn = p[k]; if (p[k] > mx) mx = p[k]; }
-    const range = mx - mn;
-    const ms = Math.hypot(sample(U, LIGHT.x, LIGHT.y), sample(V, LIGHT.x, LIGHT.y));
-    const bft = beaufort(ms);
-    const ext = extrema();
-    draw({ bft, ext });
-    const frac = range / 40;
-    meter.set(frac, `${fmt(range, 0)} hPa`);
-    setChain($('#chain3'), frac < 0.05 ? 3 : 2);
-    readT -= dt;
-    if (readT <= 0) {
-      readT = 0.25;
-      read.textContent = `Leuchtturm: ${fmt(ms, 1)} m/s · Windstärke ${bft} · größter Druckunterschied ${fmt(range, 0)} hPa`;
-    }
-    // Aufgaben
-    const tick = key => {
-      if (done[key]) return; done[key] = true;
-      const li = $(`#s3tasks li[data-t="${key}"]`); li.classList.add('done'); $('.box', li).textContent = '✓';
-      const all = Object.values(done).every(Boolean);
-      status.textContent = all ? 'Alle Aufgaben geschafft!' : 'Geschafft!';
-      if (all) $('#s3insight').classList.add('unlocked');
-    };
-    if (bft >= 6) tick('bft6');
-    if (rot > 1.1 && ext.some(e => e.v < -10)) tick('wirbel');
-    if (!sunOn && frac > 0.2) stillArmed = true;
-    if (!sunOn && stillArmed && frac < 0.05) tick('still');
-  }
-
-  const cv = view.canvas;
-  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); pointer = view.local(e); painting = true; e.preventDefault(); });
-  cv.addEventListener('pointermove', e => { pointer = view.local(e); });
-  const stop = e => { painting = false; if (e.pointerType !== 'mouse') pointer = null; };
-  cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
-  cv.addEventListener('pointerleave', () => { painting = false; pointer = null; });
-  $$('#s3brush .btn').forEach(b => b.addEventListener('click', () => {
-    brush = +b.dataset.brush;
-    $$('#s3brush .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
-  }));
-  $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; e.currentTarget.setAttribute('aria-pressed', rotOn ? 'true' : 'false'); });
-  $('#s3sun').addEventListener('click', e => { sunOn = !sunOn; stillArmed = false; pressToggle(e.currentTarget, sunOn, ['Sonne an', 'Sonne aus']); });
-  $('[data-toggle3="arrows"]').addEventListener('click', e => { showArrows = !showArrows; e.currentTarget.setAttribute('aria-pressed', showArrows ? 'true' : 'false'); });
-  $('#s3reset').addEventListener('click', () => { reset(); p.fill(0); });
-  reset();
-  return { frame };
-})();
-
-/* =========================================================
-   VERGLEICH – vier Strömungen, ein Prinzip
-   ========================================================= */
-const CMP = (() => {
-  const W = 300, H = 200;
-  const views = ['#k1', '#k2', '#k3', '#k4'].map(s => makeView($(s), W, H));
-  const meters = ['#kb1', '#kb2', '#kb3', '#kb4'].map(s => new Meter($(s)));
-  let rod, hL, hR, Q, airH, airT, phase, wait;
-  const dots = Array.from({ length: 14 }, (_, i) => i / 14);
-  const airDots = Array.from({ length: 60 }, () => ({ x: Math.random(), y: Math.random() }));
-  function reset() {
-    rod = Array.from({ length: 24 }, (_, i) => i < 12 ? 1 : 0);
-    hL = 0.85; hR = 0.15; Q = 1; airH = 1; airT = 0; phase = 0; wait = 0;
-  }
-  const heat = v => v > 0.8 ? C.red : v > 0.62 ? C.orange : v > 0.45 ? C.yellowS : v > 0.3 ? C.cyan3 : C.blue;
-  function frame(dt) {
-    // Physik (alle mit gleichem Takt)
-    for (let s = 0; s < 1; s++) {
-      const n = rod.slice();
-      for (let i = 0; i < rod.length; i++) {
-        const l = rod[Math.max(0, i - 1)], r = rod[Math.min(rod.length - 1, i + 1)];
-        n[i] = rod[i] + 0.25 * (l + r - 2 * rod[i]) * Math.min(1, dt * 30);
-      }
-      rod = n;
-    }
-    const flow = (hL - hR) * 0.35 * dt; hL -= flow; hR += flow;
-    const I = Q * 0.35; Q -= I * dt;
-    const wind = (airH - airT) * 0.35 * dt; airH -= wind; airT += wind;
-    let l = 0, r = 0; for (let i = 0; i < 12; i++) { l += rod[i]; r += rod[i + 12]; }
-    const diffs = [(l - r) / 12, (hL - hR) / 0.7, Q, airH - airT];
-    diffs.forEach((d, i) => meters[i].set(d));
-    if (diffs.every(d => d < 0.015)) { wait += dt; if (wait > 2.5) reset(); }
-    const time = performance.now() / 1000;
-
-    // 1 Wärme
-    let v = views[0], c = v.ctx;
-    if (v.fit()) {
-      c.fillStyle = C.yellowPale; c.fillRect(0, 0, W, H);
-      const x0 = 30, w = 240, sw = w / rod.length;
-      rod.forEach((t, i) => { c.fillStyle = heat(t); c.fillRect(x0 + i * sw, 84, sw + 0.5, 34); });
-      c.strokeStyle = C.black; c.lineWidth = 2; c.strokeRect(x0, 84, w, 34);
-      text(c, 'WARM', x0, 70, 14, C.black); text(c, 'KALT', x0 + w, 70, 14, C.black, 500, 'right');
-      const f = Math.min(1, diffs[0] * 1.6);
-      if (f > 0.05) arrow(c, 110, 150, 80 * f + 10, 0, C.red, 4, 12);
-    }
-    // 2 Wasser
-    v = views[1]; c = v.ctx;
-    if (v.fit()) {
-      c.fillStyle = C.ice; c.fillRect(0, 0, W, H);
-      const tb = 170, th = 130;
-      c.fillStyle = C.cyan2;
-      c.fillRect(40, tb - th * hL, 80, th * hL); c.fillRect(180, tb - th * hR, 80, th * hR);
-      c.fillRect(120, tb - 18, 60, 18);
-      c.strokeStyle = C.black; c.lineWidth = 3;
-      c.beginPath(); c.moveTo(40, tb - th); c.lineTo(40, tb); c.lineTo(260, tb); c.lineTo(260, tb - th); c.stroke();
-      c.beginPath(); c.moveTo(120, tb - th); c.lineTo(120, tb - 18); c.lineTo(180, tb - 18); c.lineTo(180, tb - th); c.stroke();
-      c.fillStyle = C.white;
-      const sp = diffs[1];
-      for (let i = 0; i < 4; i++) { const ph = (time * sp * 1.4 + i / 4) % 1; c.fillRect(122 + ph * 52, tb - 11, 5, 5); }
-      text(c, 'HOCH', 80, 22, 14, C.black, 500, 'center'); text(c, 'NIEDRIG', 220, 22, 14, C.black, 500, 'center');
-    }
-    // 3 Strom
-    v = views[2]; c = v.ctx;
-    if (v.fit()) {
-      c.fillStyle = C.lavender; c.fillRect(0, 0, W, H);
-      // Stromkreis: Batterie unten (+ links, − rechts), Lampe oben
-      c.strokeStyle = C.black; c.lineWidth = 3;
-      c.beginPath(); c.moveTo(100, 160); c.lineTo(50, 160); c.lineTo(50, 50); c.lineTo(250, 50); c.lineTo(250, 160); c.lineTo(200, 160); c.stroke();
-      c.fillStyle = C.red; c.fillRect(100, 140, 50, 40); c.fillStyle = C.blue; c.fillRect(150, 140, 50, 40);
-      c.strokeRect(100, 140, 100, 40);
-      text(c, '+', 125, 172, 30, C.white, 500, 'center'); text(c, '−', 175, 172, 30, C.white, 500, 'center');
-      const lit = I > 0.2 ? C.yellow : I > 0.06 ? C.yellowPastel : C.white;
-      c.fillStyle = lit; c.beginPath(); c.arc(150, 50, 22, 0, Math.PI * 2); c.fill(); c.stroke();
-      c.beginPath(); c.moveTo(136, 36); c.lineTo(164, 64); c.moveTo(164, 36); c.lineTo(136, 64); c.stroke();
-      // Ladungen wandern entlang des Drahts (technische Stromrichtung + → −)
-      c.fillStyle = C.orange;
-      const path = s => {
-        const seg = [[100, 160, 50, 160], [50, 160, 50, 50], [50, 50, 250, 50], [250, 50, 250, 160], [250, 160, 200, 160]];
-        const lens = seg.map(([a, b, cc, d]) => Math.hypot(cc - a, d - b));
-        let d = s * lens.reduce((x, y) => x + y, 0);
-        for (let k = 0; k < seg.length; k++) {
-          if (d <= lens[k] || k === seg.length - 1) { const [a, b, cc, dd] = seg[k], f = Math.min(1, d / lens[k]); return [a + (cc - a) * f, b + (dd - b) * f]; }
-          d -= lens[k];
-        }
-      };
-      dots.forEach(d0 => { const s = (d0 + time * Q * 0.25) % 1; const [x, y] = path(s); if (Math.abs(x - 150) > 24 || y > 60) c.fillRect(x - 3, y - 3, 6, 6); });
-    }
-    // 4 Wind
-    v = views[3]; c = v.ctx;
-    if (v.fit()) {
-      c.fillStyle = C.mint; c.fillRect(0, 0, W, H);
-      c.strokeStyle = C.black; c.lineWidth = 3;
-      c.strokeRect(20, 60, 100, 110); c.strokeRect(180, 60, 100, 110);
-      c.fillStyle = C.mint; c.fillRect(118, 130, 64, 37);
-      c.beginPath(); c.moveTo(120, 128); c.lineTo(180, 128); c.moveTo(120, 170); c.lineTo(180, 170); c.stroke();
-      const nH = Math.round(30 + 25 * (airH - airT));
-      c.fillStyle = C.purple;
-      for (let i = 0; i < 60; i++) {
-        const d = airDots[i], left = i < nH;
-        const x = (left ? 26 : 186) + d.x * 88 + Math.sin(time * 3 + i) * 2, y = 66 + d.y * 98 + Math.cos(time * 2.5 + i) * 2;
-        c.fillRect(x - 2.5, y - 2.5, 5, 5);
-      }
-      const f = diffs[3];
-      for (let i = 0; i < 3; i++) { const ph = (time * f * 1.5 + i / 3) % 1; c.fillRect(122 + ph * 54, 146, 5, 5); }
-      text(c, 'H', 70, 46, 34, C.blue, 500, 'center'); text(c, 'T', 230, 46, 34, C.red, 500, 'center');
-      if (f > 0.05) arrow(c, 130, 110, 40, 0, C.black, 3, 10);
-    }
-  }
-  $('#kreset').addEventListener('click', reset);
-  reset();
-  return { frame, enter: reset };
-})();
-
-/* =========================================================
-   Navigation & Hauptschleife
-   ========================================================= */
-const ROUTES = { start: null, 'stufe-1': S1, 'stufe-2': S2, 'stufe-3': S3, vergleich: CMP };
-let active = null, current = '';
-function route() {
-  let id = location.hash.replace('#', '') || 'start';
-  if (!(id in ROUTES)) id = 'start';
-  if (id === current) return;
-  current = id;
-  $$('.stage').forEach(s => s.classList.toggle('active', s.id === id));
-  $$('.nav a').forEach(a => { if (a.dataset.route === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-  active = ROUTES[id];
-  if (active && active.enter) active.enter();
-  window.scrollTo(0, 0);
-}
-window.addEventListener('hashchange', route);
-route();
-
-let last = performance.now();
-function loop(now) {
-  const dt = Math.min(1 / 30, (now - last) / 1000);
-  last = now;
-  if (active && dt > 0) active.frame(dt);
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
-</script>
+<script src="js/kit.js"></script>
+<script src="js/common.js"></script>
+<script src="js/stage1.js"></script>
+<script src="js/stage2.js"></script>
+<script src="js/stage3.js"></script>
+<script src="js/compare.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
