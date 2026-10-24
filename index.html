@@ -20,7 +20,6 @@
       <a href="#stufe-1" data-route="stufe-1"><span class="num">1</span><span data-t="nav.s1"></span></a>
       <a href="#stufe-2" data-route="stufe-2"><span class="num">2</span><span data-t="nav.s2"></span></a>
       <a href="#stufe-3" data-route="stufe-3"><span class="num">3</span><span data-t="nav.s3"></span></a>
-      <a href="#vergleich" data-route="vergleich" data-t="nav.cmp"></a>
     </nav>
     <button type="button" class="view-toggle"></button>
   </div>
@@ -38,27 +37,14 @@
       <p class="kicker" data-t="start.kicker"></p>
       <h1 class="headline" data-t-html="start.headline"></h1>
       <p class="lead" data-t="start.lead"></p>
-      <ol class="chain all" data-t-aria="chain.aria">
-        <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li>
-        <li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li>
-        <li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li>
-        <li data-t="chain.eq"></li>
-      </ol>
     </div>
   </div>
   <div class="page">
-    <div class="intro">
-      <div class="step"><div class="n">1</div><h3 data-t="chain.diff"></h3><p data-t="start.steps.diff"></p></div>
-      <div class="step"><div class="n">2</div><h3 data-t="chain.grad"></h3><p data-t="start.steps.grad"></p></div>
-      <div class="step"><div class="n">3</div><h3 data-t="chain.flow"></h3><p data-t="start.steps.flow"></p></div>
-      <div class="step"><div class="n">4</div><h3 data-t="chain.eq"></h3><p data-t="start.steps.eq"></p></div>
-    </div>
     <h2 class="h2-short" data-t="start.partsTitle"></h2>
     <ul class="parts">
       <li><a href="#stufe-1" data-t-html="start.parts.s1"></a></li>
       <li><a href="#stufe-2" data-t-html="start.parts.s2"></a></li>
       <li><a href="#stufe-3" data-t-html="start.parts.s3"></a></li>
-      <li><a href="#vergleich" data-t-html="start.parts.cmp"></a></li>
     </ul>
     <div class="next-part"><a class="btn big primary" href="#stufe-1" data-t="start.next"></a></div>
   </div>
@@ -79,14 +65,10 @@
   <div class="page">
     <div class="lab">
       <div class="lab-pre">
-        <ol class="chain" id="chain1" data-t-aria="chain.aria">
-          <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.eq"></li>
-        </ol>
         <div class="row">
           <div class="seg" role="group" data-t-aria="s1.modesAria" id="s1modes">
             <button type="button" class="btn" data-mode="dichte" aria-pressed="true" data-t="s1.modes.dichte"></button>
             <button type="button" class="btn" data-mode="waerme" aria-pressed="false" data-t="s1.modes.waerme"></button>
-            <button type="button" class="btn" data-mode="farbe" aria-pressed="false" data-t="s1.modes.farbe"></button>
           </div>
           <button type="button" class="info" aria-controls="s1-note" data-t-aria="s1.infoAria"></button>
         </div>
@@ -105,22 +87,35 @@
         </div>
         <p class="readout" id="s1read" aria-live="polite"></p>
         <p class="hint" id="s1hint"></p>
-        <div class="tasks" id="s1tasks">
-          <h3 data-t="s1.tasks.title"></h3>
-          <p class="task-intro" data-t="s1.tasks.intro"></p>
-          <ul>
-            <li data-task="dichte"><span class="box"></span><span data-t="s1.tasks.dichte"></span></li>
-            <li data-task="waerme"><span class="box"></span><span data-t="s1.tasks.waerme"></span></li>
-            <li data-task="farbe"><span class="box"></span><span data-t="s1.tasks.farbe"></span></li>
-          </ul>
-          <p class="status" id="s1status" aria-live="polite"></p>
-        </div>
+        <button type="button" class="btn task-open" aria-controls="s1dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
+        <dialog class="task-dlg" id="s1dlg" data-t-aria="kit.tasks">
+          <div class="tasks" id="s1tasks">
+            <h3 data-t="s1.tasks.title"></h3>
+            <p class="task-intro" data-t="s1.tasks.intro"></p>
+            <ul>
+              <li data-task="dichte"><span class="box"></span><span data-t="s1.tasks.dichte"></span></li>
+              <li data-task="waerme"><span class="box"></span><span data-t="s1.tasks.waerme"></span></li>
+            </ul>
+            <p class="status" id="s1status" aria-live="polite"></p>
+          </div>
+          <button type="button" class="btn big" data-close data-t="kit.close"></button>
+        </dialog>
         <div class="merke locked" data-for="s1tasks">
           <h3 data-t="kit.merke"></h3>
           <p data-t="s1.merke"></p>
           <span class="locked-note"></span>
         </div>
       </div>
+    </div>
+    <div class="same">
+      <h2 class="h2-short" data-t="s1.same.title"></h2>
+      <p class="same-lead" data-t="s1.same.lead"></p>
+      <ul class="same-list">
+        <li><b data-t="s1.same.heat.title"></b><span data-t="s1.same.heat.text"></span></li>
+        <li><b data-t="s1.same.water.title"></b><span data-t="s1.same.water.text"></span></li>
+        <li><b data-t="s1.same.current.title"></b><span data-t="s1.same.current.text"></span></li>
+        <li><b data-t="s1.same.wind.title"></b><span data-t="s1.same.wind.text"></span></li>
+      </ul>
     </div>
     <div class="topics">
       <details class="topic"><summary data-t="s1.topics.back.title"></summary><div class="topic-body" data-t-html="s1.topics.back.body"></div></details>
@@ -145,12 +140,9 @@
   <div class="page">
     <div class="lab">
       <div class="lab-pre">
-        <ol class="chain" id="chain2" data-t-aria="chain.aria">
-          <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.eq"></li>
-        </ol>
         <div class="controls">
           <div class="range"><label for="s2time" data-t="s2.time"></label><input type="range" id="s2time" min="0" max="24" step="0.1" value="13"><output id="s2clock" for="s2time"></output></div>
-          <button type="button" class="btn" id="s2play" aria-pressed="true" data-t="s2.playOn"></button>
+          <button type="button" class="info" aria-controls="s2-note" data-t-aria="s2.infoAria"></button>
         </div>
       </div>
       <div class="lab-stage">
@@ -160,33 +152,35 @@
         </div>
       </div>
       <div class="lab-post">
-        <div class="controls">
-          <button type="button" class="btn hold" id="s2heatLand" data-t="s2.heatLand"></button>
-          <button type="button" class="btn hold" id="s2heatSea" data-t="s2.heatSea"></button>
-          <button type="button" class="btn" id="s2sun" aria-pressed="true" data-t="s2.sunOn"></button>
-        </div>
-        <div class="row">
+        <div class="info-note" id="s2-note" hidden data-t-html="s2.note"></div>
+        <div class="dev-only dev-box">
+          <h3 data-t="kit.devTitle"></h3>
+          <div class="controls">
+            <button type="button" class="btn" id="s2sun" aria-pressed="true" data-t="s2.sunOn"></button>
+          </div>
           <div class="seg" role="group" data-t-aria="s2.showAria">
             <button type="button" class="btn" data-toggle="arrows" aria-pressed="true" data-t="s2.show.arrows"></button>
             <button type="button" class="btn" data-toggle="isobars" aria-pressed="true" data-t="s2.show.isobars"></button>
             <button type="button" class="btn" data-toggle="smoke" aria-pressed="true" data-t="s2.show.smoke"></button>
             <button type="button" class="btn" data-toggle="tracers" aria-pressed="true" data-t="s2.show.tracers"></button>
           </div>
-          <button type="button" class="info" aria-controls="s2-note" data-t-aria="s2.infoAria"></button>
         </div>
-        <div class="info-note" id="s2-note" hidden data-t-html="s2.note"></div>
         <p class="readout" id="s2read" aria-live="polite"></p>
         <p class="hint" data-t="s2.hint"></p>
-        <div class="tasks" id="s2tasks">
-          <h3 data-t="s2.tasks.title"></h3>
-          <p class="task-intro" data-t-html="s2.tasks.intro"></p>
-          <button type="button" class="btn primary" id="s2task" data-t="s2.tasks.start"></button>
-          <ul>
-            <li data-task="boat"><span class="box"></span><span data-t="s2.tasks.boat"></span></li>
-            <li data-task="night"><span class="box"></span><span data-t="s2.tasks.night"></span></li>
-          </ul>
-          <p class="status" id="s2status" aria-live="polite"></p>
-        </div>
+        <button type="button" class="btn task-open" aria-controls="s2dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
+        <dialog class="task-dlg" id="s2dlg" data-t-aria="kit.tasks">
+          <div class="tasks" id="s2tasks">
+            <h3 data-t="s2.tasks.title"></h3>
+            <p class="task-intro" data-t-html="s2.tasks.intro"></p>
+            <button type="button" class="btn primary" id="s2task" data-t="s2.tasks.start"></button>
+            <ul>
+              <li data-task="boat"><span class="box"></span><span data-t="s2.tasks.boat"></span></li>
+              <li data-task="night"><span class="box"></span><span data-t="s2.tasks.night"></span></li>
+            </ul>
+            <p class="status" id="s2status" aria-live="polite"></p>
+          </div>
+          <button type="button" class="btn big" data-close data-t="kit.close"></button>
+        </dialog>
         <div class="merke locked" data-for="s2tasks">
           <h3 data-t="kit.merke"></h3>
           <p data-t="s2.merke"></p>
@@ -217,9 +211,6 @@
   <div class="page">
     <div class="lab">
       <div class="lab-pre">
-        <ol class="chain" id="chain3" data-t-aria="chain.aria">
-          <li data-t="chain.diff"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.grad"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.flow"></li><li class="arrow" aria-hidden="true">→</li><li data-t="chain.eq"></li>
-        </ol>
         <div class="seg" role="group" data-t-aria="s3.brushAria" id="s3brush">
           <button type="button" class="btn" data-brush="1" aria-pressed="true" data-t="s3.brushHigh"></button>
           <button type="button" class="btn" data-brush="-1" aria-pressed="false" data-t="s3.brushLow"></button>
@@ -235,22 +226,30 @@
         <div class="controls">
           <button type="button" class="btn" id="s3rot" aria-pressed="false" data-t="s3.rot"></button>
           <button type="button" class="info" aria-controls="s3-note" data-t-aria="s3.rotInfoAria"></button>
-          <button type="button" class="btn" id="s3sun" aria-pressed="true" data-t="s3.sunOn"></button>
-          <button type="button" class="btn" id="s3arrows" aria-pressed="false" data-t="s3.arrows"></button>
-          <button type="button" class="btn" id="s3reset" data-t="s3.reset"></button>
         </div>
         <div class="info-note" id="s3-note" hidden data-t-html="s3.rotNote"></div>
+        <div class="dev-only dev-box">
+          <h3 data-t="kit.devTitle"></h3>
+          <div class="controls">
+            <button type="button" class="btn" id="s3sun" aria-pressed="false" data-t="s3.sunOff"></button>
+            <button type="button" class="btn" id="s3arrows" aria-pressed="true" data-t="s3.arrows"></button>
+          </div>
+        </div>
         <p class="readout" id="s3read" aria-live="polite"></p>
         <p class="hint" data-t="s3.hint"></p>
-        <div class="tasks" id="s3tasks">
-          <h3 data-t="s3.tasks.title"></h3>
-          <ul>
-            <li data-task="bft6"><span class="box"></span><span data-t="s3.tasks.bft6"></span></li>
-            <li data-task="wirbel"><span class="box"></span><span data-t="s3.tasks.wirbel"></span></li>
-            <li data-task="still"><span class="box"></span><span data-t="s3.tasks.still"></span></li>
-          </ul>
-          <p class="status" id="s3status" aria-live="polite"></p>
-        </div>
+        <button type="button" class="btn task-open" aria-controls="s3dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
+        <dialog class="task-dlg" id="s3dlg" data-t-aria="kit.tasks">
+          <div class="tasks" id="s3tasks">
+            <h3 data-t="s3.tasks.title"></h3>
+            <ul>
+              <li data-task="sturm"><span class="box"></span><span data-t="s3.tasks.sturm"></span></li>
+              <li data-task="wirbel"><span class="box"></span><span data-t="s3.tasks.wirbel"></span></li>
+              <li data-task="still"><span class="box"></span><span data-t="s3.tasks.still"></span></li>
+            </ul>
+            <p class="status" id="s3status" aria-live="polite"></p>
+          </div>
+          <button type="button" class="btn big" data-close data-t="kit.close"></button>
+        </dialog>
         <div class="merke locked" data-for="s3tasks">
           <h3 data-t="kit.merke"></h3>
           <p data-t="s3.merke"></p>
@@ -262,50 +261,7 @@
       <details class="topic"><summary data-t="s3.topics.rot.title"></summary><div class="topic-body" data-t-html="s3.topics.rot.body"></div></details>
       <details class="topic"><summary data-t="s3.topics.model.title"></summary><div class="topic-body" data-t-html="s3.topics.model.body"></div></details>
     </div>
-    <div class="next-part"><a class="btn big" href="#vergleich" data-t="s3.next"></a></div>
-  </div>
-</section>
-
-<!-- ================= COMPARISON ================= -->
-<section class="part" id="part-vergleich" data-stage="vergleich" hidden>
-  <div class="poster small">
-    <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
-    <svg class="l2" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="currentColor"/></svg>
-    <svg class="l3" viewBox="0 0 400 400" aria-hidden="true"><path d="M120 60 L120 340"/><rect x="60" y="60" width="280" height="80" rx="40"/><rect x="60" y="180" width="280" height="80" rx="40"/></svg>
-    <div class="poster-text">
-      <p class="kicker" data-t="cmp.kicker"></p>
-      <h2 class="headline" data-t-html="cmp.headline"></h2>
-      <p class="lead" data-t="cmp.lead"></p>
-    </div>
-  </div>
-  <div class="page">
-    <div class="compare">
-      <div class="cmp">
-        <div class="stage-frame cmp-frame"><canvas id="k1" data-t-aria="cmp.heat.aria"></canvas></div>
-        <div class="cmp-text"><h3 data-t="cmp.heat.title"></h3><p class="big" data-t="cmp.heat.big"></p><p data-t="cmp.heat.text"></p></div>
-        <div class="hbar" id="kb1"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
-      </div>
-      <div class="cmp">
-        <div class="stage-frame cmp-frame"><canvas id="k2" data-t-aria="cmp.water.aria"></canvas></div>
-        <div class="cmp-text"><h3 data-t="cmp.water.title"></h3><p class="big" data-t="cmp.water.big"></p><p data-t="cmp.water.text"></p></div>
-        <div class="hbar" id="kb2"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
-      </div>
-      <div class="cmp">
-        <div class="stage-frame cmp-frame"><canvas id="k3" data-t-aria="cmp.current.aria"></canvas></div>
-        <div class="cmp-text"><h3 data-t="cmp.current.title"></h3><p class="big" data-t="cmp.current.big"></p><p data-t="cmp.current.text"></p></div>
-        <div class="hbar" id="kb3"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
-      </div>
-      <div class="cmp">
-        <div class="stage-frame cmp-frame"><canvas id="k4" data-t-aria="cmp.wind.aria"></canvas></div>
-        <div class="cmp-text"><h3 data-t="cmp.wind.title"></h3><p class="big" data-t="cmp.wind.big"></p><p data-t="cmp.wind.text"></p></div>
-        <div class="hbar" id="kb4"><span data-t="meter.label"></span><span class="track"><span class="fill"></span></span><span class="v"></span></div>
-      </div>
-    </div>
-    <div class="compare-foot">
-      <p data-t="cmp.foot"></p>
-      <button type="button" class="btn big" id="kreset"><span><span data-t="cmp.reset"></span><span class="sub" data-t="cmp.resetSub"></span></span></button>
-    </div>
-    <div class="next-part"><a class="btn big" href="#start" data-t="cmp.next"></a></div>
+    <div class="next-part"><a class="btn big" href="#start" data-t="s3.next"></a></div>
   </div>
 </section>
 
@@ -313,6 +269,7 @@
 
 <footer class="foot">
   <p class="brand-line" data-brand="line"></p>
+  <button type="button" class="dev-link" data-dev-link aria-pressed="false"></button>
 </footer>
 
 <script src="theme/theme.js"></script>
@@ -324,7 +281,6 @@
 <script src="js/stage1.js"></script>
 <script src="js/stage2.js"></script>
 <script src="js/stage3.js"></script>
-<script src="js/compare.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

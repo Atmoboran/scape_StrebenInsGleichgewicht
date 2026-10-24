@@ -51,17 +51,14 @@ THEME.tempColor = function (t) {
 };
 
 // ---- Streben nach Gleichgewicht: canvas colours ----
-// Temperatures (particle speeds, the metal rod) use THEME.tempColor;
+// Temperatures (particle speeds) use THEME.tempColor;
 // "H" (Hoch) and "T" (Tief) use THEME.data.high / THEME.data.low.
 THEME.streben = {
   ink: '#000000',              // outlines, text, the wall
   paper: '#FFFFFF',            // margins around the drawings, light text
   // Stage 1 – particle box
-  box: { dichte: '#CFE6CE', waerme: '#FFFFFF', farbe: '#D4EDF8' },   // box background per experiment
+  box: { dichte: '#CFE6CE', waerme: '#FFFFFF' },   // box background per experiment
   particle: '#442683',         // particles (density experiment)
-  water: '#80C0DA',            // water particles
-  dye: '#442683',              // dye particles
-  dyeCloud: 'rgba(68,38,131,0.13)',   // the dye cloud around them
   // Stage 2 – sea breeze cross-section
   sky: { day: '#D4EDF8', dawn: '#F8E1E6', night: '#28348B', noSun: '#E0E5F5' },
   inkNight: '#FFFFFF',         // text and arrows on the night sky
@@ -73,10 +70,7 @@ THEME.streben = {
   smoke: 'rgba(31,108,142,0.28)', smokeNight: 'rgba(174,196,194,0.55)',
   vane: '#EE7518', boat: '#28348B', sail: '#FFF487',
   // Stage 3 – weather map
-  mapSea: '#E0E5F5', mapLand: '#D0E8DC', mapIsobar: '#0097BE', windTrail: '#442683',
-  lampTop: '#FFE547', lampBand: '#E41513', bftStrong: '#FFE547',
-  // Comparison
-  heatBg: '#FDF6B7', waterBg: '#D4EDF8', basin: '#44ABCC', currentBg: '#E0E5F5', windBg: '#CFE6CE',
-  plus: '#E41513', minus: '#3274BA', lampOn: '#FFE547', lampDim: '#FFF487', lampOff: '#FFFFFF',
-  charge: '#EE7518', air: '#442683', heatArrow: '#E41513'
+  mapBg: '#E0E5F5',            // the map: one surface, no land/sea colours
+  mapCoast: '#98B8DD',         // coastlines of Europe and the North Atlantic (backdrop only)
+  mapIsobar: '#0097BE', windTrail: '#442683'
 };

@@ -1,6 +1,6 @@
 // Streben nach Gleichgewicht – helpers shared by all stages (window.Streben).
 // Canvas views (device-pixel-ratio aware, letterboxed in fullscreen), the
-// difference meter, the principle chain, canvas text and arrows.
+// difference meter, canvas text and arrows.
 (() => {
   'use strict';
   const K = THEME.streben;
@@ -46,7 +46,7 @@
     };
   };
 
-  // The difference meter (bar above a simulation, or the bars in the comparison).
+  // The difference meter (bar above a simulation).
   S.Meter = class {
     constructor(el) { this.el = el; this.val = el.querySelector('.meter-val, .v'); this.last = ''; }
     set(frac, label) {
@@ -56,14 +56,6 @@
       if (txt !== this.last) { this.val.textContent = txt; this.last = txt; }
       this.el.classList.toggle('is-zero', frac < 0.04);
     }
-  };
-
-  // phase 1: difference only, 2: difference → flow, 3: balance reached
-  S.setChain = (el, phase) => {
-    S.$$('li:not(.arrow)', el).forEach((li, i) => {
-      const on = phase === 3 ? i === 3 : phase === 2 ? i <= 2 : i <= phase;
-      li.classList.toggle('on', on);
-    });
   };
 
   // Canvas text, never smaller than 12 px on screen (SCAPE.minFont).
@@ -94,17 +86,6 @@
   // Beaufort number from m/s
   const BFT = [0.3, 1.6, 3.4, 5.5, 8.0, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7];
   S.beaufort = ms => { let b = 0; while (b < BFT.length && ms >= BFT[b]) b++; return b; };
-
-  // A button that acts while it is held down (mouse, touch or keyboard).
-  S.holdButton = (btn, onChange) => {
-    const on = e => { e.preventDefault(); btn.classList.add('held'); onChange(true); };
-    const off = () => { btn.classList.remove('held'); onChange(false); };
-    btn.addEventListener('pointerdown', on);
-    ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach(ev => btn.addEventListener(ev, off));
-    btn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) on(e); });
-    btn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') off(); });
-    btn.addEventListener('contextmenu', e => e.preventDefault());
-  };
 
   // Toggle button: pressed state and, optionally, its label (text keys).
   S.pressToggle = (btn, state, keys) => {

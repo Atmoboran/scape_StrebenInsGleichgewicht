@@ -87,7 +87,7 @@
 .logo-sub { display: flex; justify-content: space-between; gap: .5em; margin-top: calc(var(--logo-size, 40px) * .13); font-family: var(--font); font-weight: var(--fw-medium); font-size: calc(var(--logo-size, 40px) * .23); letter-spacing: .04em; text-transform: uppercase; }
 
 /* ---- Streben nach Gleichgewicht: colour theme of every part --------------
-   Each part (start, stage 1–3, comparison) has its own CD combination:
+   Each part (start, stage 1–3) has its own CD combination:
    accent (difference meter, decoration), pastel (task box, hover), the three
    poster fields (--f1 … --f3), the small solid shape (--shape) and the large
    outline (--outline). Strong tones always next to pastels. */
@@ -98,4 +98,3 @@
 [data-stage="stufe-1"]   { --accent: var(--c-green-strong); --accent-pale: var(--c-green-pale); --f1: var(--c-green-pale); --f2: var(--c-green-strong); --f3: var(--c-navy); --shape: var(--c-amber); --outline: var(--c-white); }
 [data-stage="stufe-2"]   { --accent: var(--c-petrol);  --accent-pale: var(--c-ice);         --f1: var(--c-ice);         --f2: var(--c-petrol);       --f3: var(--c-amber);   --shape: var(--c-red-2);  --outline: var(--c-white); }
 [data-stage="stufe-3"]   { --accent: var(--c-blue);    --accent-pale: var(--c-sand);        --f1: var(--c-sand);        --f2: var(--c-blue);         --f3: var(--c-salmon);  --shape: var(--c-yellow); --outline: var(--c-white); }
-[data-stage="vergleich"] { --accent: var(--c-purple-2); --accent-pale: var(--c-yellow-pale); --f1: var(--c-yellow-pale); --f2: var(--c-purple-2);   --f3: var(--c-cyan-3);  --shape: var(--c-orange); --outline: var(--c-white); }

@@ -1,9 +1,10 @@
 // Stage 2 – sea breeze / land breeze: a cross-section through sea, coast and
 // air with a time-of-day slider. One circulation cell driven by the
-// temperature difference between land and sea.
+// temperature difference between land and sea. Time runs by itself; dragging
+// the slider pauses it briefly. Sun and display toggles only in dev mode.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, fmt, makeView, Meter, setChain, text, arrow, beaufort, holdButton, pressToggle } = Streben;
+  const { $, $$, clamp, rnd, fmt, makeView, Meter, text, arrow, beaufort, pressToggle } = Streben;
   const K = THEME.streben, D = THEME.data;
 
   const W = 900, H = 600, BASE = 430, HC = 390, COAST = 450;
@@ -12,10 +13,11 @@
   const slider = $('#s2time'), clock = $('#s2clock'), read = $('#s2read'), status = $('#s2status');
   const tasks = SCAPE.tasks($('#s2tasks'));
   const hideBadge = Streben.firstHint($('#f2'), 's2.badge');
-  const PLAY = ['s2.playOn', 's2.playOff'], SUN = ['s2.sunOn', 's2.sunOff'];
+  const SUN = ['s2.sunOn', 's2.sunOff'];
   const show = { arrows: true, isobars: true, smoke: true, tracers: true };
-  let time = 13, playing = true, sunOn = true;
-  let Tl = 24, Ts = 17, landBoost = 0, seaBoost = 0, holdLand = false, holdSea = false;
+  const RESUME_S = 2.5;                 // time runs on this long after the slider was let go
+  let time = 13, sunOn = true, pause = 0;
+  let Tl = 24, Ts = 17;
   let dT = 0;
   const tracers = Array.from({ length: 150 }, () => ({ x: rnd(0, W), z: rnd(0, HC) }));
   const smoke = []; let smokeT = 0;
@@ -37,14 +39,14 @@
   };
 
   const update = dt => {
-    if (playing) { time = (time + dt * 0.5) % 24; slider.value = time.toFixed(1); }
+    // time runs by itself, except while the slider is in use or the boat task runs
+    pause = Math.max(0, pause - dt);
+    if (!pause && !task.active) { time = (time + dt * 0.5) % 24; slider.value = time.toFixed(1); }
     clock.textContent = fmtTime(time);
     const s = sunOn ? sunF(time) : 0;
     const TlEq = sunOn ? 11 + 16 * s : 16, TsEq = sunOn ? 16 + 1.5 * s : 16;
-    landBoost = holdLand ? Math.min(15, landBoost + 6 * dt) : landBoost * Math.exp(-dt / 6);
-    seaBoost = holdSea ? Math.min(15, seaBoost + 6 * dt) : seaBoost * Math.exp(-dt / 6);
-    Tl += (TlEq + landBoost - Tl) * Math.min(1, dt / 0.7);   // land reacts fast
-    Ts += (TsEq + seaBoost - Ts) * Math.min(1, dt / 3.0);    // water reacts slowly
+    Tl += (TlEq - Tl) * Math.min(1, dt / 0.7);   // land reacts fast
+    Ts += (TsEq - Ts) * Math.min(1, dt / 3.0);   // water reacts slowly
     dT = Tl - Ts;
 
     for (const p of tracers) {
@@ -199,8 +201,6 @@
     // temperatures
     text(ctx, t('s2.canvas.sea', fmt(Ts, 0)), 225, 530, 26, K.ink, 500, 'center');
     text(ctx, t('s2.canvas.land', fmt(Tl, 0)), 665, 530, 26, K.ink, 500, 'center');
-    if (landBoost > 0.5) text(ctx, t('s2.canvas.landHeated'), 665, 565, 15, K.ink, 500, 'center');
-    if (seaBoost > 0.5) text(ctx, t('s2.canvas.seaHeated'), 225, 565, 15, K.ink, 500, 'center');
     if (task.active) {
       ctx.fillStyle = K.ink; ctx.fillRect(W - 150, 14, 136, 40);
       text(ctx, t('s2.canvas.timer', Math.ceil(task.time)), W - 82, 42, 22, K.paper, 500, 'center');
@@ -213,7 +213,6 @@
     update(dt); draw();
     const dp = 0.25 * Math.abs(dT);
     meter.set(dp / 4, t('meter.hpa', fmt(dp, 1)));
-    setChain($('#chain2'), Math.abs(dT) < 0.6 ? 3 : 2);
     readT -= dt;
     if (readT <= 0) {
       readT = 0.2;
@@ -223,23 +222,27 @@
     }
   };
 
-  slider.addEventListener('input', () => { hideBadge(); time = parseFloat(slider.value) % 24; });
-  $('#s2play').addEventListener('click', e => { playing = !playing; pressToggle(e.currentTarget, playing, PLAY); });
-  $('#s2sun').addEventListener('click', e => { hideBadge(); sunOn = !sunOn; pressToggle(e.currentTarget, sunOn, SUN); });
-  holdButton($('#s2heatLand'), v => { hideBadge(); holdLand = v; });
-  holdButton($('#s2heatSea'), v => { hideBadge(); holdSea = v; });
-  $$('[data-toggle]').forEach(b => b.addEventListener('click', () => {
-    const k = b.dataset.toggle; show[k] = !show[k]; b.setAttribute('aria-pressed', show[k] ? 'true' : 'false');
-    if (k === 'smoke' && !show[k]) smoke.length = 0;
-  }));
+  const grab = () => { hideBadge(); pause = RESUME_S; time = parseFloat(slider.value) % 24; };
+  slider.addEventListener('input', grab);
+  slider.addEventListener('pointerdown', () => { pause = RESUME_S; });
+  // dev mode: sun and what the drawing shows
+  const setShow = (k, on) => {
+    show[k] = on;
+    $(`[data-toggle="${k}"]`).setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (k === 'smoke' && !on) smoke.length = 0;
+  };
+  const setSun = on => { sunOn = on; pressToggle($('#s2sun'), on, SUN); };
+  $('#s2sun').addEventListener('click', () => { hideBadge(); setSun(!sunOn); });
+  $$('[data-toggle]').forEach(b => b.addEventListener('click', () => setShow(b.dataset.toggle, !show[b.dataset.toggle])));
+  // leaving dev mode restores the visitor defaults: everything on
+  window.addEventListener('scape:dev', e => { if (!e.detail) { setSun(true); Object.keys(show).forEach(k => setShow(k, true)); } });
   $('#s2task').addEventListener('click', () => {
     hideBadge();
-    time = 5.5; slider.value = time; playing = false; sunOn = true;
-    pressToggle($('#s2play'), false, PLAY);
-    pressToggle($('#s2sun'), true, SUN);
-    Tl = 11; Ts = 16; landBoost = 0; seaBoost = 0; dT = Tl - Ts;
+    time = 5.5; slider.value = time; setSun(true);
+    Tl = 11; Ts = 16; dT = Tl - Ts;
     boat.x = 160; task.active = true; task.time = 30;
     status.textContent = t('s2.tasks.go', 30);
+    const dlg = $('#s2dlg'); if (dlg.open) dlg.close();   // the boat needs to be seen
   });
   Streben.stages['stufe-2'] = { frame };
 })();

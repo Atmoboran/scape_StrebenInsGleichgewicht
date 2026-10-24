@@ -1,8 +1,8 @@
-// Stage 1 – particle box: density, heat (fast/slow particles) and dye in water.
+// Stage 1 – particle box: density and heat (fast/slow particles).
 // Elastic collisions between equal particles, a wall that can be pulled away.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, makeView, Meter, setChain, text } = Streben;
+  const { $, $$, clamp, rnd, makeView, Meter, text } = Streben;
   const K = THEME.streben;
 
   const W = 600, H = 600, M = 22, WX = 300, WT = 8, CELL = 16;
@@ -26,21 +26,16 @@
       let l = 0; for (const p of P) if (p.x < WX) l++;
       return Math.abs(l - (P.length - l)) / P.length;
     }
-    if (mode === 'waerme') {
-      let el = 0, nl = 0, er = 0, nr = 0;
-      for (const p of P) { const e = p.vx * p.vx + p.vy * p.vy; if (p.x < WX) { el += e; nl++; } else { er += e; nr++; } }
-      el /= Math.max(1, nl); er /= Math.max(1, nr);
-      return Math.abs(el - er) / (el + er || 1);
-    }
-    let l = 0, n = 0; for (const p of P) if (p.kind === 'd') { n++; if (p.x < WX) l++; }
-    return Math.abs(l - (n - l)) / n;
+    let el = 0, nl = 0, er = 0, nr = 0;
+    for (const p of P) { const e = p.vx * p.vx + p.vy * p.vy; if (p.x < WX) { el += e; nl++; } else { er += e; nr++; } }
+    el /= Math.max(1, nl); er /= Math.max(1, nr);
+    return Math.abs(el - er) / (el + er || 1);
   };
   const reset = () => {
     P = []; wallOpen = false; wallBottom = H - M;
     const L0 = M, L1 = WX - WT / 2, R0 = WX + WT / 2, R1 = W - M;
     if (mode === 'dichte') { spawn(250, L0, L1, 70, 150, 'p', 6); spawn(40, R0, R1, 70, 150, 'p', 6); }
     if (mode === 'waerme') { spawn(130, L0, L1, 210, 270, 'p', 6); spawn(130, R0, R1, 35, 70, 'p', 6); }
-    if (mode === 'farbe') { spawn(170, L0, L1, 70, 120, 'w', 5); spawn(170, R0, R1, 70, 120, 'w', 5); spawn(70, L0, L1, 70, 120, 'd', 5); }
     d0 = Math.max(1e-6, measure()); frac = 1;
     wallBtn.textContent = t('s1.wallOpen');
     hint.textContent = t('s1.hints.' + mode);
@@ -105,14 +100,7 @@
   const draw = () => {
     ctx.fillStyle = K.paper; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = K.box[mode]; ctx.fillRect(M, M, W - 2 * M, H - 2 * M);
-    if (mode === 'farbe') {
-      ctx.fillStyle = K.dyeCloud;
-      for (const p of P) if (p.kind === 'd') dot(p.x, p.y, 30);
-      ctx.fillStyle = K.water;
-      for (const p of P) if (p.kind === 'w') dot(p.x, p.y, 3);
-      ctx.fillStyle = K.dye;
-      for (const p of P) if (p.kind === 'd') dot(p.x, p.y, p.r);
-    } else if (mode === 'waerme') {
+    if (mode === 'waerme') {
       ctx.strokeStyle = K.ink; ctx.lineWidth = 1;
       for (const p of P) {
         ctx.fillStyle = heatColor(p);
@@ -138,13 +126,9 @@
       for (const p of P) if (p.x < WX) l++;
       return t('s1.readout.dichte', l, P.length - l);
     }
-    if (mode === 'waerme') {
-      let nl = 0, nr = 0;
-      for (const p of P) { const s = Math.hypot(p.vx, p.vy); if (p.x < WX) { l += s; nl++; } else { r += s; nr++; } }
-      return t('s1.readout.waerme', Math.round(l / Math.max(1, nl) / 10), Math.round(r / Math.max(1, nr) / 10));
-    }
-    for (const p of P) if (p.kind === 'd') { if (p.x < WX) l++; else r++; }
-    return t('s1.readout.farbe', l, r);
+    let nl = 0, nr = 0;
+    for (const p of P) { const s = Math.hypot(p.vx, p.vy); if (p.x < WX) { l += s; nl++; } else { r += s; nr++; } }
+    return t('s1.readout.waerme', Math.round(l / Math.max(1, nl) / 10), Math.round(r / Math.max(1, nr) / 10));
   };
 
   let readT = 0;
@@ -156,10 +140,9 @@
     meter.set(frac);
     draw();
     readT -= dt; if (readT <= 0) { read.textContent = readout(); readT = 0.25; }
-    setChain($('#chain1'), frac < 0.05 ? 3 : wallOpen ? 2 : 1);
     // task: difference below 10 % with the wall open, in each experiment
     if (wallOpen && frac < 0.1 && tasks.done(mode)) {
-      const all = ['dichte', 'waerme', 'farbe'].every(tasks.isDone);
+      const all = ['dichte', 'waerme'].every(tasks.isDone);
       status.textContent = t(all ? 's1.tasks.all' : 's1.tasks.one');
     }
   };

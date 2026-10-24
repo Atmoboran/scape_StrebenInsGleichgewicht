@@ -5,7 +5,7 @@
 window.TEXTS = {
   lang: 'de',
   pageTitle: 'Das Streben nach Gleichgewicht',
-  description: 'Das Streben nach Gleichgewicht: eine Simulation in drei Stufen. Unterschied, Gradient, Strömung, Ausgleich – vom Teilchenkasten über den Seewind bis zur Wetterkarte.',
+  description: 'Das Streben nach Gleichgewicht: eine Simulation in drei Stufen – vom Teilchenkasten über den Seewind bis zur Wetterkarte.',
 
   // Texts of the shared kit (js/view.js, js/kit.js).
   kit: {
@@ -18,8 +18,10 @@ window.TEXTS = {
     infoAria: 'Erklärung anzeigen',
     merke: 'Merke',
     tasks: 'Aufgaben',
+    close: 'Schließen',
     merkeLocked: 'Löse die Aufgaben – dann erscheint hier, was du herausgefunden hast.',
-    devLink: '(dev)'
+    devLink: 'Dev-Modus',
+    devTitle: 'Dev-Modus'
   },
 
   nav: {
@@ -27,18 +29,9 @@ window.TEXTS = {
     home: 'Zur Startseite',
     s1: 'Prinzip',
     s2: 'Seewind',
-    s3: 'Wetterkarte',
-    cmp: 'Vergleich'
+    s3: 'Wetterkarte'
   },
 
-  // The chain shown in every poster; the steps light up as the simulation runs.
-  chain: {
-    aria: 'Das Prinzip',
-    diff: 'Unterschied',
-    grad: 'Gradient',
-    flow: 'Strömung',
-    eq: 'Ausgleich'
-  },
 
   // The difference meter at the edge of every simulation.
   meter: {
@@ -53,18 +46,11 @@ window.TEXTS = {
     kicker: 'Eine Simulation in drei Stufen',
     headline: 'Das Streben nach Gleich–<br>gewicht',
     lead: 'Überall, wo es einen Unterschied gibt, kommt etwas in Bewegung – so lange, bis der Unterschied verschwunden ist. Das gilt für Teilchen in einem Kasten, für den Wind an der Küste und für das Wetter auf der ganzen Welt.',
-    steps: {
-      diff: 'Hier ist mehr, dort ist weniger: mehr Teilchen, mehr Wärme, mehr Farbe, mehr Luft.',
-      grad: 'Der Unterschied verteilt sich über eine Strecke. Je steiler das Gefälle, desto stärker der Antrieb.',
-      flow: 'Es fließt etwas – immer vom Mehr zum Weniger. Bei Luft nennen wir das Wind.',
-      eq: 'Die Strömung baut den Unterschied ab. Das Messgerät am Rand läuft gegen null.'
-    },
     partsTitle: 'Drei Stufen',
     parts: {
-      s1: '<b>1 Teilchenkasten</b> – Zieh die Trennwand weg und sieh zu, wie sich Teilchen, Wärme und Farbe verteilen.',
+      s1: '<b>1 Teilchenkasten</b> – Zieh die Trennwand weg und sieh zu, wie sich Teilchen und Wärme verteilen.',
       s2: '<b>2 Seewind</b> – Stell die Tageszeit ein. Die Sonne heizt das Land schneller als das Meer – und es weht.',
-      s3: '<b>3 Wetterkarte</b> – Mal selbst Hochs und Tiefs auf die Karte und schalte die Erdrotation ein.',
-      cmp: '<b>Vergleich</b> – Wärme, Wasser, Strom und Wind: vier Strömungen, ein Prinzip.'
+      s3: '<b>3 Wetterkarte</b> – Mal selbst Hochs und Tiefs auf die Karte von Europa und schalte die Erdrotation ein.'
     },
     next: 'Los geht’s: Stufe 1 →'
   },
@@ -75,7 +61,7 @@ window.TEXTS = {
     headline: 'Teilchen–<br>kasten',
     lead: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Was passiert, wenn du die Trennwand wegziehst?',
     modesAria: 'Versuch wählen',
-    modes: { dichte: 'Dichte', waerme: 'Warm & kalt', farbe: 'Farbe in Wasser' },
+    modes: { dichte: 'Dichte', waerme: 'Warm & kalt' },
     infoAria: 'Messgerät erklären',
     meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p>',
     canvasAria: 'Teilchenkasten mit Trennwand',
@@ -88,28 +74,34 @@ window.TEXTS = {
     resetSub: 'Teilchen und Wand zurück',
     hints: {
       dichte: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Zieh die Wand weg (oder tippe auf die Wand)!',
-      waerme: 'Wärme ist Bewegung: Links flitzen schnelle, warme Teilchen (rot), rechts trödeln langsame, kalte (blau). Wenn sie zusammenstoßen, geben die schnellen Schwung ab.',
-      farbe: 'Ein Tropfen Farbe im Wasser. Die unsichtbar kleinen Wasserteilchen schubsen die Farbteilchen herum, bis das ganze Glas gleich gefärbt ist.'
+      waerme: 'Wärme ist Bewegung: Links flitzen schnelle, warme Teilchen (rot), rechts trödeln langsame, kalte (blau). Wenn sie zusammenstoßen, geben die schnellen Schwung ab.'
     },
     readout: {
       dichte: (l, r) => 'Links ' + l + ' Teilchen · rechts ' + r + ' Teilchen',
-      waerme: (l, r) => 'Tempo links Ø ' + l + ' · rechts Ø ' + r,
-      farbe: (l, r) => 'Farbteilchen links ' + l + ' · rechts ' + r
+      waerme: (l, r) => 'Tempo links Ø ' + l + ' · rechts Ø ' + r
     },
     tasks: {
       title: 'Aufgabe',
-      intro: 'Bring in allen drei Versuchen den Unterschied unter 10 %.',
+      intro: 'Bring in beiden Versuchen den Unterschied unter 10 %.',
       dichte: 'Dichte: viele und wenige Teilchen',
       waerme: 'Wärme: schnelle und langsame Teilchen',
-      farbe: 'Konzentration: Farbe im Wasser',
-      one: 'Geschafft! Probier den nächsten Versuch.',
-      all: 'Alle drei geschafft!'
+      one: 'Geschafft! Probier den anderen Versuch.',
+      all: 'Beide geschafft!'
     },
-    merke: 'Ob Dichte, Wärme oder Konzentration: Jeder Unterschied baut sich von selbst ab. Andersherum passiert es nie – setz die Wand wieder ein, die Teilchen sortieren sich nicht zurück.',
+    merke: 'Alles strebt ins Gleichgewicht: Die Natur gleicht Unterschiede immer von selbst aus – ob Dichte oder Wärme. Andersherum passiert es nie: Setz die Wand wieder ein, die Teilchen sortieren sich nicht zurück.',
+    // Info text: the same principle everywhere (replaces the former comparison screen).
+    same: {
+      title: 'Immer dasselbe',
+      lead: 'Alles strebt ins Gleichgewicht. Die Natur ist immer bestrebt, Unterschiede auszugleichen – überall fließt etwas vom Mehr zum Weniger, bis der Unterschied weg ist:',
+      heat: { title: 'Wärme', text: 'fließt von warm nach kalt, bis alles gleich warm ist.' },
+      water: { title: 'Wasser', text: 'fließt bergab, bis alle Becken gleich hoch stehen.' },
+      current: { title: 'Strom', text: 'fließt von + nach −, bis die Spannung weg ist.' },
+      wind: { title: 'Wind', text: 'weht vom Hoch zum Tief, bis der Luftdruck überall gleich ist.' }
+    },
     topics: {
       back: {
         title: 'Warum sortieren sich die Teilchen nie zurück?',
-        body: '<p>Jedes Teilchen fliegt einfach geradeaus, bis es an die Wand oder an ein anderes Teilchen stößt. Keines „weiß“, wo es hin soll. Trotzdem verteilen sie sich gleichmäßig – weil es viel mehr Möglichkeiten gibt, gemischt zu sein, als sortiert.</p><p>Dass sich alle Teilchen zufällig wieder auf einer Seite sammeln, ist zwar nicht verboten, aber so unwahrscheinlich, dass man es nie beobachtet. Physikerinnen und Physiker nennen das den <b>zweiten Hauptsatz der Thermodynamik</b>: Von selbst werden Unterschiede kleiner, nicht größer.</p>'
+        body: '<p>Jedes Teilchen fliegt einfach geradeaus, bis es an die Wand oder an ein anderes Teilchen stößt. Keines „weiß“, wo es hin soll. Trotzdem verteilen sie sich gleichmäßig – weil es viel mehr Möglichkeiten gibt, gemischt zu sein, als sortiert.</p><p>Dass sich alle Teilchen zufällig wieder auf einer Seite sammeln, ist zwar nicht verboten, aber so unwahrscheinlich, dass man es nie beobachtet.</p><p>Physikerinnen und Physiker haben dafür ein Wort: <b>Entropie</b>. Sie misst, wie viele Möglichkeiten es gibt, die Teilchen anzuordnen – grob gesagt, wie gut etwas durchmischt ist. Der <b>zweite Hauptsatz der Thermodynamik</b> sagt: Von selbst nimmt die Entropie nur zu, nie ab. Darum werden Unterschiede von selbst kleiner und nicht größer.</p>'
       },
       model: {
         title: 'Was ist an dem Modell vereinfacht?',
@@ -128,17 +120,13 @@ window.TEXTS = {
     badge: 'Schieb die Tageszeit',
     time: 'Tageszeit',
     clock: (hh, mm) => hh + ':' + mm + ' Uhr',
-    playOn: 'Zeit läuft',
-    playOff: 'Zeit angehalten',
-    heatLand: 'Land heizen',
-    heatSea: 'Meer heizen',
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     showAria: 'Was die Zeichnung zeigt',
     show: { arrows: 'Pfeile', isobars: 'Isobaren', smoke: 'Rauch', tracers: 'Luftteilchen' },
     infoAria: 'Isobaren, Hoch und Tief erklären',
     note: '<p>Die Isobaren sind Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p>',
-    hint: 'Halte „Land heizen“ oder „Meer heizen“ gedrückt, um selbst nachzuhelfen. Am Boden weht der Wind vom Hoch (H) zum Tief (T).',
+    hint: 'Die Zeit läuft von selbst – schieb den Regler, um eine andere Tageszeit einzustellen. Am Boden weht der Wind vom Hoch (H) zum Tief (T).',
     canvas: {
       isobars: 'ISOBAREN',
       high: 'H',
@@ -147,8 +135,6 @@ window.TEXTS = {
       sinking: 'KÜHLE LUFT SINKT AB',
       sea: t => 'MEER ' + t + ' °C',
       land: t => 'LAND ' + t + ' °C',
-      landHeated: 'LAND WIRD GEHEIZT',
-      seaHeated: 'MEER WIRD GEHEIZT',
       timer: s => '⏱ ' + s + ' S'
     },
     wind: {
@@ -159,14 +145,14 @@ window.TEXTS = {
     readout: (kind, ms, bft, dp) => kind + ' · ' + ms + ' m/s · Windstärke ' + bft + ' · Druckunterschied ' + dp + ' hPa',
     tasks: {
       title: 'Aufgabe',
-      intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b>',
+      intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b> Die Zeit steht dabei still – nur du kannst sie mit dem Regler verstellen.',
       start: 'Aufgabe starten',
       boat: 'Segler ans Ufer gebracht',
       night: 'Nachts Landwind beobachtet (Zeit nach 21 Uhr)',
       go: s => 'Los! Noch ' + s + ' s',
       left: s => 'Noch ' + s + ' s',
       success: s => 'Geschafft! Noch ' + s + ' s übrig.',
-      timeout: 'Zeit um! Tipp: Das Land muss wärmer werden als das Meer.'
+      timeout: 'Zeit um! Tipp: Wann ist das Land wärmer als das Meer?'
     },
     merke: 'Wind ist Luft, die einen Druckunterschied ausgleicht. Tagsüber weht er vom kühlen Meer zum warmen Land (Seewind), nachts umgekehrt (Landwind).',
     topics: {
@@ -186,7 +172,7 @@ window.TEXTS = {
   s3: {
     kicker: 'Stufe 3 von 3 · Das große Bild',
     headline: 'Wetter–<br>karte',
-    lead: 'Mal mit dem Finger Hochs und Tiefs auf die Karte. Je enger die Isobaren liegen, desto stärker weht der Wind.',
+    lead: 'Mal mit dem Finger Hochs und Tiefs auf die Karte von Europa und dem Nordatlantik. Je enger die Isobaren liegen, desto stärker weht der Wind.',
     brushAria: 'Pinsel wählen',
     brushHigh: 'Hoch: Luft dazu',
     brushLow: 'Tief: Luft weg',
@@ -198,23 +184,23 @@ window.TEXTS = {
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     arrows: 'Pfeile',
-    reset: 'Karte leeren',
     hint: 'Halte den Finger oder die Maus auf die Karte: Mit „Hoch“ häufst du Luft an, mit „Tief“ nimmst du sie weg. Die Linien sind Isobaren.',
     canvas: {
       high: 'H',
       low: 'T',
-      bft: b => 'BFT ' + b,
+      atlantic: 'NORDATLANTIK',
+      europe: 'EUROPA',
       rotOn: 'ERDROTATION AN',
       rotOff: 'ERDROTATION AUS',
       sunOn: 'SONNE AN',
       sunOff: 'SONNE AUS'
     },
-    readout: (ms, bft, range) => 'Leuchtturm: ' + ms + ' m/s · Windstärke ' + bft + ' · größter Druckunterschied ' + range + ' hPa',
+    readout: (ms, bft, range) => 'Stärkster Wind: ' + ms + ' m/s · Windstärke ' + bft + ' · größter Druckunterschied ' + range + ' hPa',
     tasks: {
       title: 'Aufgaben',
-      bft6: 'Erzeuge Windstärke 6 am Leuchtturm an der Küste.',
-      wirbel: 'Lass den Wind um ein kräftiges Tief kreisen.',
-      still: 'Schalte die Sonne aus und warte auf Windstille.',
+      sturm: 'Erzeuge einen Sturm: Windstärke 8 irgendwo auf der Karte.',
+      wirbel: 'Schalte die Erdrotation ein und lass den Wind um ein kräftiges Tief kreisen.',
+      still: 'Mal ein kräftiges Hoch oder Tief und warte, bis sich alles ausgeglichen hat (Windstille).',
       one: 'Geschafft!',
       all: 'Alle Aufgaben geschafft!'
     },
@@ -226,52 +212,9 @@ window.TEXTS = {
       },
       model: {
         title: 'Was ist an dem Modell vereinfacht?',
-        body: '<p>Die Karte ist ausgedacht. Echte Hochs und Tiefs sind Hunderte bis Tausende Kilometer groß und halten sich tagelang – hier entstehen und verschwinden sie in Sekunden. Die Sonne lässt hier zufällig Tiefs über dem warmen Land und Hochs über dem kühleren Meer entstehen.</p>'
+        body: '<p>Die Karte zeigt die <b>synoptische Skala</b>: Hochs und Tiefs, die Hunderte bis Tausende Kilometer groß sind – so wie auf der Wetterkarte im Fernsehen. Echte Tiefs halten sich tagelang, hier gleichen sie sich in Sekunden aus. Am Anfang liegen ein <b>Islandtief</b> und ein <b>Azorenhoch</b> auf der Karte, die bekanntesten Druckgebilde über dem Nordatlantik.</p><p>In Wirklichkeit sorgt die Sonne ständig für neue Unterschiede, weil sie die Erde ungleich erwärmt. Darum hört das Wetter nie auf.</p>'
       }
     },
-    next: 'Zum Vergleich →'
-  },
-
-  // ---- Comparison ----------------------------------------------------------
-  cmp: {
-    kicker: 'Zum Schluss',
-    headline: 'Immer das–<br>selbe',
-    lead: 'Vier Dinge, die strömen – und alle tun das Gleiche: Sie fließen vom Mehr zum Weniger, bis der Unterschied weg ist.',
-    heat: {
-      aria: 'Wärme fließt durch einen Metallstab',
-      title: 'Wärme',
-      big: 'von warm nach kalt',
-      text: 'Die schnellen Teilchen im warmen Ende stoßen die langsamen an, bis der ganze Stab gleich warm ist.',
-      warm: 'WARM',
-      cold: 'KALT'
-    },
-    water: {
-      aria: 'Wasser fließt bergab zwischen zwei Becken',
-      title: 'Wasser',
-      big: 'fließt bergab',
-      text: 'Vom hohen zum niedrigen Wasserstand, bis beide Becken gleich hoch stehen.',
-      high: 'HOCH',
-      low: 'NIEDRIG'
-    },
-    current: {
-      aria: 'Strom fließt von Plus nach Minus',
-      title: 'Strom',
-      big: 'von + nach −',
-      text: 'Eine Spannung ist ein Unterschied. Der Strom fließt, die Lampe leuchtet, bis die Spannung weg ist.',
-      plus: '+',
-      minus: '−'
-    },
-    wind: {
-      aria: 'Wind weht vom Hoch zum Tief',
-      title: 'Wind',
-      big: 'vom Hoch zum Tief',
-      text: 'Luft strömt dorthin, wo weniger Luft ist, bis der Druck überall gleich ist.',
-      high: 'H',
-      low: 'T'
-    },
-    foot: 'Unterschied → Gradient → Strömung → Ausgleich. Die Sonne sorgt dafür, dass dieses Spiel auf der Erde nie aufhört. Darum gibt es Wetter.',
-    reset: 'Nochmal ansehen',
-    resetSub: 'Alle vier von vorn',
     next: 'Zurück zum Anfang →'
   }
 };

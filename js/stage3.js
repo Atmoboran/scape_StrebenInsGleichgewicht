@@ -1,10 +1,12 @@
-// Stage 3 – weather map: visitors paint highs and lows; pressure differences
-// even out by diffusion, wind blows down the gradient and is turned to the
-// right when Earth's rotation is switched on. The sun keeps making new
-// differences (lows over land, highs over the sea).
+// Stage 3 – weather map on the synoptic scale (Europe and the North Atlantic).
+// Visitors paint highs and lows; pressure differences even out by diffusion,
+// wind blows down the gradient and is turned to the right when Earth's
+// rotation is switched on. The coastlines are only a backdrop: the map is one
+// surface, land and sea behave the same. Dev mode: the sun (keeps making new
+// highs and lows) and the arrows can be switched.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, fmt, makeView, Meter, setChain, text, arrow, beaufort, pressToggle } = Streben;
+  const { $, $$, clamp, rnd, fmt, makeView, Meter, text, arrow, beaufort, pressToggle } = Streben;
   const K = THEME.streben, D = THEME.data;
 
   const W = 600, H = 600, NX = 40, NY = 40, CW = W / NX, CH = H / NY;
@@ -15,26 +17,35 @@
   const hideBadge = Streben.firstHint($('#f3'), 's3.badge');
   let p = new Float32Array(NX * NY), q = new Float32Array(NX * NY);
   const U = new Float32Array(NX * NY), V = new Float32Array(NX * NY);
-  let brush = 1, rotOn = false, rot = 0, sunOn = true, showArrows = false;
-  let pointer = null, painting = false, sunTimer = 2;
+  const SUN_DEFAULT = false, ARROWS_DEFAULT = true;
+  let brush = 1, rotOn = false, rot = 0, sunOn = SUN_DEFAULT, showArrows = ARROWS_DEFAULT;
+  let pointer = null, painting = false, sunTimer = 2, stillArmed = false;
   const events = [];
-  const LAND = [[373, 0], [347, 70], [365, 150], [319, 238], [291, 322], [319, 410], [261, 500], [233, 600], [600, 600], [600, 0]];
-  const ISLAND = [[87, 420], [127, 392], [157, 430], [139, 488], [99, 480]];
-  const LIGHT = { x: 296, y: 322 };
   const newPart = o => { o.x = rnd(0, W); o.y = rnd(0, H); o.life = rnd(1.5, 4); o.trail = []; return o; };
   const parts = Array.from({ length: 450 }, () => newPart({}));
-  let stillArmed = false;
+
+  // ---- map: 45° W – 27° E, 30° N – 72° N, plate carrée -------------------
+  const LON0 = -45, LON1 = 27, LAT0 = 30, LAT1 = 72;
+  const px = (lon, lat) => [(lon - LON0) / (LON1 - LON0) * W, (LAT1 - lat) / (LAT1 - LAT0) * H];
+  // Simplified coastlines (lon, lat). Open lines run off the map edge.
+  const COAST = [
+    // North Africa, Mediterranean, Iberia, Atlantic coast, North Sea, Baltic, Scandinavia
+    { closed: false, pts: [[-9.8, 29.5], [-9.6, 32], [-6.8, 34], [-5.9, 35.8], [-2, 35.1], [3, 36.8], [10, 37.2], [11, 35], [10, 34], [15, 32], [20, 31], [20, 32.5], [25, 31.8], [28, 31], [29, 29]] },
+    { closed: false, pts: [[29, 41], [26.5, 40.3], [26, 40.8], [23, 40.5], [23.5, 38], [22, 36.5], [21, 38], [19.5, 40], [19.5, 42], [16, 43.5], [13.7, 45.6], [12.3, 45.3], [12.5, 44], [14, 42.5], [16, 41.5], [18.5, 40.2], [17, 39], [16, 38], [15.7, 40], [14, 40.8], [12, 41.8], [10.5, 43], [8.8, 44.4], [7, 43.6], [4.5, 43.4], [3, 42.5], [3.2, 41.8], [0.8, 41], [-0.3, 39.5], [0.2, 38.8], [-0.7, 37.6], [-2.1, 36.7], [-4.4, 36.7], [-5.6, 36], [-6.3, 36.8], [-8.9, 37], [-8.8, 38.7], [-8.9, 40.5], [-8.9, 42.8], [-8, 43.7], [-5, 43.5], [-1.8, 43.4], [-1.2, 44.7], [-1.2, 46.2], [-2.5, 47.3], [-4.7, 48], [-3, 48.8], [-1.6, 48.7], [-1.3, 49.7], [0.2, 49.5], [1.6, 50.2], [2.5, 51.1], [4, 51.6], [4.8, 53], [7, 53.6], [8.6, 53.9], [8.6, 55.5], [8.2, 56.8], [10.5, 57.7], [10.6, 56.3], [9.9, 55], [10.8, 54.4], [12.5, 54.5], [14, 54], [18.5, 54.7], [21, 55.2], [21, 57], [23.5, 57], [24.3, 57.8], [23.5, 59.2], [27, 59.5], [27, 60.5], [22.5, 60], [21.3, 61], [21.5, 63], [25, 65], [25.4, 65.4], [22, 65.8], [21, 64.5], [19, 63.5], [17.5, 62.4], [17.2, 60.8], [18.9, 59.9], [16.5, 57], [15.8, 56.1], [14.2, 55.4], [12.8, 55.6], [12.5, 56.3], [11.6, 58], [10.9, 59.2], [10.4, 59.5], [9, 58.8], [7, 58], [5.6, 58.9], [5, 60.5], [5, 62], [7, 62.8], [10, 64], [12, 65.5], [14, 67.5], [16, 68.7], [19, 70], [23, 70.6], [26, 71], [27.5, 70.8]] },
+    // Great Britain, Ireland, Iceland
+    { closed: true, pts: [[-5.7, 50.1], [-3.5, 50.3], [-1, 50.8], [1.4, 51.2], [1.7, 52.6], [0.3, 53.4], [-0.1, 54.4], [-1.5, 55.5], [-2, 56], [-2.8, 56.3], [-1.8, 57.5], [-3.5, 57.7], [-3.1, 58.6], [-5, 58.6], [-5.8, 57.8], [-5.6, 56.5], [-5, 55.7], [-5, 54.8], [-3.4, 54.9], [-3, 54], [-3, 53.3], [-4.6, 53.3], [-4.2, 52.9], [-4.1, 52.3], [-5.3, 51.8], [-3.2, 51.4]] },
+    { closed: true, pts: [[-6, 52], [-6.3, 53.4], [-6, 54], [-5.7, 54.6], [-6.2, 55.2], [-7.5, 55.3], [-8.4, 54.6], [-10, 54.2], [-9.8, 53.2], [-9.5, 52.2], [-10.3, 51.8], [-9.5, 51.5], [-8, 51.8]] },
+    { closed: true, pts: [[-22.5, 63.8], [-20, 63.5], [-17, 63.8], [-14.5, 64.4], [-13.5, 65.2], [-14.8, 66.2], [-16.5, 66.5], [-19, 66], [-22, 66.4], [-24, 65.5], [-22, 64.8], [-24, 64.8]] },
+    // Corsica, Sardinia, Sicily
+    { closed: true, pts: [[8.6, 41.4], [9.4, 42], [9.4, 43], [8.6, 42.4]] },
+    { closed: true, pts: [[8.4, 39], [9.6, 39.2], [9.8, 41], [9.2, 41.2], [8.2, 40.9]] },
+    { closed: true, pts: [[12.4, 38.1], [15.6, 38.3], [15.1, 36.7], [12.4, 37.8]] },
+    // southern Greenland
+    { closed: false, pts: [[-45, 61.2], [-44, 59.9], [-43, 60.5], [-41, 62.5], [-40, 64.5], [-37.5, 65.6], [-33, 68], [-26, 69], [-22.5, 70.5], [-22, 72]] }
+  ].map(c => ({ closed: c.closed, pts: c.pts.map(([lo, la]) => px(lo, la)) }));
+  const ISLAND_LOW = px(-22, 62), AZORES_HIGH = px(-28, 38);
 
   const idx = (i, j) => j * NX + i;
-  const inPoly = (poly, x, y) => {
-    let c = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const [xi, yi] = poly[i], [xj, yj] = poly[j];
-      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
-    }
-    return c;
-  };
-  const isLand = (x, y) => inPoly(LAND, x, y) || inPoly(ISLAND, x, y);
   const addBlob = (cx, cy, amount, sigma = 3) => {
     const gi = cx / CW - 0.5, gj = cy / CH - 0.5, R = Math.ceil(sigma * 3);
     for (let j = Math.max(1, Math.floor(gj - R)); j <= Math.min(NY - 2, Math.ceil(gj + R)); j++)
@@ -46,7 +57,8 @@
   };
   const reset = () => {
     p.fill(0); events.length = 0;
-    addBlob(167, 230, 14, 4.5); addBlob(460, 300, -14, 4);
+    addBlob(ISLAND_LOW[0], ISLAND_LOW[1], -16, 4.5);   // Iceland low
+    addBlob(AZORES_HIGH[0], AZORES_HIGH[1], 14, 5);    // Azores high
     for (const o of parts) newPart(o);
   };
   const sample = (arr, x, y) => {
@@ -59,13 +71,12 @@
   const update = dt => {
     // the brush
     if (painting && pointer) addBlob(pointer.x, pointer.y, brush * 16 * dt);
-    // the sun makes new differences: warm land → low, cool sea → high
+    // dev mode: the sun keeps making new highs and lows
     if (sunOn) {
       sunTimer -= dt;
       if (sunTimer <= 0) {
         sunTimer = rnd(2.5, 4.5);
-        const x = rnd(80, W - 80), y = rnd(80, H - 80);
-        events.push({ x, y, amp: isLand(x, y) ? -9 : 7, left: 3 });
+        events.push({ x: rnd(80, W - 80), y: rnd(80, H - 80), amp: Math.random() < 0.5 ? -9 : 8, left: 3 });
       }
     }
     for (let e = events.length - 1; e >= 0; e--) {
@@ -77,11 +88,12 @@
     // balance by diffusion; with rotation the air circles the low and fills it more slowly
     const target = rotOn ? 1.22 : 0;
     rot += clamp(target - rot, -1.2 * dt, 1.2 * dt);
-    const Dif = (sunOn ? 2.2 : 7) * (0.25 + 0.75 * Math.cos(rot));
+    const Dif = (sunOn ? 2.2 : 2.6) * (0.25 + 0.75 * Math.cos(rot));
     const k = Math.min(0.24, Dif * dt);
+    const leak = 1 - 0.07 * dt;   // air also escapes beyond the map edge, so the last few hPa settle quicker
     for (let j = 1; j < NY - 1; j++) for (let i = 1; i < NX - 1; i++) {
       const c = idx(i, j);
-      q[c] = p[c] + k * (p[c - 1] + p[c + 1] + p[c - NX] + p[c + NX] - 4 * p[c]);
+      q[c] = (p[c] + k * (p[c - 1] + p[c + 1] + p[c - NX] + p[c + NX] - 4 * p[c])) * leak;
     }
     for (let i = 0; i < NX; i++) { q[idx(i, 0)] = 0; q[idx(i, NY - 1)] = 0; }
     for (let j = 0; j < NY; j++) { q[idx(0, j)] = 0; q[idx(NX - 1, j)] = 0; }
@@ -140,11 +152,23 @@
     out.sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
     return out.slice(0, 8);
   };
-  const poly = (pts, col) => { ctx.fillStyle = col; ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.fill(); };
+
+  const drawCoasts = () => {
+    ctx.strokeStyle = K.mapCoast; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (const c of COAST) {
+      c.pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      if (c.closed) ctx.closePath();
+    }
+    ctx.stroke();
+    const [ax, ay] = px(-31, 50), [ex, ey] = px(14, 49);
+    text(ctx, t('s3.canvas.atlantic'), ax, ay, 14, K.mapCoast, 500, 'center');
+    text(ctx, t('s3.canvas.europe'), ex, ey, 14, K.mapCoast, 500, 'center');
+  };
 
   const draw = stats => {
-    ctx.fillStyle = K.mapSea; ctx.fillRect(0, 0, W, H);
-    poly(LAND, K.mapLand); poly(ISLAND, K.mapLand);
+    ctx.fillStyle = K.mapBg; ctx.fillRect(0, 0, W, H);
+    drawCoasts();
     // isobars every 2 hPa
     ctx.strokeStyle = K.mapIsobar; ctx.lineWidth = 2;
     for (let L = -32; L <= 32; L += 2) { if (L !== 0) isobars(L); }
@@ -168,39 +192,33 @@
     for (const e of stats.ext) {
       const hi = e.v > 0;
       text(ctx, t(hi ? 's3.canvas.high' : 's3.canvas.low'), e.x, e.y + 14, 40, hi ? D.high : D.low, 500, 'center', 'alphabetic', K.paper);
-      text(ctx, String(Math.round(1013 + e.v)), e.x, e.y + 32, 13, K.ink, 500, 'center');
+      text(ctx, String(Math.round(1013 + e.v)), e.x, e.y + 32, 13, K.ink, 500, 'center', 'alphabetic', K.paper);
     }
-    // lighthouse with weather station
-    const { x, y } = LIGHT;
-    ctx.fillStyle = K.ink; ctx.beginPath(); ctx.moveTo(x - 9, y + 4); ctx.lineTo(x + 9, y + 4); ctx.lineTo(x + 5, y - 30); ctx.lineTo(x - 5, y - 30); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = K.lampTop; ctx.fillRect(x - 7, y - 40, 14, 10);
-    ctx.fillStyle = K.lampBand; ctx.fillRect(x - 7, y - 16, 14, 6);
-    ctx.fillStyle = K.ink; ctx.fillRect(x - 128, y - 22, 108, 34);
-    text(ctx, t('s3.canvas.bft', stats.bft), x - 74, y + 2, 20, stats.bft >= 6 ? K.bftStrong : K.paper, 500, 'center');
     // brush preview
     if (pointer) {
       ctx.strokeStyle = brush > 0 ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
       ctx.beginPath(); ctx.arc(pointer.x, pointer.y, 3 * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
     }
     const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
-    text(ctx, t(rotOn ? 's3.canvas.rotOn' : 's3.canvas.rotOff'), 14, 10 + lh, 15, K.ink);
-    text(ctx, t(sunOn ? 's3.canvas.sunOn' : 's3.canvas.sunOff'), 14, 10 + 2 * lh, 15, K.ink);
+    text(ctx, t(rotOn ? 's3.canvas.rotOn' : 's3.canvas.rotOff'), 14, 10 + lh, 15, K.ink, 500, 'left', 'alphabetic', K.paper);
+    if (SCAPE.dev) text(ctx, t(sunOn ? 's3.canvas.sunOn' : 's3.canvas.sunOff'), 14, 10 + 2 * lh, 15, K.ink, 500, 'left', 'alphabetic', K.paper);
   };
 
   let readT = 0;
   const frame = dt => {
     if (!view.fit()) return;
     update(dt);
-    let mn = Infinity, mx = -Infinity;
-    for (let k = 0; k < p.length; k++) { if (p[k] < mn) mn = p[k]; if (p[k] > mx) mx = p[k]; }
-    const range = mx - mn;
-    const ms = Math.hypot(sample(U, LIGHT.x, LIGHT.y), sample(V, LIGHT.x, LIGHT.y));
-    const bft = beaufort(ms);
+    let mn = Infinity, mx = -Infinity, vmax = 0;
+    for (let k = 0; k < p.length; k++) {
+      if (p[k] < mn) mn = p[k];
+      if (p[k] > mx) mx = p[k];
+      const v2 = U[k] * U[k] + V[k] * V[k]; if (v2 > vmax) vmax = v2;
+    }
+    const range = mx - mn, ms = Math.sqrt(vmax), bft = beaufort(ms);
     const ext = extrema();
-    draw({ bft, ext });
+    draw({ ext });
     const frac = range / 40;
     meter.set(frac, t('meter.hpa', fmt(range, 0)));
-    setChain($('#chain3'), frac < 0.05 ? 3 : 2);
     readT -= dt;
     if (readT <= 0) {
       readT = 0.25;
@@ -209,13 +227,13 @@
     // tasks
     const tick = key => {
       if (!tasks.done(key)) return;
-      const all = ['bft6', 'wirbel', 'still'].every(tasks.isDone);
+      const all = ['sturm', 'wirbel', 'still'].every(tasks.isDone);
       status.textContent = t(all ? 's3.tasks.all' : 's3.tasks.one');
     };
-    if (bft >= 6) tick('bft6');
+    if (bft >= 8) tick('sturm');
     if (rot > 1.1 && ext.some(e => e.v < -10)) tick('wirbel');
-    if (!sunOn && frac > 0.2) stillArmed = true;
-    if (!sunOn && stillArmed && frac < 0.05) tick('still');
+    if (painting && frac > 0.3) stillArmed = true;           // a strong high or low painted by the visitor …
+    if (stillArmed && !painting && frac < 0.05) tick('still'); // … has evened out
   };
 
   const cv = view.canvas;
@@ -229,9 +247,12 @@
     $$('#s3brush .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
   }));
   $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; pressToggle(e.currentTarget, rotOn); });
-  $('#s3sun').addEventListener('click', e => { sunOn = !sunOn; stillArmed = false; pressToggle(e.currentTarget, sunOn, ['s3.sunOn', 's3.sunOff']); });
-  $('#s3arrows').addEventListener('click', e => { showArrows = !showArrows; pressToggle(e.currentTarget, showArrows); });
-  $('#s3reset').addEventListener('click', () => { reset(); p.fill(0); });
+  // dev mode
+  const setSun = on => { sunOn = on; pressToggle($('#s3sun'), on, ['s3.sunOn', 's3.sunOff']); };
+  const setArrows = on => { showArrows = on; pressToggle($('#s3arrows'), on); };
+  $('#s3sun').addEventListener('click', () => setSun(!sunOn));
+  $('#s3arrows').addEventListener('click', () => setArrows(!showArrows));
+  window.addEventListener('scape:dev', e => { if (!e.detail) { setSun(SUN_DEFAULT); setArrows(ARROWS_DEFAULT); } });
   reset();
   Streben.stages['stufe-3'] = { frame };
 })();

@@ -1,9 +1,10 @@
 // Streben nach Gleichgewicht – navigation between the parts (hash routes
-// #start, #stufe-1 … #vergleich) and the animation loop of the visible part.
+// #start, #stufe-1 … #stufe-3), the task popups, the dev button and the
+// animation loop of the visible part.
 (() => {
   'use strict';
   const { $$, stages } = Streben;
-  const PARTS = ['start', 'stufe-1', 'stufe-2', 'stufe-3', 'vergleich'];
+  const PARTS = ['start', 'stufe-1', 'stufe-2', 'stufe-3'];
   let active = null, current = '';
 
   const route = () => {
@@ -13,6 +14,7 @@
     current = id;
     $$('.part').forEach(s => { s.hidden = s.dataset.stage !== id; });
     $$('.nav a').forEach(a => { if (a.dataset.route === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    $$('dialog[open]').forEach(d => d.close());
     active = stages[id] || null;
     if (active && active.enter) active.enter();
     window.scrollTo(0, 0);
@@ -20,6 +22,32 @@
   };
   window.addEventListener('hashchange', route);
   route();
+
+  // ---- tasks live in a popup; the button shows the progress ("1/2") -------
+  $$('.task-open').forEach(btn => {
+    const dlg = document.getElementById(btn.getAttribute('aria-controls'));
+    const items = $$('li[data-task]', dlg);
+    const count = btn.querySelector('.count');
+    let shown = 0;
+    const update = () => {
+      const n = items.filter(li => li.classList.contains('done')).length;
+      count.textContent = n + '/' + items.length;
+      btn.classList.toggle('all-done', n === items.length);
+      if (n > shown && !dlg.open) {                   // a task was solved: let the button flash once
+        btn.classList.remove('flash'); void btn.offsetWidth; btn.classList.add('flash');
+      }
+      shown = n;
+    };
+    update();
+    new MutationObserver(update).observe(dlg, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    btn.addEventListener('click', () => { btn.classList.remove('flash'); dlg.showModal(); });
+    dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+  });
+
+  // ---- dev button in the footer shows its state ----------------------------
+  const devState = () => $$('[data-dev-link]').forEach(b => b.setAttribute('aria-pressed', SCAPE.dev ? 'true' : 'false'));
+  window.addEventListener('scape:dev', devState);
+  devState();
 
   let last = performance.now();
   const loop = now => {
