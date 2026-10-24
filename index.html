@@ -211,6 +211,11 @@
   <div class="page">
     <div class="lab">
       <div class="lab-pre">
+        <div class="seg view-seg" role="group" data-t-aria="s3.viewAria" id="s3view">
+          <button type="button" class="btn" data-view="top" aria-pressed="true" data-t="s3.viewTop"></button>
+          <button type="button" class="btn" data-view="side" aria-pressed="false" data-t="s3.viewSide"></button>
+        </div>
+        <div class="range cut-range" id="s3cutRow" hidden><label for="s3cut" data-t="s3.cut"></label><input type="range" id="s3cut" min="31" max="71" step="0.5" value="52"><output id="s3cutVal" for="s3cut"></output></div>
         <div class="seg" role="group" data-t-aria="s3.brushAria" id="s3brush">
           <button type="button" class="btn" data-brush="1" aria-pressed="true" data-t="s3.brushHigh"></button>
           <button type="button" class="btn" data-brush="-1" aria-pressed="false" data-t="s3.brushLow"></button>

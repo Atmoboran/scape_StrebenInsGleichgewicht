@@ -4,6 +4,9 @@
 // rotation is switched on. The coastlines are only a backdrop: the map is one
 // surface, land and sea behave the same. Dev mode: the sun (keeps making new
 // highs and lows) and the arrows can be switched.
+// Side view: a west–east cross-section (x–z) along one latitude (the dashed
+// line on the map). Air sinks in the high and rises in the low; at the ground
+// it flows from high to low, aloft back. Clouds over lows, sun over highs.
 (() => {
   'use strict';
   const { $, $$, clamp, rnd, fmt, makeView, Meter, text, arrow, beaufort, pressToggle } = Streben;
@@ -45,6 +48,16 @@
   ].map(c => ({ closed: c.closed, pts: c.pts.map(([lo, la]) => px(lo, la)) }));
   const ISLAND_LOW = px(-22, 62), AZORES_HIGH = px(-28, 38);
 
+  // ---- side view ----------------------------------------------------------
+  let side = false, cutLat = 52;
+  const cutY = () => (LAT1 - cutLat) / (LAT1 - LAT0) * H;
+  const GROUND = 520, TOP = 40, HC = GROUND - TOP;      // ground line and height of the air column
+  const NP = 61, DX = W / (NP - 1);
+  const prof = new Float32Array(NP), d1 = new Float32Array(NP), d2 = new Float32Array(NP);
+  const newSide = o => { o.x = rnd(0, W); o.z = rnd(4, HC - 4); o.life = rnd(2, 5); o.trail = []; return o; };
+  const sideParts = Array.from({ length: 260 }, () => newSide({}));
+  const lerp = (arr, x) => { const f = clamp(x / DX, 0, NP - 1.001), i = f | 0, r = f - i; return arr[i] * (1 - r) + arr[i + 1] * r; };
+
   const idx = (i, j) => j * NX + i;
   const addBlob = (cx, cy, amount, sigma = 3) => {
     const gi = cx / CW - 0.5, gj = cy / CH - 0.5, R = Math.ceil(sigma * 3);
@@ -70,7 +83,7 @@
 
   const update = dt => {
     // the brush
-    if (painting && pointer) addBlob(pointer.x, pointer.y, brush * 16 * dt);
+    if (painting && pointer) addBlob(pointer.x, side ? cutY() : pointer.y, brush * 16 * dt);
     // dev mode: the sun keeps making new highs and lows
     if (sunOn) {
       sunTimer -= dt;
@@ -153,6 +166,111 @@
     return out.slice(0, 8);
   };
 
+  // pressure along the cut, its slope (drives the wind at the ground) and curvature (rising/sinking)
+  const profile = () => {
+    const y = cutY();
+    for (let i = 0; i < NP; i++) prof[i] = sample(p, i * DX, y);
+    for (let i = 0; i < NP; i++) {
+      const a = prof[Math.max(0, i - 1)], b = prof[Math.min(NP - 1, i + 1)];
+      d1[i] = (b - a) / (2 * DX);
+      d2[i] = (a + b - 2 * prof[i]) / (DX * DX);
+    }
+  };
+  // circulation in the cross-section: u at the ground from high to low, back aloft;
+  // w up over the low, down over the high. Rotation weakens the flow across the isobars.
+  const sideVel = (x, z) => {
+    const cf = 0.25 + 0.75 * Math.cos(rot);
+    return [-700 * lerp(d1, x) * Math.cos(Math.PI * z / HC) * cf, 9000 * lerp(d2, x) * Math.sin(Math.PI * z / HC) * cf];
+  };
+  const updateSide = dt => {
+    profile();
+    for (const o of sideParts) {
+      const [u, w] = sideVel(o.x, o.z);
+      o.x += u * dt; o.z += w * dt; o.life -= dt;
+      o.trail.push(o.x, GROUND - o.z); if (o.trail.length > 14) o.trail.splice(0, 2);
+      if (o.life <= 0 || o.x < 0 || o.x > W || o.z < 2 || o.z > HC) newSide(o);
+    }
+  };
+  const profExtrema = () => {
+    const out = [];
+    for (let i = 2; i < NP - 2; i++) {
+      const v = prof[i]; if (Math.abs(v) < 4) continue;
+      const nb = [prof[i - 2], prof[i - 1], prof[i + 1], prof[i + 2]];
+      if ((v > 0 && nb.every(w => w < v)) || (v < 0 && nb.every(w => w > v))) out.push({ x: i * DX, v });
+    }
+    return out;
+  };
+  const cloud = (x, y, s) => {
+    const parts = [[-34, 6, 22], [-6, -10, 30], [28, 4, 22]];
+    const shape = () => { parts.forEach(([dx, dy, r]) => { ctx.moveTo(x + (dx + r) * s, y + dy * s); ctx.arc(x + dx * s, y + dy * s, r * s, 0, Math.PI * 2); }); ctx.rect(x - 34 * s, y + 4 * s, 62 * s, 24 * s); };
+    ctx.beginPath(); shape(); ctx.strokeStyle = K.cloudLine; ctx.lineWidth = 5; ctx.stroke();
+    ctx.beginPath(); shape(); ctx.fillStyle = K.cloud; ctx.fill();
+  };
+  const drawSide = () => {
+    ctx.fillStyle = K.sideSky; ctx.fillRect(0, 0, W, H);
+    const ext = profExtrema();
+    // weather: sun over the high, clouds (and rain) over the low
+    for (const e of ext) {
+      if (e.v > 0) {
+        const r = clamp(10 + e.v * 0.8, 12, 30), y = 100;
+        ctx.strokeStyle = K.sideSunRay; ctx.lineWidth = 2;
+        for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; ctx.beginPath(); ctx.moveTo(e.x + Math.cos(a) * (r + 6), y + Math.sin(a) * (r + 6)); ctx.lineTo(e.x + Math.cos(a) * (r + 16), y + Math.sin(a) * (r + 16)); ctx.stroke(); }
+        ctx.fillStyle = K.sideSun; ctx.beginPath(); ctx.arc(e.x, y, r, 0, Math.PI * 2); ctx.fill();
+      } else {
+        const s = clamp(-e.v / 14, 0.5, 1.5), y = 200;
+        if (e.v < -12) {
+          ctx.strokeStyle = K.rain; ctx.lineWidth = 2; ctx.setLineDash([8, 10]);
+          ctx.lineDashOffset = -performance.now() / 20;
+          for (let k = -2; k <= 2; k++) { const x = e.x + k * 14 * s; ctx.beginPath(); ctx.moveTo(x, y + 30 * s); ctx.lineTo(x - 10, GROUND); ctx.stroke(); }
+          ctx.setLineDash([]); ctx.lineDashOffset = 0;
+        }
+        cloud(e.x, y, s);
+      }
+    }
+    // surfaces of equal pressure: pushed up over the high, down over the low
+    ctx.strokeStyle = K.mapIsobar; ctx.lineWidth = 2;
+    for (let k = 0; k < 6; k++) {
+      const base = 60 + k * 75, f = 2.6 * (0.6 + k * 0.3);
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 10) { const y = GROUND - base - lerp(prof, x) * f; x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      ctx.stroke();
+    }
+    // moving air
+    ctx.strokeStyle = K.sideAir; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (const o of sideParts) {
+      const tr = o.trail; if (tr.length < 4) continue;
+      ctx.moveTo(tr[0], tr[1]); for (let k = 2; k < tr.length; k += 2) ctx.lineTo(tr[k], tr[k + 1]);
+    }
+    ctx.stroke();
+    if (showArrows) {
+      for (let x = 30; x < W; x += 60) for (let z = 40; z < HC; z += 80) {
+        const [u, w] = sideVel(x, z), sp = Math.hypot(u, w); if (sp < 6) continue;
+        const k = Math.min(46, sp * 0.5) / sp, y = GROUND - z;
+        arrow(ctx, x - u * k / 2, y + w * k / 2, u * k, -w * k, K.ink, 2.5, 9);
+      }
+    }
+    // ground
+    ctx.fillStyle = K.sideGround; ctx.fillRect(0, GROUND, W, H - GROUND);
+    ctx.fillStyle = K.ink; ctx.fillRect(0, GROUND - 1, W, 2);
+    for (const e of ext) {
+      const hi = e.v > 0;
+      text(ctx, t(hi ? 's3.canvas.high' : 's3.canvas.low'), e.x, GROUND - 14, 40, hi ? D.high : D.low, 500, 'center', 'alphabetic', K.paper);
+      text(ctx, String(Math.round(1013 + e.v)), e.x, GROUND + 26, 14, K.ink, 500, 'center');
+      text(ctx, t(hi ? 's3.canvas.sinking' : 's3.canvas.rising'), e.x, GROUND - HC * 0.42, 13, K.ink, 500, 'center', 'alphabetic', K.paper);
+    }
+    text(ctx, t('s3.canvas.west'), 12, H - 18, 14, K.ink);
+    text(ctx, t('s3.canvas.east'), W - 60, H - 18, 14, K.ink, 500, 'right');
+    const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
+    text(ctx, t('s3.canvas.cut', fmt(cutLat, cutLat % 1 ? 1 : 0)), W - 14, 10 + lh, 15, K.ink, 500, 'right', 'alphabetic', K.paper);
+    text(ctx, t('s3.canvas.sideIsobars'), 14, GROUND - 60 - 8, 12, K.mapIsobar, 500, 'left', 'alphabetic', K.paper);
+    // brush preview: where the high or low will grow
+    if (pointer) {
+      ctx.strokeStyle = brush > 0 ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+      ctx.beginPath(); ctx.moveTo(pointer.x, TOP); ctx.lineTo(pointer.x, GROUND); ctx.stroke(); ctx.setLineDash([]);
+    }
+  };
+
   const drawCoasts = () => {
     ctx.strokeStyle = K.mapCoast; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -180,6 +298,11 @@
       ctx.moveTo(tr[0], tr[1]); for (let k = 2; k < tr.length; k += 2) ctx.lineTo(tr[k], tr[k + 1]);
     }
     ctx.stroke();
+    // where the side view cuts
+    const cy = cutY();
+    ctx.strokeStyle = K.mapCut; ctx.lineWidth = 1.5; ctx.setLineDash([10, 8]);
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke(); ctx.setLineDash([]);
+    text(ctx, t('s3.canvas.cut', fmt(cutLat, cutLat % 1 ? 1 : 0)), W - 10, cy - 6, 12, K.ink, 500, 'right', 'alphabetic', K.paper);
     if (showArrows) {
       for (let j = 2; j < NY; j += 4) for (let i = 2; i < NX; i += 4) {
         const u = U[idx(i, j)], v = V[idx(i, j)], sp = Math.hypot(u, v); if (sp < 0.8) continue;
@@ -216,7 +339,7 @@
     }
     const range = mx - mn, ms = Math.sqrt(vmax), bft = beaufort(ms);
     const ext = extrema();
-    draw({ ext });
+    if (side) { updateSide(dt); drawSide(); } else draw({ ext });
     const frac = range / 40;
     meter.set(frac, t('meter.hpa', fmt(range, 0)));
     readT -= dt;
@@ -247,6 +370,22 @@
     $$('#s3brush .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
   }));
   $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; pressToggle(e.currentTarget, rotOn); });
+  // top or side view
+  const cutSlider = $('#s3cut'), cutVal = $('#s3cutVal');
+  const setCut = lat => { cutLat = clamp(Math.round(lat * 2) / 2, 31, 71); cutSlider.value = cutLat; cutVal.textContent = t('s3.cutVal', fmt(cutLat, cutLat % 1 ? 1 : 0)); };
+  cutSlider.addEventListener('input', () => setCut(parseFloat(cutSlider.value)));
+  $$('#s3view .btn').forEach(b => b.addEventListener('click', () => {
+    side = b.dataset.view === 'side';
+    $$('#s3view .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    $('#s3cutRow').hidden = !side;
+    if (side) {
+      // cut through the strongest high or low, so there is something to see
+      const e = extrema()[0];
+      if (e) setCut(LAT1 - e.y / H * (LAT1 - LAT0));
+      for (const o of sideParts) newSide(o);
+    }
+  }));
+  setCut(cutLat);
   // dev mode
   const setSun = on => { sunOn = on; pressToggle($('#s3sun'), on, ['s3.sunOn', 's3.sunOff']); };
   const setArrows = on => { showArrows = on; pressToggle($('#s3arrows'), on); };

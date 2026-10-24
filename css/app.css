@@ -54,6 +54,10 @@
 .same-list b { display: block; font-size: 13px; letter-spacing: .07em; text-transform: var(--caps); margin-bottom: 4px; }
 :root[data-view="mobile"] .same-list { grid-template-columns: minmax(0, 1fr); }
 
+/* ---- stage 3: top / side view ---- */
+.view-seg { margin-bottom: 10px; }
+.cut-range { margin-bottom: 10px; }
+
 /* ---- tasks in a popup ---- */
 .task-open { margin: 4px 0 10px; }
 .task-open .count { font-weight: var(--fw-light); margin-left: 4px; }

@@ -18,6 +18,12 @@ difference still is.
   of Europe and the North Atlantic as a backdrop (synoptic scale); it starts
   with an Iceland low and an Azores high. Paint highs and lows, switch on
   Earth's rotation; arrows on. Square stage; "H" blue, "T" red.
+  "Von oben / Von der Seite": the side view is a west–east cross-section
+  (x–z) along one latitude (dashed line on the map, slider "Schnitt bei";
+  it jumps to the strongest high or low when switched on). Surfaces of equal
+  pressure bulge up over highs and dip over lows; air flows from high to low
+  at the ground and back aloft, sinks in the high (sun) and rises in the low
+  (clouds, rain when deep). Painting works in both views.
 
 Each stage has tasks behind an "Aufgaben" button (popup, with a progress
 count; the button flashes when a task is solved). Solving them unlocks the

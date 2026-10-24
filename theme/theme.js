@@ -72,5 +72,9 @@ THEME.streben = {
   // Stage 3 – weather map
   mapBg: '#E0E5F5',            // the map: one surface, no land/sea colours
   mapCoast: '#98B8DD',         // coastlines of Europe and the North Atlantic (backdrop only)
-  mapIsobar: '#0097BE', windTrail: '#442683'
+  mapIsobar: '#0097BE', windTrail: '#442683',
+  mapCut: '#000000',           // the dashed line where the side view cuts
+  // side view (x–z cross-section)
+  sideSky: '#E0E5F5', sideGround: '#D0E8DC', sideAir: '#442683',
+  cloud: '#FFFFFF', cloudLine: '#0097BE', rain: '#0097BE', sideSun: '#FFD500', sideSunRay: '#E09F00'
 };
