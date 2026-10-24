@@ -2,26 +2,30 @@
 // Visitors paint highs and lows; pressure differences even out by diffusion,
 // wind blows down the gradient and is turned to the right when Earth's
 // rotation is switched on. The coastlines are only a backdrop: the map is one
-// surface, land and sea behave the same. Dev mode: the sun (keeps making new
-// highs and lows) and the arrows can be switched.
-// Side view: a west–east cross-section (x–z) along one latitude (the dashed
-// line on the map). Air sinks in the high and rises in the low; at the ground
-// it flows from high to low, aloft back. Clouds over lows, sun over highs.
+// surface, land and sea behave the same. Tools: paint H, paint T (adjustable
+// size) or measure the wind with the wind vane (a magnifier that shows speed
+// and direction). The balance can be paused. Dev mode: the sun (keeps making
+// new highs and lows), the arrows and the speed of the balance.
+// Side view: a west–east cross-section (x–z) along one latitude (chosen with
+// a slider). Air sinks in the high and rises in the low; at the ground it
+// flows from high to low, aloft back. Clouds over lows, sun over highs.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, fmt, makeView, Meter, text, arrow, beaufort, pressToggle } = Streben;
+  const { $, $$, clamp, rnd, fmt, makeView, Hud, text, arrow, beaufort, pressToggle } = Streben;
   const K = THEME.streben, D = THEME.data;
 
   const W = 600, H = 600, NX = 40, NY = 40, CW = W / NX, CH = H / NY;
   const view = makeView($('#c3'), W, H), ctx = view.ctx;
-  const meter = new Meter($('#m3'));
-  const read = $('#s3read'), status = $('#s3status');
+  const hud = new Hud($('#h3'));
+  const status = $('#s3status');
   const tasks = SCAPE.tasks($('#s3tasks'));
   const hideBadge = Streben.firstHint($('#f3'), 's3.badge');
   let p = new Float32Array(NX * NY), q = new Float32Array(NX * NY);
   const U = new Float32Array(NX * NY), V = new Float32Array(NX * NY);
-  const SUN_DEFAULT = false, ARROWS_DEFAULT = true;
-  let brush = 1, rotOn = false, rot = 0, sunOn = SUN_DEFAULT, showArrows = ARROWS_DEFAULT;
+  const SUN_DEFAULT = false, ARROWS_DEFAULT = true, SPEED_DEFAULT = 1;
+  const BALANCE = 1.0, LEAK = 0.025;   // diffusion (cells²/s) and loss over the map edge (1/s) at speed 1
+  let tool = 'high', size = 3.5, paused = false, speed = SPEED_DEFAULT;
+  let rotOn = false, rot = 0, sunOn = SUN_DEFAULT, showArrows = ARROWS_DEFAULT;
   let pointer = null, painting = false, sunTimer = 2, stillArmed = false;
   const events = [];
   const newPart = o => { o.x = rnd(0, W); o.y = rnd(0, H); o.life = rnd(1.5, 4); o.trail = []; return o; };
@@ -83,7 +87,7 @@
 
   const update = dt => {
     // the brush
-    if (painting && pointer) addBlob(pointer.x, side ? cutY() : pointer.y, brush * 16 * dt);
+    if (painting && pointer && tool !== 'probe') addBlob(pointer.x, side ? cutY() : pointer.y, (tool === 'high' ? 1 : -1) * 16 * dt, size);
     // dev mode: the sun keeps making new highs and lows
     if (sunOn) {
       sunTimer -= dt;
@@ -101,16 +105,18 @@
     // balance by diffusion; with rotation the air circles the low and fills it more slowly
     const target = rotOn ? 1.22 : 0;
     rot += clamp(target - rot, -1.2 * dt, 1.2 * dt);
-    const Dif = (sunOn ? 2.2 : 2.6) * (0.25 + 0.75 * Math.cos(rot));
-    const k = Math.min(0.24, Dif * dt);
-    const leak = 1 - 0.07 * dt;   // air also escapes beyond the map edge, so the last few hPa settle quicker
-    for (let j = 1; j < NY - 1; j++) for (let i = 1; i < NX - 1; i++) {
-      const c = idx(i, j);
-      q[c] = (p[c] + k * (p[c - 1] + p[c + 1] + p[c - NX] + p[c + NX] - 4 * p[c])) * leak;
+    if (!paused) {
+      const Dif = BALANCE * speed * (0.25 + 0.75 * Math.cos(rot));
+      const k = Math.min(0.24, Dif * dt);
+      const leak = 1 - LEAK * speed * dt;   // air also escapes beyond the map edge, so the last few hPa settle
+      for (let j = 1; j < NY - 1; j++) for (let i = 1; i < NX - 1; i++) {
+        const c = idx(i, j);
+        q[c] = (p[c] + k * (p[c - 1] + p[c + 1] + p[c - NX] + p[c + NX] - 4 * p[c])) * leak;
+      }
+      for (let i = 0; i < NX; i++) { q[idx(i, 0)] = 0; q[idx(i, NY - 1)] = 0; }
+      for (let j = 0; j < NY; j++) { q[idx(0, j)] = 0; q[idx(NX - 1, j)] = 0; }
+      [p, q] = [q, p];
     }
-    for (let i = 0; i < NX; i++) { q[idx(i, 0)] = 0; q[idx(i, NY - 1)] = 0; }
-    for (let j = 0; j < NY; j++) { q[idx(0, j)] = 0; q[idx(NX - 1, j)] = 0; }
-    [p, q] = [q, p];
 
     // wind: from high to low (−gradient), turned to the right with rotation
     const cr = Math.cos(rot), sr = Math.sin(rot), KW = 4;   // m/s per hPa per grid cell
@@ -264,11 +270,57 @@
     const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
     text(ctx, t('s3.canvas.cut', fmt(cutLat, cutLat % 1 ? 1 : 0)), W - 14, 10 + lh, 15, K.ink, 500, 'right', 'alphabetic', K.paper);
     text(ctx, t('s3.canvas.sideIsobars'), 14, GROUND - 60 - 8, 12, K.mapIsobar, 500, 'left', 'alphabetic', K.paper);
-    // brush preview: where the high or low will grow
-    if (pointer) {
-      ctx.strokeStyle = brush > 0 ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
-      ctx.beginPath(); ctx.moveTo(pointer.x, TOP); ctx.lineTo(pointer.x, GROUND); ctx.stroke(); ctx.setLineDash([]);
+    // brush preview: where the high or low will grow (its width), or the wind vane
+    if (pointer && tool !== 'probe') {
+      const r = size * CW * 1.6;
+      ctx.strokeStyle = tool === 'high' ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+      ctx.beginPath(); ctx.moveTo(pointer.x - r, GROUND - 6); ctx.lineTo(pointer.x - r, TOP); ctx.moveTo(pointer.x + r, GROUND - 6); ctx.lineTo(pointer.x + r, TOP); ctx.stroke(); ctx.setLineDash([]);
     }
+    if (pointer && tool === 'probe') {
+      const z = clamp(GROUND - pointer.y, 0, HC);
+      const [u, w] = sideVel(pointer.x, z), sp = Math.hypot(u, w);
+      const key = sp < 4 ? 'probeCalm' : Math.abs(w) > Math.abs(u) ? (w > 0 ? 'probeRising' : 'probeSinking') : (u > 0 ? 'probeEast' : 'probeWest');
+      lens(pointer.x, pointer.y, sp < 4 ? null : [u / sp, -w / sp], Math.min(1, sp / 60), [t('s3.canvas.' + key)]);
+    }
+    if (paused) pausedLabel();
+  };
+
+  // the wind vane as a magnifier: a ring with the wind arrow inside and a label box
+  const lens = (x, y, dir, strength, lines) => {
+    const R = 46;
+    ctx.fillStyle = K.paper; ctx.strokeStyle = K.ink; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.lineWidth = 1.5;
+    for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * (R - 8), y + Math.sin(a) * (R - 8)); ctx.lineTo(x + Math.cos(a) * R, y + Math.sin(a) * R); ctx.stroke(); }
+    if (dir) {
+      const L = 16 + 54 * strength;
+      arrow(ctx, x - dir[0] * L / 2, y - dir[1] * L / 2, dir[0] * L, dir[1] * L, K.probe, 4, 13);
+    } else {
+      ctx.fillStyle = K.ink; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+    }
+    // label box: fixed width, left-aligned text, so changing digits do not make it jump
+    const fs = Math.max(17, SCAPE.minFont(ctx)), lh = fs * 1.3, bh = 12 + lines.length * lh;
+    ctx.font = '500 ' + fs + 'px ' + THEME.font;
+    // width in steps of 40 px, so it only grows for longer words, not for every digit
+    const bw = Math.ceil((Math.max(...lines.map(l => ctx.measureText(l).width)) + 20) / 40) * 40;
+    const bx = clamp(x - bw / 2, 4, W - bw - 4);
+    const by = y - R - 10 - bh > 4 ? y - R - 10 - bh : Math.min(y + R + 10, H - bh - 4);
+    ctx.fillStyle = K.ink; ctx.fillRect(bx, by, bw, bh);
+    lines.forEach((l, i) => text(ctx, l, bx + 10, by + 6 + (i + 1) * lh - fs * 0.35, fs, K.paper, 500, 'left'));
+  };
+  const COMPASS = () => t('s3.canvas.dirs');
+  // wind measured at a point of the map: speed, Beaufort and where it comes from
+  const probeTop = (x, y) => {
+    const u = sample(U, x, y), v = sample(V, x, y), ms = Math.hypot(u, v), b = beaufort(ms);
+    if (ms < 0.3) { lens(x, y, null, 0, [t('s3.canvas.probeMs', fmt(ms, 1)), t('s3.canvas.probeCalm')]); return; }
+    const toward = Math.atan2(u, -v) * 180 / Math.PI;           // compass bearing the wind blows to
+    const from = ((toward + 180) % 360 + 360) % 360;
+    const dir = COMPASS()[Math.round(from / 45) % 8];
+    lens(x, y, [u / ms, v / ms], Math.min(1, ms / 20), [t('s3.canvas.probeMs', fmt(ms, 1)), t('s3.canvas.probeBft', b, dir)]);
+  };
+  const pausedLabel = () => {
+    const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
+    text(ctx, t('s3.canvas.paused'), 14, 10 + lh, 15, K.ink, 500, 'left', 'alphabetic', K.paper);
   };
 
   const drawCoasts = () => {
@@ -298,11 +350,6 @@
       ctx.moveTo(tr[0], tr[1]); for (let k = 2; k < tr.length; k += 2) ctx.lineTo(tr[k], tr[k + 1]);
     }
     ctx.stroke();
-    // where the side view cuts
-    const cy = cutY();
-    ctx.strokeStyle = K.mapCut; ctx.lineWidth = 1.5; ctx.setLineDash([10, 8]);
-    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke(); ctx.setLineDash([]);
-    text(ctx, t('s3.canvas.cut', fmt(cutLat, cutLat % 1 ? 1 : 0)), W - 10, cy - 6, 12, K.ink, 500, 'right', 'alphabetic', K.paper);
     if (showArrows) {
       for (let j = 2; j < NY; j += 4) for (let i = 2; i < NX; i += 4) {
         const u = U[idx(i, j)], v = V[idx(i, j)], sp = Math.hypot(u, v); if (sp < 0.8) continue;
@@ -317,17 +364,20 @@
       text(ctx, t(hi ? 's3.canvas.high' : 's3.canvas.low'), e.x, e.y + 14, 40, hi ? D.high : D.low, 500, 'center', 'alphabetic', K.paper);
       text(ctx, String(Math.round(1013 + e.v)), e.x, e.y + 32, 13, K.ink, 500, 'center', 'alphabetic', K.paper);
     }
-    // brush preview
-    if (pointer) {
-      ctx.strokeStyle = brush > 0 ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
-      ctx.beginPath(); ctx.arc(pointer.x, pointer.y, 3 * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    // brush preview (its size) or the wind vane
+    if (pointer && tool !== 'probe') {
+      ctx.strokeStyle = tool === 'high' ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+      ctx.beginPath(); ctx.arc(pointer.x, pointer.y, size * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
     }
-    const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
-    text(ctx, t(rotOn ? 's3.canvas.rotOn' : 's3.canvas.rotOff'), 14, 10 + lh, 15, K.ink, 500, 'left', 'alphabetic', K.paper);
-    if (SCAPE.dev) text(ctx, t(sunOn ? 's3.canvas.sunOn' : 's3.canvas.sunOff'), 14, 10 + 2 * lh, 15, K.ink, 500, 'left', 'alphabetic', K.paper);
+    if (pointer && tool === 'probe') probeTop(pointer.x, pointer.y);
+    if (paused) pausedLabel();
+    if (SCAPE.dev) {
+      const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
+      text(ctx, t(sunOn ? 's3.canvas.sunOn' : 's3.canvas.sunOff'), 14, 10 + 2 * lh, 15, K.ink, 500, 'left', 'alphabetic', K.paper);
+    }
   };
 
-  let readT = 0;
+  let hudT = 0;
   const frame = dt => {
     if (!view.fit()) return;
     update(dt);
@@ -341,12 +391,8 @@
     const ext = extrema();
     if (side) { updateSide(dt); drawSide(); } else draw({ ext });
     const frac = range / 40;
-    meter.set(frac, t('meter.hpa', fmt(range, 0)));
-    readT -= dt;
-    if (readT <= 0) {
-      readT = 0.25;
-      read.textContent = t('s3.readout', fmt(ms, 1), bft, fmt(range, 0));
-    }
+    hudT -= dt;
+    if (hudT <= 0) { hudT = 0.2; hud.bft(bft); hud.val('dp', t('hud.hpa', fmt(range, 0))); }
     // tasks
     const tick = key => {
       if (!tasks.done(key)) return;
@@ -355,43 +401,61 @@
     };
     if (bft >= 8) tick('sturm');
     if (rot > 1.1 && ext.some(e => e.v < -10)) tick('wirbel');
-    if (painting && frac > 0.3) stillArmed = true;           // a strong high or low painted by the visitor …
+    if (painting && tool !== 'probe' && frac > 0.3) stillArmed = true;           // a strong high or low painted by the visitor …
     if (stillArmed && !painting && frac < 0.05) tick('still'); // … has evened out
   };
 
   const cv = view.canvas;
   cv.addEventListener('pointerdown', e => { hideBadge(); cv.setPointerCapture(e.pointerId); pointer = view.local(e); painting = true; e.preventDefault(); });
   cv.addEventListener('pointermove', e => { pointer = view.local(e); });
-  const stop = e => { painting = false; if (e.pointerType !== 'mouse') pointer = null; };
+  // the wind vane stays where the finger left it; the brush preview disappears
+  const stop = e => { painting = false; if (e.pointerType !== 'mouse' && tool !== 'probe') pointer = null; };
   cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
-  cv.addEventListener('pointerleave', () => { painting = false; pointer = null; });
-  $$('#s3brush .btn').forEach(b => b.addEventListener('click', () => {
-    brush = +b.dataset.brush;
-    $$('#s3brush .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  cv.addEventListener('pointerleave', e => { painting = false; if (e.pointerType === 'mouse' || tool !== 'probe') pointer = null; });
+  // tools: H, T, wind vane; size of H and T
+  $$('#s3tool .btn').forEach(b => b.addEventListener('click', () => {
+    tool = b.dataset.tool; pointer = null;
+    $$('#s3tool .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    $('#s3sizeRow').classList.toggle('off', tool === 'probe');
   }));
-  $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; pressToggle(e.currentTarget, rotOn); });
+  const sizeIn = $('#s3size'), sizeDot = $('#s3sizeRow .size-dot');
+  const setSize = v => { size = v; sizeDot.style.setProperty('--d', (8 + (v - 2) * 7) + 'px'); };
+  sizeIn.addEventListener('input', () => setSize(parseFloat(sizeIn.value)));
+  setSize(size);
+  // Earth's rotation (switch) and pausing the balance
+  $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; e.currentTarget.setAttribute('aria-checked', String(rotOn)); });
+  $('#s3pause').addEventListener('click', e => {
+    paused = !paused;
+    e.currentTarget.setAttribute('aria-pressed', String(paused));
+    e.currentTarget.querySelector('.lbl').textContent = t(paused ? 's3.resume' : 's3.pause');
+  });
   // top or side view
   const cutSlider = $('#s3cut'), cutVal = $('#s3cutVal');
   const setCut = lat => { cutLat = clamp(Math.round(lat * 2) / 2, 31, 71); cutSlider.value = cutLat; cutVal.textContent = t('s3.cutVal', fmt(cutLat, cutLat % 1 ? 1 : 0)); };
   cutSlider.addEventListener('input', () => setCut(parseFloat(cutSlider.value)));
-  $$('#s3view .btn').forEach(b => b.addEventListener('click', () => {
-    side = b.dataset.view === 'side';
-    $$('#s3view .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  $('#s3view').addEventListener('change', e => {
+    side = e.target.value === 'side';
     $('#s3cutRow').hidden = !side;
+    pointer = null;
     if (side) {
       // cut through the strongest high or low, so there is something to see
-      const e = extrema()[0];
-      if (e) setCut(LAT1 - e.y / H * (LAT1 - LAT0));
+      const ex = extrema()[0];
+      if (ex) setCut(LAT1 - ex.y / H * (LAT1 - LAT0));
       for (const o of sideParts) newSide(o);
     }
-  }));
+  });
+  $('#s3view').value = 'top';
   setCut(cutLat);
   // dev mode
   const setSun = on => { sunOn = on; pressToggle($('#s3sun'), on, ['s3.sunOn', 's3.sunOff']); };
   const setArrows = on => { showArrows = on; pressToggle($('#s3arrows'), on); };
+  const speedIn = $('#s3speed'), speedOut = $('#s3speedVal');
+  const setSpeed = v => { speed = v; speedIn.value = v; speedOut.textContent = t('s3.speedVal', fmt(v, 1)); };
+  speedIn.addEventListener('input', () => setSpeed(parseFloat(speedIn.value)));
+  setSpeed(SPEED_DEFAULT);
   $('#s3sun').addEventListener('click', () => setSun(!sunOn));
   $('#s3arrows').addEventListener('click', () => setArrows(!showArrows));
-  window.addEventListener('scape:dev', e => { if (!e.detail) { setSun(SUN_DEFAULT); setArrows(ARROWS_DEFAULT); } });
+  window.addEventListener('scape:dev', e => { if (!e.detail) { setSun(SUN_DEFAULT); setArrows(ARROWS_DEFAULT); setSpeed(SPEED_DEFAULT); } });
   reset();
   Streben.stages['stufe-3'] = { frame };
 })();

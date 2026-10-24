@@ -19,6 +19,7 @@ window.TEXTS = {
     merke: 'Merke',
     tasks: 'Aufgaben',
     close: 'Schließen',
+    howto: 'Anleitung',
     merkeLocked: 'Löse die Aufgaben – dann erscheint hier, was du herausgefunden hast.',
     devLink: 'Dev-Modus',
     devTitle: 'Dev-Modus'
@@ -37,8 +38,18 @@ window.TEXTS = {
   meter: {
     label: 'Unterschied',
     percent: v => v + '\u00a0%',
-    hpa: v => v + ' hPa',
     none: '–'
+  },
+
+  // The small instrument bar above the sea-breeze and weather-map drawings.
+  hud: {
+    dirAria: 'Windrichtung',
+    bftAria: 'Windstärke (Beaufort 0–12)',
+    bftMaxAria: 'Stärkster Wind auf der Karte (Beaufort 0–12)',
+    dpAria: 'Druckunterschied zwischen Meer und Land',
+    dpMaxAria: 'Größter Druckunterschied auf der Karte',
+    bft: b => 'Bft\u00a0' + b,
+    hpa: v => v + '\u00a0hPa'
   },
 
   // ---- Start page ----------------------------------------------------------
@@ -62,7 +73,6 @@ window.TEXTS = {
     lead: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Was passiert, wenn du die Trennwand wegziehst?',
     modesAria: 'Versuch wählen',
     modes: { dichte: 'Dichte', waerme: 'Warm & kalt' },
-    infoAria: 'Messgerät erklären',
     meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p>',
     canvasAria: 'Teilchenkasten mit Trennwand',
     badge: 'Zieh die Wand weg',
@@ -88,7 +98,7 @@ window.TEXTS = {
       one: 'Geschafft! Probier den anderen Versuch.',
       all: 'Beide geschafft!'
     },
-    merke: 'Alles strebt ins Gleichgewicht: Die Natur gleicht Unterschiede immer von selbst aus – ob Dichte oder Wärme. Andersherum passiert es nie: Setz die Wand wieder ein, die Teilchen sortieren sich nicht zurück.',
+    merke: 'Alles strebt ins Gleichgewicht: Die Natur gleicht Unterschiede immer von selbst aus – ob Dichte oder Wärme. Von allein kehrt sich das nie um: Die Teilchen sammeln sich nie wieder alle auf einer Seite.',
     // Info text: the same principle everywhere (replaces the former comparison screen).
     same: {
       title: 'Immer dasselbe',
@@ -124,9 +134,7 @@ window.TEXTS = {
     sunOff: 'Sonne aus',
     showAria: 'Was die Zeichnung zeigt',
     show: { arrows: 'Pfeile', isobars: 'Isobaren', smoke: 'Rauch', tracers: 'Luftteilchen' },
-    infoAria: 'Isobaren, Hoch und Tief erklären',
-    note: '<p>Die Isobaren sind Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p>',
-    hint: 'Die Zeit läuft von selbst – schieb den Regler, um eine andere Tageszeit einzustellen. Am Boden weht der Wind vom Hoch (H) zum Tief (T).',
+    howto: '<p>Die Zeit läuft von selbst. Mit dem Regler <b>Tageszeit</b> stellst du sie selbst ein.</p><p>Die violetten Linien sind <b>Isobaren</b>, Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p><p>Die Leiste über der Zeichnung zeigt die <b>Windrichtung</b> (Pfeil), die <b>Windstärke</b> nach Beaufort (0 bis 12 Striche) und den <b>Druckunterschied Δp</b> zwischen Meer und Land.</p>',
     canvas: {
       isobars: 'ISOBAREN',
       high: 'H',
@@ -138,11 +146,10 @@ window.TEXTS = {
       timer: s => '⏱ ' + s + ' S'
     },
     wind: {
-      calm: 'Windstille',
-      sea: 'Seewind (vom Meer zum Land)',
-      land: 'Landwind (vom Land zum Meer)'
+      calm: 'Windstill',
+      sea: 'Seewind',
+      land: 'Landwind'
     },
-    readout: (kind, ms, bft, dp) => kind + ' · ' + ms + ' m/s · Windstärke ' + bft + ' · Druckunterschied ' + dp + ' hPa',
     tasks: {
       title: 'Aufgabe',
       intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b> Die Zeit steht dabei still – nur du kannst sie mit dem Regler verstellen.',
@@ -178,18 +185,23 @@ window.TEXTS = {
     viewSide: 'Von der Seite',
     cut: 'Schnitt bei',
     cutVal: lat => lat + '° N',
-    brushAria: 'Pinsel wählen',
-    brushHigh: 'Hoch: Luft dazu',
-    brushLow: 'Tief: Luft weg',
+    view: 'Ansicht',
+    toolsAria: 'Werkzeug wählen',
+    toolHigh: 'Hoch malen (Luft dazu)',
+    toolLow: 'Tief malen (Luft weg)',
+    toolProbe: 'Windmesser: Wind messen',
+    size: 'Größe',
+    pause: 'Ausgleich anhalten',
+    resume: 'Ausgleich fortsetzen',
+    speed: 'Ausgleich-Tempo',
+    speedVal: v => v + '×',
     canvasAria: 'Wetterkarte zum Malen von Hochs und Tiefs',
     badge: 'Halte den Finger auf die Karte',
     rot: 'Erdrotation',
-    rotInfoAria: 'Erdrotation erklären',
-    rotNote: '<p>Mit Erdrotation wird der Wind auf der Nordhalbkugel nach rechts abgelenkt. Er kreist dann gegen den Uhrzeigersinn um das Tief – und das Tief füllt sich langsamer.</p>',
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     arrows: 'Pfeile',
-    hint: 'Halte den Finger oder die Maus auf die Karte: Mit „Hoch“ häufst du Luft an, mit „Tief“ nimmst du sie weg. Die Linien sind Isobaren. „Von der Seite“ zeigt einen Schnitt durch die Luft entlang der gestrichelten Linie: Im Hoch sinkt die Luft ab und der Himmel wird klar, im Tief steigt sie auf und es bilden sich Wolken.',
+    howto: '<p>Wähle <b>H</b> oder <b>T</b> und halte den Finger auf die Karte: Mit H häufst du Luft an (Hoch), mit T nimmst du sie weg (Tief). Mit <b>Größe</b> stellst du ein, wie groß das Hoch oder Tief wird.</p><p>Mit dem <b>Windmesser</b> (Fähnchen) fährst du wie mit einer Lupe über die Karte und misst Windrichtung und Windstärke.</p><p>Die Linien sind <b>Isobaren</b>: Je enger sie liegen, desto stärker weht der Wind. Die Leiste über der Karte zeigt den stärksten Wind und den größten Druckunterschied Δp.</p><p><b>Erdrotation</b>: Auf der Nordhalbkugel wird der Wind nach rechts abgelenkt. Er kreist dann gegen den Uhrzeigersinn um das Tief – und das Tief füllt sich langsamer.</p><p>Bei <b>Ansicht</b> kannst du <b>von der Seite</b> auf die Luft schauen und wählen, wo geschnitten wird: Im Hoch sinkt die Luft ab und der Himmel wird klar, im Tief steigt sie auf und es bilden sich Wolken.</p><p>Mit <b>Ausgleich anhalten</b> frierst du den Druckausgleich ein, um in Ruhe zu messen.</p>',
     canvas: {
       high: 'H',
       low: 'T',
@@ -202,12 +214,18 @@ window.TEXTS = {
       sideIsobars: 'LINIEN GLEICHEN DRUCKS',
       sinking: 'LUFT SINKT AB',
       rising: 'LUFT STEIGT AUF',
-      rotOn: 'ERDROTATION AN',
-      rotOff: 'ERDROTATION AUS',
+      paused: 'AUSGLEICH ANGEHALTEN',
+      probeMs: v => v + ' m/s',
+      probeBft: (b, dir) => 'Bft ' + b + (dir ? ' · aus ' + dir : ''),
+      probeCalm: 'WINDSTILL',
+      probeRising: 'LUFT STEIGT',
+      probeSinking: 'LUFT SINKT',
+      probeEast: 'WIND NACH OSTEN',
+      probeWest: 'WIND NACH WESTEN',
+      dirs: ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'],
       sunOn: 'SONNE AN',
       sunOff: 'SONNE AUS'
     },
-    readout: (ms, bft, range) => 'Stärkster Wind: ' + ms + ' m/s · Windstärke ' + bft + ' · größter Druckunterschied ' + range + ' hPa',
     tasks: {
       title: 'Aufgaben',
       sturm: 'Erzeuge einen Sturm: Windstärke 8 irgendwo auf der Karte.',

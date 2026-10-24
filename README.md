@@ -2,8 +2,8 @@
 
 A browser-only simulation in three stages, each showing the same principle at
 a larger scale: everything strives for balance – nature always evens out
-differences. A meter above every simulation always shows how big the
-difference still is.
+differences. Stage 1 has a difference meter; stages 2 and 3 have a small
+instrument bar (wind direction, Beaufort as 12 rising bars, Δp).
 
 - **Stage 1 – Teilchenkasten** (`#stufe-1`): a particle box with a wall to
   pull away; two experiments: density and heat (fast and slow particles,
@@ -11,22 +11,25 @@ difference still is.
   dasselbe" (heat, water, current, wind – the former comparison screen) and a
   topic on why the particles never sort back (entropy). Square stage.
 - **Stage 2 – Seewind** (`#stufe-2`): a cross-section through sea, coast and
-  air. Time runs by itself; the time-of-day slider sets it (time pauses
-  briefly while the slider is used). Isobars, arrows, smoke and air particles
-  are always shown. Stays 3:2 (an inherently wide subject).
+  air, with a low ground line so most of the picture is air. Time runs by
+  itself; the time-of-day slider sets it (time pauses briefly while the
+  slider is used). Isobars, arrows, smoke and air particles are always shown.
+  The instrument bar shows wind direction, Beaufort and Δp. Stays 3:2.
 - **Stage 3 – Wetterkarte** (`#stufe-3`): one map surface with the coastlines
   of Europe and the North Atlantic as a backdrop (synoptic scale); it starts
-  with an Iceland low and an Azores high. Paint highs and lows, switch on
-  Earth's rotation; arrows on. Square stage; "H" blue, "T" red.
-  "Von oben / Von der Seite": the side view is a west–east cross-section
-  (x–z) along one latitude (dashed line on the map, slider "Schnitt bei";
-  it jumps to the strongest high or low when switched on). Surfaces of equal
-  pressure bulge up over highs and dip over lows; air flows from high to low
-  at the ground and back aloft, sinks in the high (sun) and rises in the low
-  (clouds, rain when deep). Painting works in both views.
+  with an Iceland low and an Azores high. Tools: **H** and **T** paint highs
+  and lows (size slider), the **wind vane** measures like a magnifier (wind
+  arrow, m/s, Beaufort, "aus SW"). Below the map: view dropdown (from above /
+  from the side, with a slider for where to cut), an on/off switch for
+  Earth's rotation and a pause button that stops the pressure balance.
+  The side view is a west–east cross-section (x–z) along one latitude:
+  surfaces of equal pressure bulge up over highs and dip over lows; air flows
+  from high to low at the ground and back aloft, sinks in the high (sun) and
+  rises in the low (clouds, rain when deep). Square stage; "H" blue, "T" red.
 
-Each stage has tasks behind an "Aufgaben" button (popup, with a progress
-count; the button flashes when a task is solved). Solving them unlocks the
+Each stage has an "Anleitung" button (how-to popup with all explanations)
+and an "Aufgaben" button (tasks popup, with a progress count; the button
+flashes when a task is solved). Solving them unlocks the
 "Merke" box:
 
 | Stage | Tasks (success condition) |
@@ -49,7 +52,8 @@ URL switches for staff:
 - `?kiosk` – exhibit mode: back to the start page after 3 minutes without touch.
 - `?dev`, Shift+D or the small "Dev-Modus" button in the footer – dev mode:
   stage 2 gets switches for the sun, arrows, isobars, smoke and air particles;
-  stage 3 for the sun (keeps creating new highs and lows) and the arrows.
+  stage 3 for the sun (keeps creating new highs and lows), the arrows and
+  the speed of the pressure balance (0.1× – 4×).
   Leaving dev mode restores the visitor defaults.
 
 ## Files
@@ -71,15 +75,23 @@ content/texts.de.js every visible text (edit or translate here)
 theme/              the design: font, palette, logo, colours (see theme/README.md)
 ```
 
+## Style rule: numbers never move the layout
+
+Changing values use **tabular figures** (every digit the same width,
+CSS `font-variant-numeric: tabular-nums`, set in `css/kit.css`) and sit in
+boxes of fixed minimum width; changing labels are left-aligned or in boxes
+that only grow in large steps. Otherwise the text around a value jumps
+whenever the number of digits changes (a "layout shift").
+
 ## Layout
 
 Sticky header with the numbered stage buttons (1 Prinzip · 2 Seewind ·
 3 Wetterkarte) and the view toggle; every part ends with a
 "Weiter zu … →" button. Phone: selection, the simulation with its
-meter at full width, controls, readout, hint, "Aufgaben" button, Merke, topics. Desktop
+meter at full width, controls, "Anleitung" and "Aufgaben" buttons, Merke, topics. Desktop
 (automatic from 1000 px, or via the "Desktop-/Handy-Ansicht" toggle,
 remembered for this app only): the simulation on the left, sized to fit the
-screen; selection, controls, "Aufgaben" button and Merke on the right. Every
+screen; selection, controls, "Anleitung"/"Aufgaben" buttons and Merke on the right. Every
 simulation has a fullscreen button; in fullscreen the drawing keeps its shape
 and is centred.
 

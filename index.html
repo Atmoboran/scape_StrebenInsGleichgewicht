@@ -70,9 +70,7 @@
             <button type="button" class="btn" data-mode="dichte" aria-pressed="true" data-t="s1.modes.dichte"></button>
             <button type="button" class="btn" data-mode="waerme" aria-pressed="false" data-t="s1.modes.waerme"></button>
           </div>
-          <button type="button" class="info" aria-controls="s1-note" data-t-aria="s1.infoAria"></button>
         </div>
-        <div class="info-note" id="s1-note" hidden data-t-html="s1.meterNote"></div>
       </div>
       <div class="lab-stage">
         <div class="stage-frame square fit sim-frame" id="f1">
@@ -86,9 +84,19 @@
           <button type="button" class="btn big" id="s1reset"><span><span data-t="s1.reset"></span><span class="sub" data-t="s1.resetSub"></span></span></button>
         </div>
         <p class="readout" id="s1read" aria-live="polite"></p>
-        <p class="hint" id="s1hint"></p>
-        <button type="button" class="btn task-open" aria-controls="s1dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
-        <dialog class="task-dlg" id="s1dlg" data-t-aria="kit.tasks">
+        <div class="dlg-row">
+          <button type="button" class="btn dlg-open" aria-controls="s1how" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span data-t="kit.howto"></span></button>
+          <button type="button" class="btn dlg-open task-open" aria-controls="s1dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
+        </div>
+        <dialog class="dlg" id="s1how" data-t-aria="kit.howto">
+          <div class="howto">
+            <h3 data-t="kit.howto"></h3>
+            <p id="s1hint"></p>
+            <div data-t-html="s1.meterNote"></div>
+          </div>
+          <button type="button" class="btn big" data-close data-t="kit.close"></button>
+        </dialog>
+        <dialog class="dlg" id="s1dlg" data-t-aria="kit.tasks">
           <div class="tasks" id="s1tasks">
             <h3 data-t="s1.tasks.title"></h3>
             <p class="task-intro" data-t="s1.tasks.intro"></p>
@@ -142,17 +150,19 @@
       <div class="lab-pre">
         <div class="controls">
           <div class="range"><label for="s2time" data-t="s2.time"></label><input type="range" id="s2time" min="0" max="24" step="0.1" value="13"><output id="s2clock" for="s2time"></output></div>
-          <button type="button" class="info" aria-controls="s2-note" data-t-aria="s2.infoAria"></button>
         </div>
       </div>
       <div class="lab-stage">
         <div class="stage-frame wide fit sim-frame" id="f2">
-          <div class="meter" id="m2"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
+          <div class="hud" id="h2" aria-live="polite">
+            <div class="hud-item" data-hud="dir" data-t-title="hud.dirAria"><svg class="hud-ico hud-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 6l6 6-6 6"/></svg><span class="hud-val hud-word"></span></div>
+            <div class="hud-item" data-hud="bft" data-t-title="hud.bftAria"><svg class="hud-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V3"/><path d="M4 4h14l-2 3.5 2 3.5H4"/></svg><span class="bft-bar" aria-hidden="true"></span><span class="hud-val"></span></div>
+            <div class="hud-item" data-hud="dp" data-t-title="hud.dpAria"><span class="hud-ico hud-txt" aria-hidden="true">Δp</span><span class="hud-val"></span></div>
+          </div>
           <canvas id="c2" data-t-aria="s2.canvasAria"></canvas>
         </div>
       </div>
       <div class="lab-post">
-        <div class="info-note" id="s2-note" hidden data-t-html="s2.note"></div>
         <div class="dev-only dev-box">
           <h3 data-t="kit.devTitle"></h3>
           <div class="controls">
@@ -165,10 +175,18 @@
             <button type="button" class="btn" data-toggle="tracers" aria-pressed="true" data-t="s2.show.tracers"></button>
           </div>
         </div>
-        <p class="readout" id="s2read" aria-live="polite"></p>
-        <p class="hint" data-t="s2.hint"></p>
-        <button type="button" class="btn task-open" aria-controls="s2dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
-        <dialog class="task-dlg" id="s2dlg" data-t-aria="kit.tasks">
+        <div class="dlg-row">
+          <button type="button" class="btn dlg-open" aria-controls="s2how" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span data-t="kit.howto"></span></button>
+          <button type="button" class="btn dlg-open task-open" aria-controls="s2dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
+        </div>
+        <dialog class="dlg" id="s2how" data-t-aria="kit.howto">
+          <div class="howto">
+            <h3 data-t="kit.howto"></h3>
+            <div data-t-html="s2.howto"></div>
+          </div>
+          <button type="button" class="btn big" data-close data-t="kit.close"></button>
+        </dialog>
+        <dialog class="dlg" id="s2dlg" data-t-aria="kit.tasks">
           <div class="tasks" id="s2tasks">
             <h3 data-t="s2.tasks.title"></h3>
             <p class="task-intro" data-t-html="s2.tasks.intro"></p>
@@ -211,39 +229,51 @@
   <div class="page">
     <div class="lab">
       <div class="lab-pre">
-        <div class="seg view-seg" role="group" data-t-aria="s3.viewAria" id="s3view">
-          <button type="button" class="btn" data-view="top" aria-pressed="true" data-t="s3.viewTop"></button>
-          <button type="button" class="btn" data-view="side" aria-pressed="false" data-t="s3.viewSide"></button>
-        </div>
-        <div class="range cut-range" id="s3cutRow" hidden><label for="s3cut" data-t="s3.cut"></label><input type="range" id="s3cut" min="31" max="71" step="0.5" value="52"><output id="s3cutVal" for="s3cut"></output></div>
-        <div class="seg" role="group" data-t-aria="s3.brushAria" id="s3brush">
-          <button type="button" class="btn" data-brush="1" aria-pressed="true" data-t="s3.brushHigh"></button>
-          <button type="button" class="btn" data-brush="-1" aria-pressed="false" data-t="s3.brushLow"></button>
+        <div class="tools">
+          <div class="seg" role="group" data-t-aria="s3.toolsAria" id="s3tool">
+            <button type="button" class="btn tool" data-tool="high" aria-pressed="true" data-t-aria="s3.toolHigh" data-t-title="s3.toolHigh"><span class="tool-letter hi">H</span></button>
+            <button type="button" class="btn tool" data-tool="low" aria-pressed="false" data-t-aria="s3.toolLow" data-t-title="s3.toolLow"><span class="tool-letter lo">T</span></button>
+            <button type="button" class="btn tool" data-tool="probe" aria-pressed="false" data-t-aria="s3.toolProbe" data-t-title="s3.toolProbe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22V2"/><path d="M5 3h13l-3 3.5 3 3.5H5"/><path d="M2 22h6"/></svg></button>
+          </div>
+          <div class="range size-range" id="s3sizeRow"><label for="s3size" data-t="s3.size"></label><input type="range" id="s3size" min="2" max="6" step="0.5" value="3.5"><span class="size-dot" aria-hidden="true"></span></div>
         </div>
       </div>
       <div class="lab-stage">
         <div class="stage-frame square fit sim-frame" id="f3">
-          <div class="meter" id="m3"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
+          <div class="hud" id="h3" aria-live="polite">
+            <div class="hud-item" data-hud="bft" data-t-title="hud.bftMaxAria"><svg class="hud-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V3"/><path d="M4 4h14l-2 3.5 2 3.5H4"/></svg><span class="bft-bar" aria-hidden="true"></span><span class="hud-val"></span></div>
+            <div class="hud-item" data-hud="dp" data-t-title="hud.dpMaxAria"><span class="hud-ico hud-txt" aria-hidden="true">Δp</span><span class="hud-val"></span></div>
+          </div>
           <canvas id="c3" class="paint" data-t-aria="s3.canvasAria"></canvas>
         </div>
       </div>
       <div class="lab-post">
-        <div class="controls">
-          <button type="button" class="btn" id="s3rot" aria-pressed="false" data-t="s3.rot"></button>
-          <button type="button" class="info" aria-controls="s3-note" data-t-aria="s3.rotInfoAria"></button>
+        <div class="controls s3-controls">
+          <label class="select"><span data-t="s3.view"></span><select id="s3view"><option value="top" data-t="s3.viewTop"></option><option value="side" data-t="s3.viewSide"></option></select></label>
+          <button type="button" class="switch" role="switch" aria-checked="false" id="s3rot"><span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span><span data-t="s3.rot"></span></button>
+          <button type="button" class="btn" id="s3pause" aria-pressed="false"><svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span class="lbl" data-t="s3.pause"></span></button>
         </div>
-        <div class="info-note" id="s3-note" hidden data-t-html="s3.rotNote"></div>
+        <div class="range cut-range" id="s3cutRow" hidden><label for="s3cut" data-t="s3.cut"></label><input type="range" id="s3cut" min="31" max="71" step="0.5" value="52"><output id="s3cutVal" for="s3cut"></output></div>
         <div class="dev-only dev-box">
           <h3 data-t="kit.devTitle"></h3>
           <div class="controls">
             <button type="button" class="btn" id="s3sun" aria-pressed="false" data-t="s3.sunOff"></button>
             <button type="button" class="btn" id="s3arrows" aria-pressed="true" data-t="s3.arrows"></button>
           </div>
+          <div class="range"><label for="s3speed" data-t="s3.speed"></label><input type="range" id="s3speed" min="0.1" max="4" step="0.1" value="1"><output id="s3speedVal" for="s3speed"></output></div>
         </div>
-        <p class="readout" id="s3read" aria-live="polite"></p>
-        <p class="hint" data-t="s3.hint"></p>
-        <button type="button" class="btn task-open" aria-controls="s3dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
-        <dialog class="task-dlg" id="s3dlg" data-t-aria="kit.tasks">
+        <div class="dlg-row">
+          <button type="button" class="btn dlg-open" aria-controls="s3how" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span data-t="kit.howto"></span></button>
+          <button type="button" class="btn dlg-open task-open" aria-controls="s3dlg" aria-haspopup="dialog"><span data-t="kit.tasks"></span><span class="count"></span></button>
+        </div>
+        <dialog class="dlg" id="s3how" data-t-aria="kit.howto">
+          <div class="howto">
+            <h3 data-t="kit.howto"></h3>
+            <div data-t-html="s3.howto"></div>
+          </div>
+          <button type="button" class="btn big" data-close data-t="kit.close"></button>
+        </dialog>
+        <dialog class="dlg" id="s3dlg" data-t-aria="kit.tasks">
           <div class="tasks" id="s3tasks">
             <h3 data-t="s3.tasks.title"></h3>
             <ul>

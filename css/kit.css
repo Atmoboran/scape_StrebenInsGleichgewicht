@@ -159,6 +159,11 @@ p.text { font-size: 16px; line-height: 1.55; max-width: 46em; margin: 0 0 12px; 
 :root[data-view="desktop"] .lab .range { flex-basis: 100%; }
 :root[data-view="mobile"] .range { flex-wrap: wrap; gap: 4px 12px; }
 :root[data-view="mobile"] .controls .btn { flex: 1 1 auto; }
+/* Style rule: changing numbers never move the layout. Values use tabular
+   figures (every digit the same width, font-variant-numeric: tabular-nums)
+   and sit in boxes of fixed minimum width; changing labels are left-aligned
+   or in fixed-width boxes. */
+output, .readout, .meter-val, .hud-val, .count, .tabular { font-variant-numeric: tabular-nums; }
 .readout { font-weight: var(--fw-medium); font-size: 14px; letter-spacing: .04em; text-transform: var(--caps); min-height: 1.5em; margin: 6px 0; }
 .readout-grid { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 12px 0; margin: 10px 0 14px; border-top: var(--line-width) solid var(--line); border-bottom: var(--line-width) solid var(--line); }
 .readout-grid > div { font-size: 11px; font-weight: var(--fw-medium); letter-spacing: .08em; text-transform: var(--caps); }

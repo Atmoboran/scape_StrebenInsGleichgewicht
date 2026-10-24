@@ -4,13 +4,13 @@
 // the slider pauses it briefly. Sun and display toggles only in dev mode.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, fmt, makeView, Meter, text, arrow, beaufort, pressToggle } = Streben;
+  const { $, $$, clamp, rnd, fmt, makeView, Hud, text, arrow, beaufort, pressToggle } = Streben;
   const K = THEME.streben, D = THEME.data;
 
-  const W = 900, H = 600, BASE = 430, HC = 390, COAST = 450;
+  const W = 900, H = 600, BASE = 505, HC = 465, COAST = 450;   // low ground line: most of the picture is air
   const view = makeView($('#c2'), W, H), ctx = view.ctx;
-  const meter = new Meter($('#m2'));
-  const slider = $('#s2time'), clock = $('#s2clock'), read = $('#s2read'), status = $('#s2status');
+  const hud = new Hud($('#h2'));
+  const slider = $('#s2time'), clock = $('#s2clock'), status = $('#s2status');
   const tasks = SCAPE.tasks($('#s2tasks'));
   const hideBadge = Streben.firstHint($('#f2'), 's2.badge');
   const SUN = ['s2.sunOn', 's2.sunOff'];
@@ -56,7 +56,7 @@
     }
     if (show.smoke) {
       smokeT -= dt;
-      if (smokeT <= 0) { smokeT = 0.12; smoke.push({ x: 748, z: BASE - 318, r: 5, age: 0 }); }
+      if (smokeT <= 0) { smokeT = 0.12; smoke.push({ x: 748, z: 118, r: 5, age: 0 }); }
     }
     for (const s2 of smoke) {
       const [u, w] = vel(s2.x, s2.z);
@@ -91,12 +91,12 @@
 
     // sun, or moon and stars
     if (sunOn && s > 0) {
-      const a = Math.PI * (time - 6) / 12, sx = 450 - 390 * Math.cos(a), sy = 360 - 300 * Math.sin(a);
+      const a = Math.PI * (time - 6) / 12, sx = 450 - 390 * Math.cos(a), sy = 420 - 340 * Math.sin(a);
       ctx.fillStyle = K.sun; ctx.beginPath(); ctx.arc(sx, sy, 32, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = K.sunRay; ctx.lineWidth = 2;
       for (let i = 0; i < 8; i++) { const r = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(sx + Math.cos(r) * 42, sy + Math.sin(r) * 42); ctx.lineTo(sx + Math.cos(r) * 56, sy + Math.sin(r) * 56); ctx.stroke(); }
     } else if (night) {
-      const h = (time + 6) % 24, a = Math.PI * h / 12, mx = 450 - 390 * Math.cos(a), my = 360 - 300 * Math.sin(a);
+      const h = (time + 6) % 24, a = Math.PI * h / 12, mx = 450 - 390 * Math.cos(a), my = 420 - 340 * Math.sin(a);
       ctx.fillStyle = K.moon; ctx.beginPath(); ctx.arc(mx, my, 24, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = K.sky.night; ctx.beginPath(); ctx.arc(mx + 10, my - 6, 21, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = K.star; ctx.lineWidth = 1.5;
@@ -190,35 +190,35 @@
       const hl = (isLow, x, y, size) => text(ctx, t(isLow ? 's2.canvas.low' : 's2.canvas.high'), x, y, size, isLow ? D.low : D.high, 500, 'center', 'alphabetic', K.paper);
       hl(!landLow, 340, BASE - 26, 64);
       hl(landLow, 620, BASE - 40, 64);
-      hl(landLow, 340, 78, 34);
-      hl(!landLow, 620, 78, 34);
+      hl(landLow, 340, 150, 34);
+      hl(!landLow, 620, 150, 34);
       if (Math.abs(dT) > 2) {
-        text(ctx, t('s2.canvas.rising'), landLow ? 620 : 225, 220, 15, ink, 500, 'center');
-        text(ctx, t('s2.canvas.sinking'), landLow ? 225 : 620, 220, 15, ink, 500, 'center');
+        text(ctx, t('s2.canvas.rising'), landLow ? 620 : 225, BASE - 250, 15, ink, 500, 'center');
+        text(ctx, t('s2.canvas.sinking'), landLow ? 225 : 620, BASE - 250, 15, ink, 500, 'center');
       }
     }
 
     // temperatures
-    text(ctx, t('s2.canvas.sea', fmt(Ts, 0)), 225, 530, 26, K.ink, 500, 'center');
-    text(ctx, t('s2.canvas.land', fmt(Tl, 0)), 665, 530, 26, K.ink, 500, 'center');
+    text(ctx, t('s2.canvas.sea', fmt(Ts, 0)), 225, BASE + 58, 24, K.ink, 500, 'center');
+    text(ctx, t('s2.canvas.land', fmt(Tl, 0)), 665, BASE + 52, 24, K.ink, 500, 'center');
     if (task.active) {
       ctx.fillStyle = K.ink; ctx.fillRect(W - 150, 14, 136, 40);
       text(ctx, t('s2.canvas.timer', Math.ceil(task.time)), W - 82, 42, 22, K.paper, 500, 'center');
     }
   };
 
-  let readT = 0;
+  let hudT = 0;
   const frame = dt => {
     if (!view.fit()) return;
     update(dt); draw();
-    const dp = 0.25 * Math.abs(dT);
-    meter.set(dp / 4, t('meter.hpa', fmt(dp, 1)));
-    readT -= dt;
-    if (readT <= 0) {
-      readT = 0.2;
-      const ms = 0.8 * Math.abs(dT);
-      const kind = t(Math.abs(dT) < 0.6 ? 's2.wind.calm' : dT > 0 ? 's2.wind.sea' : 's2.wind.land');
-      read.textContent = t('s2.readout', kind, fmt(ms, 1), beaufort(ms), fmt(dp, 1));
+    hudT -= dt;
+    if (hudT <= 0) {
+      hudT = 0.2;
+      // wind direction (arrow: right = towards the land), Beaufort, pressure difference
+      const calm = Math.abs(dT) < 0.6;
+      hud.dir(calm ? null : dT > 0 ? 0 : 180, t(calm ? 's2.wind.calm' : dT > 0 ? 's2.wind.sea' : 's2.wind.land'));
+      hud.bft(beaufort(0.8 * Math.abs(dT)));
+      hud.val('dp', t('hud.hpa', fmt(0.25 * Math.abs(dT), 1)));
     }
   };
 

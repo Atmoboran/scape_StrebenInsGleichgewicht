@@ -23,7 +23,13 @@
   window.addEventListener('hashchange', route);
   route();
 
-  // ---- tasks live in a popup; the button shows the progress ("1/2") -------
+  // ---- popups: "Anleitung" (how-to) and "Aufgaben" (tasks) ----------------
+  $$('.dlg-open').forEach(btn => {
+    const dlg = document.getElementById(btn.getAttribute('aria-controls'));
+    btn.addEventListener('click', () => { btn.classList.remove('flash'); dlg.showModal(); });
+    dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+  });
+  // the task button shows the progress ("1/2") and flashes when a task is solved
   $$('.task-open').forEach(btn => {
     const dlg = document.getElementById(btn.getAttribute('aria-controls'));
     const items = $$('li[data-task]', dlg);
@@ -33,15 +39,11 @@
       const n = items.filter(li => li.classList.contains('done')).length;
       count.textContent = n + '/' + items.length;
       btn.classList.toggle('all-done', n === items.length);
-      if (n > shown && !dlg.open) {                   // a task was solved: let the button flash once
-        btn.classList.remove('flash'); void btn.offsetWidth; btn.classList.add('flash');
-      }
+      if (n > shown && !dlg.open) { btn.classList.remove('flash'); void btn.offsetWidth; btn.classList.add('flash'); }
       shown = n;
     };
     update();
     new MutationObserver(update).observe(dlg, { subtree: true, attributes: true, attributeFilter: ['class'] });
-    btn.addEventListener('click', () => { btn.classList.remove('flash'); dlg.showModal(); });
-    dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
   });
 
   // ---- dev button in the footer shows its state ----------------------------

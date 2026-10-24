@@ -1,6 +1,7 @@
 // Streben nach Gleichgewicht – helpers shared by all stages (window.Streben).
 // Canvas views (device-pixel-ratio aware, letterboxed in fullscreen), the
-// difference meter, canvas text and arrows.
+// difference meter, the instrument bar (wind direction, Beaufort, Δp),
+// canvas text and arrows.
 (() => {
   'use strict';
   const K = THEME.streben;
@@ -55,6 +56,35 @@
       const txt = label != null ? label : t('meter.percent', Math.round(frac * 100));
       if (txt !== this.last) { this.val.textContent = txt; this.last = txt; }
       this.el.classList.toggle('is-zero', frac < 0.04);
+    }
+  };
+
+  // Instrument bar above a drawing: <div class="hud"> with .hud-item[data-hud="dir|bft|dp"].
+  // Values sit in fixed-width boxes with tabular figures, so nothing shifts when digits change.
+  S.Hud = class {
+    constructor(el) {
+      this.el = el; this.last = {};
+      el.querySelectorAll('.bft-bar').forEach(b => { b.innerHTML = Array.from({ length: 12 }, (_, k) => '<i style="--k:' + k + '"></i>').join(''); });
+    }
+    item(key) { return this.el.querySelector('[data-hud="' + key + '"]'); }
+    val(key, txt) {
+      if (this.last[key] === txt) return;
+      this.last[key] = txt;
+      this.item(key).querySelector('.hud-val').textContent = txt;
+    }
+    bft(n) {
+      if (this.last.bftN !== n) {
+        this.last.bftN = n;
+        this.item('bft').querySelectorAll('.bft-bar i').forEach((i, k) => i.classList.toggle('on', k < n));
+      }
+      this.val('bft', t('hud.bft', n));
+    }
+    // deg: 0 = to the right (east), 180 = to the left; null = calm
+    dir(deg, word) {
+      const it = this.item('dir');
+      it.classList.toggle('calm', deg == null);
+      if (deg != null) it.querySelector('.hud-arrow').style.transform = 'rotate(' + deg + 'deg)';
+      this.val('dir', word);
     }
   };
 
