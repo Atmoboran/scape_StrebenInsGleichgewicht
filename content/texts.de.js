@@ -41,13 +41,11 @@ window.TEXTS = {
     none: '–'
   },
 
-  // The small instrument bar above the sea-breeze and weather-map drawings.
+  // The small instrument bar above the sea-breeze drawing.
   hud: {
     dirAria: 'Windrichtung',
     bftAria: 'Windstärke (Beaufort 0–12)',
-    bftMaxAria: 'Stärkster Wind auf der Karte (Beaufort 0–12)',
     dpAria: 'Druckunterschied zwischen Meer und Land',
-    dpMaxAria: 'Größter Druckunterschied auf der Karte',
     bft: b => 'Bft\u00a0' + b,
     hpa: v => v + '\u00a0hPa'
   },
@@ -191,8 +189,9 @@ window.TEXTS = {
     toolLow: 'Tief malen (Luft weg)',
     toolProbe: 'Windmesser: Wind messen',
     size: 'Größe',
-    pause: 'Ausgleich anhalten',
-    resume: 'Ausgleich fortsetzen',
+    pause: 'Pause',
+    resume: 'Weiter',
+    pauseAria: 'Druckausgleich anhalten oder fortsetzen',
     speed: 'Ausgleich-Tempo',
     speedVal: v => v + '×',
     canvasAria: 'Wetterkarte zum Malen von Hochs und Tiefs',
@@ -201,7 +200,7 @@ window.TEXTS = {
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     arrows: 'Pfeile',
-    howto: '<p>Wähle <b>H</b> oder <b>T</b> und halte den Finger auf die Karte: Mit H häufst du Luft an (Hoch), mit T nimmst du sie weg (Tief). Mit <b>Größe</b> stellst du ein, wie groß das Hoch oder Tief wird.</p><p>Mit dem <b>Windmesser</b> (Fähnchen) fährst du wie mit einer Lupe über die Karte und misst Windrichtung und Windstärke.</p><p>Die Linien sind <b>Isobaren</b>: Je enger sie liegen, desto stärker weht der Wind. Die Leiste über der Karte zeigt den stärksten Wind und den größten Druckunterschied Δp.</p><p><b>Erdrotation</b>: Auf der Nordhalbkugel wird der Wind nach rechts abgelenkt. Er kreist dann gegen den Uhrzeigersinn um das Tief – und das Tief füllt sich langsamer.</p><p>Bei <b>Ansicht</b> kannst du <b>von der Seite</b> auf die Luft schauen und wählen, wo geschnitten wird: Im Hoch sinkt die Luft ab und der Himmel wird klar, im Tief steigt sie auf und es bilden sich Wolken.</p><p>Mit <b>Ausgleich anhalten</b> frierst du den Druckausgleich ein, um in Ruhe zu messen.</p>',
+    howto: '<p>Wähle <b>H</b> oder <b>T</b> und halte den Finger auf die Karte: Mit H häufst du Luft an (Hoch), mit T nimmst du sie weg (Tief). Mit <b>Größe</b> stellst du ein, wie groß das Hoch oder Tief wird.</p><p>Mit dem <b>Windmesser</b> (Fähnchen) stellst du eine Messstation auf: Tipp auf die Karte, und sie misst dort Windrichtung und Windstärke. Du kannst sie verschieben, danach wieder H oder T wählen und weitermalen – die Station misst weiter. Tippst du mit dem Windmesser auf die Station, verschwindet sie.</p><p>Die Linien sind <b>Isobaren</b>: Je enger sie liegen, desto stärker weht der Wind.</p><p><b>Erdrotation</b>: Auf der Nordhalbkugel wird der Wind nach rechts abgelenkt. Er kreist dann gegen den Uhrzeigersinn um das Tief – und das Tief füllt sich langsamer.</p><p>Bei <b>Ansicht</b> kannst du <b>von der Seite</b> auf die Luft schauen und wählen, wo geschnitten wird: Im Hoch sinkt die Luft ab und der Himmel wird klar, im Tief steigt sie auf und es bilden sich Wolken.</p><p>Mit <b>Pause</b> frierst du den Druckausgleich ein, um in Ruhe zu messen.</p>',
     canvas: {
       high: 'H',
       low: 'T',
@@ -228,7 +227,7 @@ window.TEXTS = {
     },
     tasks: {
       title: 'Aufgaben',
-      sturm: 'Erzeuge einen Sturm: Windstärke 8 irgendwo auf der Karte.',
+      sturm: 'Mal ein Hoch und ein Tief nah beieinander und miss dazwischen mit dem Windmesser einen Sturm (Windstärke 8).',
       wirbel: 'Schalte die Erdrotation ein und lass den Wind um ein kräftiges Tief kreisen.',
       still: 'Mal ein kräftiges Hoch oder Tief und warte, bis sich alles ausgeglichen hat (Windstille).',
       one: 'Geschafft!',

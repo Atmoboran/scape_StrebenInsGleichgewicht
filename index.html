@@ -240,18 +240,14 @@
       </div>
       <div class="lab-stage">
         <div class="stage-frame square fit sim-frame" id="f3">
-          <div class="hud" id="h3" aria-live="polite">
-            <div class="hud-item" data-hud="bft" data-t-title="hud.bftMaxAria"><svg class="hud-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V3"/><path d="M4 4h14l-2 3.5 2 3.5H4"/></svg><span class="bft-bar" aria-hidden="true"></span><span class="hud-val"></span></div>
-            <div class="hud-item" data-hud="dp" data-t-title="hud.dpMaxAria"><span class="hud-ico hud-txt" aria-hidden="true">Δp</span><span class="hud-val"></span></div>
-          </div>
           <canvas id="c3" class="paint" data-t-aria="s3.canvasAria"></canvas>
         </div>
       </div>
       <div class="lab-post">
         <div class="controls s3-controls">
-          <label class="select"><span data-t="s3.view"></span><select id="s3view"><option value="top" data-t="s3.viewTop"></option><option value="side" data-t="s3.viewSide"></option></select></label>
+          <label class="select"><span class="sr-only" data-t="s3.view"></span><select id="s3view"><option value="top" data-t="s3.viewTop"></option><option value="side" data-t="s3.viewSide"></option></select></label>
           <button type="button" class="switch" role="switch" aria-checked="false" id="s3rot"><span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span><span data-t="s3.rot"></span></button>
-          <button type="button" class="btn" id="s3pause" aria-pressed="false"><svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span class="lbl" data-t="s3.pause"></span></button>
+          <button type="button" class="btn" id="s3pause" aria-pressed="false" data-t-title="s3.pauseAria"><svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span class="lbl" data-t="s3.pause"></span></button>
         </div>
         <div class="range cut-range" id="s3cutRow" hidden><label for="s3cut" data-t="s3.cut"></label><input type="range" id="s3cut" min="31" max="71" step="0.5" value="52"><output id="s3cutVal" for="s3cut"></output></div>
         <div class="dev-only dev-box">

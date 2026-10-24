@@ -2,21 +2,22 @@
 // Visitors paint highs and lows; pressure differences even out by diffusion,
 // wind blows down the gradient and is turned to the right when Earth's
 // rotation is switched on. The coastlines are only a backdrop: the map is one
-// surface, land and sea behave the same. Tools: paint H, paint T (adjustable
-// size) or measure the wind with the wind vane (a magnifier that shows speed
-// and direction). The balance can be paused. Dev mode: the sun (keeps making
-// new highs and lows), the arrows and the speed of the balance.
+// surface, land and sea behave the same. Tools: paint H, paint T (each with
+// its own adjustable size, H larger by default) or place the wind vane: a
+// measuring station that stays where it was put and keeps measuring speed and
+// direction while new highs and lows are painted (tap it again to remove it).
+// The balance can be paused. Dev mode: the sun (keeps making new highs and
+// lows), the arrows and the speed of the balance.
 // Side view: a west–east cross-section (x–z) along one latitude (chosen with
 // a slider). Air sinks in the high and rises in the low; at the ground it
 // flows from high to low, aloft back. Clouds over lows, sun over highs.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, fmt, makeView, Hud, text, arrow, beaufort, pressToggle } = Streben;
+  const { $, $$, clamp, rnd, fmt, makeView, text, arrow, beaufort, pressToggle } = Streben;
   const K = THEME.streben, D = THEME.data;
 
   const W = 600, H = 600, NX = 40, NY = 40, CW = W / NX, CH = H / NY;
   const view = makeView($('#c3'), W, H), ctx = view.ctx;
-  const hud = new Hud($('#h3'));
   const status = $('#s3status');
   const tasks = SCAPE.tasks($('#s3tasks'));
   const hideBadge = Streben.firstHint($('#f3'), 's3.badge');
@@ -24,7 +25,13 @@
   const U = new Float32Array(NX * NY), V = new Float32Array(NX * NY);
   const SUN_DEFAULT = false, ARROWS_DEFAULT = true, SPEED_DEFAULT = 1;
   const BALANCE = 1.0, LEAK = 0.025;   // diffusion (cells²/s) and loss over the map edge (1/s) at speed 1
-  let tool = 'high', size = 3.5, paused = false, speed = SPEED_DEFAULT;
+  const PAINT_RATE = 7;                // hPa per second at the centre while the finger is held down
+  const SIZE = { high: 4.5, low: 3 };  // spread of a painted high / low in grid cells (highs are wider)
+  const STATION_R = 46;                // radius of the measuring station (the magnifier ring)
+  let tool = 'high', paused = false, speed = SPEED_DEFAULT;
+  // measuring station: one on the map, one in the side view; null = not placed
+  const station = { top: null, side: null };
+  let dragStation = false, stationMoved = false, stationBft = 0;
   let rotOn = false, rot = 0, sunOn = SUN_DEFAULT, showArrows = ARROWS_DEFAULT;
   let pointer = null, painting = false, sunTimer = 2, stillArmed = false;
   const events = [];
@@ -87,7 +94,7 @@
 
   const update = dt => {
     // the brush
-    if (painting && pointer && tool !== 'probe') addBlob(pointer.x, side ? cutY() : pointer.y, (tool === 'high' ? 1 : -1) * 16 * dt, size);
+    if (painting && pointer && tool !== 'probe') addBlob(pointer.x, side ? cutY() : pointer.y, (tool === 'high' ? 1 : -1) * PAINT_RATE * dt, SIZE[tool]);
     // dev mode: the sun keeps making new highs and lows
     if (sunOn) {
       sunTimer -= dt;
@@ -270,24 +277,25 @@
     const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
     text(ctx, t('s3.canvas.cut', fmt(cutLat, cutLat % 1 ? 1 : 0)), W - 14, 10 + lh, 15, K.ink, 500, 'right', 'alphabetic', K.paper);
     text(ctx, t('s3.canvas.sideIsobars'), 14, GROUND - 60 - 8, 12, K.mapIsobar, 500, 'left', 'alphabetic', K.paper);
-    // brush preview: where the high or low will grow (its width), or the wind vane
+    // brush preview: where the high or low will grow (its width)
     if (pointer && tool !== 'probe') {
-      const r = size * CW * 1.6;
+      const r = SIZE[tool] * CW * 1.6;
       ctx.strokeStyle = tool === 'high' ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
       ctx.beginPath(); ctx.moveTo(pointer.x - r, GROUND - 6); ctx.lineTo(pointer.x - r, TOP); ctx.moveTo(pointer.x + r, GROUND - 6); ctx.lineTo(pointer.x + r, TOP); ctx.stroke(); ctx.setLineDash([]);
     }
-    if (pointer && tool === 'probe') {
-      const z = clamp(GROUND - pointer.y, 0, HC);
-      const [u, w] = sideVel(pointer.x, z), sp = Math.hypot(u, w);
+    // measuring station in the cross-section: which way the air moves there
+    if (station.side) {
+      const { x, y } = station.side;
+      const [u, w] = sideVel(x, clamp(GROUND - y, 0, HC)), sp = Math.hypot(u, w);
       const key = sp < 4 ? 'probeCalm' : Math.abs(w) > Math.abs(u) ? (w > 0 ? 'probeRising' : 'probeSinking') : (u > 0 ? 'probeEast' : 'probeWest');
-      lens(pointer.x, pointer.y, sp < 4 ? null : [u / sp, -w / sp], Math.min(1, sp / 60), [t('s3.canvas.' + key)]);
+      lens(x, y, sp < 4 ? null : [u / sp, -w / sp], Math.min(1, sp / 60), [t('s3.canvas.' + key)]);
     }
     if (paused) pausedLabel();
   };
 
   // the wind vane as a magnifier: a ring with the wind arrow inside and a label box
   const lens = (x, y, dir, strength, lines) => {
-    const R = 46;
+    const R = STATION_R;
     ctx.fillStyle = K.paper; ctx.strokeStyle = K.ink; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     ctx.lineWidth = 1.5;
@@ -312,6 +320,7 @@
   // wind measured at a point of the map: speed, Beaufort and where it comes from
   const probeTop = (x, y) => {
     const u = sample(U, x, y), v = sample(V, x, y), ms = Math.hypot(u, v), b = beaufort(ms);
+    stationBft = b;
     if (ms < 0.3) { lens(x, y, null, 0, [t('s3.canvas.probeMs', fmt(ms, 1)), t('s3.canvas.probeCalm')]); return; }
     const toward = Math.atan2(u, -v) * 180 / Math.PI;           // compass bearing the wind blows to
     const from = ((toward + 180) % 360 + 360) % 360;
@@ -364,12 +373,13 @@
       text(ctx, t(hi ? 's3.canvas.high' : 's3.canvas.low'), e.x, e.y + 14, 40, hi ? D.high : D.low, 500, 'center', 'alphabetic', K.paper);
       text(ctx, String(Math.round(1013 + e.v)), e.x, e.y + 32, 13, K.ink, 500, 'center', 'alphabetic', K.paper);
     }
-    // brush preview (its size) or the wind vane
+    // brush preview (its size) and the measuring station
     if (pointer && tool !== 'probe') {
       ctx.strokeStyle = tool === 'high' ? D.high : D.low; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
-      ctx.beginPath(); ctx.arc(pointer.x, pointer.y, size * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(pointer.x, pointer.y, SIZE[tool] * CW * 1.6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
     }
-    if (pointer && tool === 'probe') probeTop(pointer.x, pointer.y);
+    if (station.top) probeTop(station.top.x, station.top.y);
+    else stationBft = 0;
     if (paused) pausedLabel();
     if (SCAPE.dev) {
       const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
@@ -377,51 +387,66 @@
     }
   };
 
-  let hudT = 0;
   const frame = dt => {
     if (!view.fit()) return;
     update(dt);
-    let mn = Infinity, mx = -Infinity, vmax = 0;
-    for (let k = 0; k < p.length; k++) {
-      if (p[k] < mn) mn = p[k];
-      if (p[k] > mx) mx = p[k];
-      const v2 = U[k] * U[k] + V[k] * V[k]; if (v2 > vmax) vmax = v2;
-    }
-    const range = mx - mn, ms = Math.sqrt(vmax), bft = beaufort(ms);
+    let mn = Infinity, mx = -Infinity;
+    for (let k = 0; k < p.length; k++) { if (p[k] < mn) mn = p[k]; if (p[k] > mx) mx = p[k]; }
+    const frac = (mx - mn) / 40;
     const ext = extrema();
     if (side) { updateSide(dt); drawSide(); } else draw({ ext });
-    const frac = range / 40;
-    hudT -= dt;
-    if (hudT <= 0) { hudT = 0.2; hud.bft(bft); hud.val('dp', t('hud.hpa', fmt(range, 0))); }
     // tasks
     const tick = key => {
       if (!tasks.done(key)) return;
       const all = ['sturm', 'wirbel', 'still'].every(tasks.isDone);
       status.textContent = t(all ? 's3.tasks.all' : 's3.tasks.one');
     };
-    if (bft >= 8) tick('sturm');
+    if (!side && station.top && stationBft >= 8) tick('sturm');   // measured by the visitor's own station
     if (rot > 1.1 && ext.some(e => e.v < -10)) tick('wirbel');
     if (painting && tool !== 'probe' && frac > 0.3) stillArmed = true;           // a strong high or low painted by the visitor …
     if (stillArmed && !painting && frac < 0.05) tick('still'); // … has evened out
   };
 
   const cv = view.canvas;
-  cv.addEventListener('pointerdown', e => { hideBadge(); cv.setPointerCapture(e.pointerId); pointer = view.local(e); painting = true; e.preventDefault(); });
-  cv.addEventListener('pointermove', e => { pointer = view.local(e); });
-  // the wind vane stays where the finger left it; the brush preview disappears
-  const stop = e => { painting = false; if (e.pointerType !== 'mouse' && tool !== 'probe') pointer = null; };
+  // pointer: paint with H/T; with the wind vane place, move or remove the station
+  const key = () => (side ? 'side' : 'top');
+  cv.addEventListener('pointerdown', e => {
+    hideBadge(); cv.setPointerCapture(e.pointerId); e.preventDefault();
+    pointer = view.local(e);
+    if (tool === 'probe') {
+      const s = station[key()];
+      dragStation = true;
+      stationMoved = !(s && Math.hypot(s.x - pointer.x, s.y - pointer.y) < STATION_R);  // a tap on the station removes it
+      station[key()] = { x: pointer.x, y: pointer.y };
+      if (!stationMoved) station[key()] = s;
+    } else painting = true;
+  });
+  cv.addEventListener('pointermove', e => {
+    pointer = view.local(e);
+    if (dragStation) { station[key()] = { x: clamp(pointer.x, 0, W), y: clamp(pointer.y, 0, H) }; stationMoved = true; }
+  });
+  const stop = e => {
+    if (dragStation && !stationMoved) station[key()] = null;
+    dragStation = false; painting = false;
+    if (e.pointerType !== 'mouse') pointer = null;
+  };
   cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
-  cv.addEventListener('pointerleave', e => { painting = false; if (e.pointerType === 'mouse' || tool !== 'probe') pointer = null; });
-  // tools: H, T, wind vane; size of H and T
+  cv.addEventListener('pointerleave', () => { painting = false; if (!dragStation) pointer = null; });
+  // tools: H, T, wind vane; each of H and T keeps its own size
+  const sizeIn = $('#s3size'), sizeDot = $('#s3sizeRow .size-dot');
+  const showSize = () => {
+    const v = SIZE[tool] || SIZE.high;
+    sizeIn.value = v;
+    sizeDot.style.setProperty('--d', (8 + (v - 2) * 7) + 'px');
+  };
   $$('#s3tool .btn').forEach(b => b.addEventListener('click', () => {
     tool = b.dataset.tool; pointer = null;
     $$('#s3tool .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
     $('#s3sizeRow').classList.toggle('off', tool === 'probe');
+    showSize();
   }));
-  const sizeIn = $('#s3size'), sizeDot = $('#s3sizeRow .size-dot');
-  const setSize = v => { size = v; sizeDot.style.setProperty('--d', (8 + (v - 2) * 7) + 'px'); };
-  sizeIn.addEventListener('input', () => setSize(parseFloat(sizeIn.value)));
-  setSize(size);
+  sizeIn.addEventListener('input', () => { if (SIZE[tool]) { SIZE[tool] = parseFloat(sizeIn.value); showSize(); } });
+  showSize();
   // Earth's rotation (switch) and pausing the balance
   $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; e.currentTarget.setAttribute('aria-checked', String(rotOn)); });
   $('#s3pause').addEventListener('click', e => {

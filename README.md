@@ -2,8 +2,8 @@
 
 A browser-only simulation in three stages, each showing the same principle at
 a larger scale: everything strives for balance – nature always evens out
-differences. Stage 1 has a difference meter; stages 2 and 3 have a small
-instrument bar (wind direction, Beaufort as 12 rising bars, Δp).
+differences. Stage 1 has a difference meter. Stage 2 has a small instrument bar (wind direction, Beaufort as 12 rising
+bars, Δp between sea and land); stage 3 is measured by the visitor.
 
 - **Stage 1 – Teilchenkasten** (`#stufe-1`): a particle box with a wall to
   pull away; two experiments: density and heat (fast and slow particles,
@@ -18,10 +18,14 @@ instrument bar (wind direction, Beaufort as 12 rising bars, Δp).
 - **Stage 3 – Wetterkarte** (`#stufe-3`): one map surface with the coastlines
   of Europe and the North Atlantic as a backdrop (synoptic scale); it starts
   with an Iceland low and an Azores high. Tools: **H** and **T** paint highs
-  and lows (size slider), the **wind vane** measures like a magnifier (wind
-  arrow, m/s, Beaufort, "aus SW"). Below the map: view dropdown (from above /
-  from the side, with a slider for where to cut), an on/off switch for
-  Earth's rotation and a pause button that stops the pressure balance.
+  and lows (each with its own size, H larger by default; pressure rises
+  gently while the finger is held down). The **wind vane** places a
+  measuring station (wind arrow, m/s, Beaufort, "aus SW") that stays and
+  keeps measuring while new highs and lows are painted; drag it to move it,
+  tap it to remove it. There is no automatic readout – visitors measure
+  themselves. Below the map in one row: view dropdown (from above / from the
+  side, with a slider for where to cut), an on/off switch for Earth's
+  rotation and a pause button that stops the pressure balance.
   The side view is a west–east cross-section (x–z) along one latitude:
   surfaces of equal pressure bulge up over highs and dip over lows; air flows
   from high to low at the ground and back aloft, sinks in the high (sun) and
@@ -36,7 +40,7 @@ flashes when a task is solved). Solving them unlocks the
 |---|---|
 | 1 | In both experiments, open the wall and bring the difference below 10 %. |
 | 2 | Start the task and bring the sailing boat to the shore within 30 s (time stands still during the task, only the slider moves it); observe land breeze at night (after 21:00, land at least 2 °C cooler than the sea). |
-| 3 | Wind force 8 anywhere on the map; wind circling a strong low (rotation on, a low below −10 hPa); paint a strong high or low and wait until it has evened out (difference below 5 %). |
+| 3 | Wind force 8 measured with the visitor's own station; wind circling a strong low (rotation on, a low below −10 hPa); paint a strong high or low and wait until it has evened out (difference below 5 %). |
 
 Longer explanations and one sentence on what each model simplifies sit in
 collapsible topics below each stage.

@@ -83,7 +83,15 @@
 .size-range label { min-width: 0; }
 .size-dot { --d: 18px; flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
 .size-dot::after { content: ""; width: var(--d); height: var(--d); border-radius: 50%; border: 2px dashed var(--line); }
-.s3-controls { align-items: stretch; }
+/* view, rotation and pause share one row */
+.s3-controls { align-items: center; flex-wrap: nowrap; gap: 8px; }
+.s3-controls .select { flex: 1 1 auto; min-width: 0; }
+.s3-controls .select select { width: 100%; }
+.s3-controls .switch, .s3-controls #s3pause { flex: none; }
+:root[data-view="mobile"] .s3-controls { flex-wrap: wrap; }
+:root[data-view="mobile"] .s3-controls .select { flex: 1 1 100%; }
+:root[data-view="mobile"] .s3-controls .btn { flex: none; margin-left: auto; }
+#s3pause { min-width: 6.4em; padding: 8px 12px; }
 .select { display: inline-flex; align-items: center; gap: 8px; font-weight: var(--fw-medium); font-size: 13px; letter-spacing: .04em; text-transform: var(--caps); }
 .select select { min-height: 46px; padding: 6px 34px 6px 12px; border: var(--line-width) solid var(--line); border-radius: var(--radius); background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center / 12px 8px; appearance: none; -webkit-appearance: none; font-weight: var(--fw-medium); font-size: 14px; letter-spacing: .04em; text-transform: var(--caps); cursor: pointer; }
 .switch { display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 4px; border: 0; background: none; cursor: pointer; font-weight: var(--fw-medium); font-size: 14px; letter-spacing: .04em; text-transform: var(--caps); }
