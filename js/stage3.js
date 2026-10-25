@@ -6,7 +6,7 @@
 // its own adjustable size, H larger by default) or place the wind vane: a
 // measuring station that stays where it was put and keeps measuring speed and
 // direction while new highs and lows are painted (tap it again to remove it).
-// The balance can be paused. Dev mode: the sun (keeps making new highs and
+// The balance can be switched off (frozen). Dev mode: the sun (keeps making new highs and
 // lows), the arrows and the speed of the balance.
 // Side view: a west–east cross-section (x–z) along one latitude (chosen with
 // a slider). Air sinks in the high and rises in the low; at the ground it
@@ -27,7 +27,7 @@
   const BALANCE = 1.0, LEAK = 0.025;   // diffusion (cells²/s) and loss over the map edge (1/s) at speed 1
   const PAINT_RATE = 7;                // hPa per second at the centre while the finger is held down
   const SIZE = { high: 4.5, low: 3 };  // spread of a painted high / low in grid cells (highs are wider)
-  const STATION_R = 46;                // radius of the measuring station (the magnifier ring)
+  const STATION_R = 24;                // radius of the measuring station (the magnifier ring)
   let tool = 'high', paused = false, speed = SPEED_DEFAULT;
   // measuring station: one on the map, one in the side view; null = not placed
   const station = { top: null, side: null };
@@ -299,33 +299,34 @@
     ctx.fillStyle = K.paper; ctx.strokeStyle = K.ink; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     ctx.lineWidth = 1.5;
-    for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * (R - 8), y + Math.sin(a) * (R - 8)); ctx.lineTo(x + Math.cos(a) * R, y + Math.sin(a) * R); ctx.stroke(); }
+    for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * (R - 5), y + Math.sin(a) * (R - 5)); ctx.lineTo(x + Math.cos(a) * R, y + Math.sin(a) * R); ctx.stroke(); }
     if (dir) {
-      const L = 16 + 54 * strength;
-      arrow(ctx, x - dir[0] * L / 2, y - dir[1] * L / 2, dir[0] * L, dir[1] * L, K.probe, 4, 13);
+      // the arrow fills the ring; stronger wind = longer arrow
+      const L = R * (1 + 0.8 * strength);
+      arrow(ctx, x - dir[0] * L / 2, y - dir[1] * L / 2, dir[0] * L, dir[1] * L, K.probe, 3.5, 11);
     } else {
-      ctx.fillStyle = K.ink; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = K.ink; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
     }
-    // label box: fixed width, left-aligned text, so changing digits do not make it jump
-    const fs = Math.max(17, SCAPE.minFont(ctx)), lh = fs * 1.3, bh = 12 + lines.length * lh;
+    // label box: left-aligned text, width in steps, so changing digits do not make it jump
+    const fs = Math.max(13, SCAPE.minFont(ctx)), lh = fs * 1.3, bh = 8 + lines.length * lh;
     ctx.font = '500 ' + fs + 'px ' + THEME.font;
     // width in steps of 40 px, so it only grows for longer words, not for every digit
-    const bw = Math.ceil((Math.max(...lines.map(l => ctx.measureText(l).width)) + 20) / 40) * 40;
+    const bw = Math.ceil((Math.max(...lines.map(l => ctx.measureText(l).width)) + 14) / 24) * 24;
     const bx = clamp(x - bw / 2, 4, W - bw - 4);
-    const by = y - R - 10 - bh > 4 ? y - R - 10 - bh : Math.min(y + R + 10, H - bh - 4);
+    const by = y - R - 6 - bh > 4 ? y - R - 6 - bh : Math.min(y + R + 6, H - bh - 4);
     ctx.fillStyle = K.ink; ctx.fillRect(bx, by, bw, bh);
-    lines.forEach((l, i) => text(ctx, l, bx + 10, by + 6 + (i + 1) * lh - fs * 0.35, fs, K.paper, 500, 'left'));
+    lines.forEach((l, i) => text(ctx, l, bx + 7, by + 4 + (i + 1) * lh - fs * 0.3, fs, K.paper, 500, 'left'));
   };
   const COMPASS = () => t('s3.canvas.dirs');
   // wind measured at a point of the map: speed, Beaufort and where it comes from
   const probeTop = (x, y) => {
-    const u = sample(U, x, y), v = sample(V, x, y), ms = Math.hypot(u, v), b = beaufort(ms);
-    stationBft = b;
-    if (ms < 0.3) { lens(x, y, null, 0, [t('s3.canvas.probeMs', fmt(ms, 1)), t('s3.canvas.probeCalm')]); return; }
+    const u = sample(U, x, y), v = sample(V, x, y), ms = Math.hypot(u, v);
+    stationBft = beaufort(ms);   // only for the storm task, not shown
+    if (ms < 0.3) { lens(x, y, null, 0, [t('s3.canvas.probeCalm')]); return; }
     const toward = Math.atan2(u, -v) * 180 / Math.PI;           // compass bearing the wind blows to
     const from = ((toward + 180) % 360 + 360) % 360;
     const dir = COMPASS()[Math.round(from / 45) % 8];
-    lens(x, y, [u / ms, v / ms], Math.min(1, ms / 20), [t('s3.canvas.probeMs', fmt(ms, 1)), t('s3.canvas.probeBft', b, dir)]);
+    lens(x, y, [u / ms, v / ms], Math.min(1, ms / 20), [t('s3.canvas.probe', fmt(ms, 1), dir)]);
   };
   const pausedLabel = () => {
     const lh = Math.max(15, SCAPE.minFont(ctx)) * 1.35;
@@ -449,17 +450,17 @@
   showSize();
   // Earth's rotation (switch) and pausing the balance
   $('#s3rot').addEventListener('click', e => { rotOn = !rotOn; e.currentTarget.setAttribute('aria-checked', String(rotOn)); });
-  $('#s3pause').addEventListener('click', e => {
+  $('#s3balance').addEventListener('click', e => {
     paused = !paused;
-    e.currentTarget.setAttribute('aria-pressed', String(paused));
-    e.currentTarget.querySelector('.lbl').textContent = t(paused ? 's3.resume' : 's3.pause');
+    e.currentTarget.setAttribute('aria-checked', String(!paused));
   });
   // top or side view
   const cutSlider = $('#s3cut'), cutVal = $('#s3cutVal');
   const setCut = lat => { cutLat = clamp(Math.round(lat * 2) / 2, 31, 71); cutSlider.value = cutLat; cutVal.textContent = t('s3.cutVal', fmt(cutLat, cutLat % 1 ? 1 : 0)); };
   cutSlider.addEventListener('input', () => setCut(parseFloat(cutSlider.value)));
-  $('#s3view').addEventListener('change', e => {
-    side = e.target.value === 'side';
+  $$('#s3view .btn').forEach(b => b.addEventListener('click', () => {
+    side = b.dataset.view === 'side';
+    $$('#s3view .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
     $('#s3cutRow').hidden = !side;
     pointer = null;
     if (side) {
@@ -468,8 +469,7 @@
       if (ex) setCut(LAT1 - ex.y / H * (LAT1 - LAT0));
       for (const o of sideParts) newSide(o);
     }
-  });
-  $('#s3view').value = 'top';
+  }));
   setCut(cutLat);
   // dev mode
   const setSun = on => { sunOn = on; pressToggle($('#s3sun'), on, ['s3.sunOn', 's3.sunOff']); };

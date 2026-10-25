@@ -42,6 +42,11 @@
   };
   const toggleWall = () => {
     hideBadge();
+    // task: put the wall back once the difference shows 1 % or less
+    if (wallOpen && Math.round(frac * 100) <= 1 && tasks.done(mode)) {
+      const all = ['dichte', 'waerme'].every(tasks.isDone);
+      status.textContent = t(all ? 's1.tasks.all' : 's1.tasks.one');
+    }
     wallOpen = !wallOpen;
     wallBtn.textContent = t(wallOpen ? 's1.wallClose' : 's1.wallOpen');
   };
@@ -141,10 +146,6 @@
     draw();
     readT -= dt; if (readT <= 0) { read.textContent = readout(); readT = 0.25; }
     // task: difference below 10 % with the wall open, in each experiment
-    if (wallOpen && frac < 0.1 && tasks.done(mode)) {
-      const all = ['dichte', 'waerme'].every(tasks.isDone);
-      status.textContent = t(all ? 's1.tasks.all' : 's1.tasks.one');
-    }
   };
 
   $$('#s1modes .btn').forEach(b => b.addEventListener('click', () => {

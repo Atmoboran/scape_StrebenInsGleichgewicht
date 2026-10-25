@@ -1,22 +1,21 @@
 // Stage 2 – sea breeze / land breeze: a cross-section through sea, coast and
-// air with a time-of-day slider. One circulation cell driven by the
-// temperature difference between land and sea. Time runs by itself; dragging
-// the slider pauses it briefly. Sun and display toggles only in dev mode.
+// air. One circulation cell driven by the temperature difference between
+// land and sea. Time moves on with the "+1 Stunde" button, or by itself when
+// the "Tagesverlauf" switch is on. Sun and display toggles only in dev mode.
 (() => {
   'use strict';
-  const { $, $$, clamp, rnd, fmt, makeView, Hud, text, arrow, beaufort, pressToggle } = Streben;
+  const { $, $$, clamp, rnd, fmt, makeView, text, arrow, pressToggle } = Streben;
   const K = THEME.streben, D = THEME.data;
 
-  const W = 900, H = 600, BASE = 505, HC = 465, COAST = 450;   // low ground line: most of the picture is air
+  const W = 900, H = 690, BASE = 595, HC = 555, COAST = 450;   // tall picture, low ground line: most of it is air
   const view = makeView($('#c2'), W, H), ctx = view.ctx;
-  const hud = new Hud($('#h2'));
-  const slider = $('#s2time'), clock = $('#s2clock'), status = $('#s2status');
+  const clock = $('#s2clock'), status = $('#s2status');
   const tasks = SCAPE.tasks($('#s2tasks'));
   const hideBadge = Streben.firstHint($('#f2'), 's2.badge');
   const SUN = ['s2.sunOn', 's2.sunOff'];
   const show = { arrows: true, isobars: true, smoke: true, tracers: true };
-  const RESUME_S = 2.5;                 // time runs on this long after the slider was let go
-  let time = 13, sunOn = true, pause = 0;
+  const DAY_RATE = 0.5, STEP_RATE = 3;   // hours per second: day cycle, and the glide after "+1 Stunde"
+  let time = 13, target = 13, auto = false, sunOn = true;
   let Tl = 24, Ts = 17;
   let dT = 0;
   const tracers = Array.from({ length: 150 }, () => ({ x: rnd(0, W), z: rnd(0, HC) }));
@@ -39,9 +38,11 @@
   };
 
   const update = dt => {
-    // time runs by itself, except while the slider is in use or the boat task runs
-    pause = Math.max(0, pause - dt);
-    if (!pause && !task.active) { time = (time + dt * 0.5) % 24; slider.value = time.toFixed(1); }
+    // time: glide to the target hour after "+1 Stunde"; the day cycle runs by itself (not during the boat task)
+    if (auto && !task.active) target += DAY_RATE * dt;
+    const dh = Math.min(STEP_RATE * dt, target - time);
+    time += Math.max(0, dh);
+    if (time >= 24) { time -= 24; target -= 24; }
     clock.textContent = fmtTime(time);
     const s = sunOn ? sunF(time) : 0;
     const TlEq = sunOn ? 11 + 16 * s : 16, TsEq = sunOn ? 16 + 1.5 * s : 16;
@@ -91,12 +92,12 @@
 
     // sun, or moon and stars
     if (sunOn && s > 0) {
-      const a = Math.PI * (time - 6) / 12, sx = 450 - 390 * Math.cos(a), sy = 420 - 340 * Math.sin(a);
+      const a = Math.PI * (time - 6) / 12, sx = 450 - 390 * Math.cos(a), sy = BASE - 90 - 400 * Math.sin(a);
       ctx.fillStyle = K.sun; ctx.beginPath(); ctx.arc(sx, sy, 32, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = K.sunRay; ctx.lineWidth = 2;
       for (let i = 0; i < 8; i++) { const r = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(sx + Math.cos(r) * 42, sy + Math.sin(r) * 42); ctx.lineTo(sx + Math.cos(r) * 56, sy + Math.sin(r) * 56); ctx.stroke(); }
     } else if (night) {
-      const h = (time + 6) % 24, a = Math.PI * h / 12, mx = 450 - 390 * Math.cos(a), my = 420 - 340 * Math.sin(a);
+      const h = (time + 6) % 24, a = Math.PI * h / 12, mx = 450 - 390 * Math.cos(a), my = BASE - 90 - 400 * Math.sin(a);
       ctx.fillStyle = K.moon; ctx.beginPath(); ctx.arc(mx, my, 24, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = K.sky.night; ctx.beginPath(); ctx.arc(mx + 10, my - 6, 21, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = K.star; ctx.lineWidth = 1.5;
@@ -109,7 +110,7 @@
     if (show.isobars) {
       const a = 0.12;
       ctx.strokeStyle = night ? K.isobarNight : K.isobar; ctx.lineWidth = 2;
-      for (let k = 0; k < 8; k++) {
+      for (let k = 0; k < 9; k++) {
         const L = 1010 - 6 * k;
         ctx.beginPath(); let started = false;
         for (let x = 0; x <= W; x += 10) {
@@ -207,24 +208,13 @@
     }
   };
 
-  let hudT = 0;
   const frame = dt => {
     if (!view.fit()) return;
     update(dt); draw();
-    hudT -= dt;
-    if (hudT <= 0) {
-      hudT = 0.2;
-      // wind direction (arrow: right = towards the land), Beaufort, pressure difference
-      const calm = Math.abs(dT) < 0.6;
-      hud.dir(calm ? null : dT > 0 ? 0 : 180, t(calm ? 's2.wind.calm' : dT > 0 ? 's2.wind.sea' : 's2.wind.land'));
-      hud.bft(beaufort(0.8 * Math.abs(dT)));
-      hud.val('dp', t('hud.hpa', fmt(0.25 * Math.abs(dT), 1)));
-    }
   };
 
-  const grab = () => { hideBadge(); pause = RESUME_S; time = parseFloat(slider.value) % 24; };
-  slider.addEventListener('input', grab);
-  slider.addEventListener('pointerdown', () => { pause = RESUME_S; });
+  $('#s2step').addEventListener('click', () => { hideBadge(); target = Math.floor(target + 1e-6) + 1; });
+  $('#s2auto').addEventListener('click', e => { hideBadge(); auto = !auto; e.currentTarget.setAttribute('aria-checked', String(auto)); });
   // dev mode: sun and what the drawing shows
   const setShow = (k, on) => {
     show[k] = on;
@@ -238,7 +228,7 @@
   window.addEventListener('scape:dev', e => { if (!e.detail) { setSun(true); Object.keys(show).forEach(k => setShow(k, true)); } });
   $('#s2task').addEventListener('click', () => {
     hideBadge();
-    time = 5.5; slider.value = time; setSun(true);
+    time = target = 5; setSun(true);
     Tl = 11; Ts = 16; dT = Tl - Ts;
     boat.x = 160; task.active = true; task.time = 30;
     status.textContent = t('s2.tasks.go', 30);

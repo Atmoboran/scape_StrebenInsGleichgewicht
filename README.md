@@ -2,30 +2,32 @@
 
 A browser-only simulation in three stages, each showing the same principle at
 a larger scale: everything strives for balance – nature always evens out
-differences. Stage 1 has a difference meter. Stage 2 has a small instrument bar (wind direction, Beaufort as 12 rising
-bars, Δp between sea and land); stage 3 is measured by the visitor.
+differences. Stage 1 has a difference meter; in stage 3 the visitor measures
+the wind with their own station. Stage headers are slim: title only (stage 1
+adds one short line).
 
-- **Stage 1 – Teilchenkasten** (`#stufe-1`): a particle box with a wall to
+- **Stage 1 – Ausgleichsströme** (`#stufe-1`): a particle box with a wall to
   pull away; two experiments: density and heat (fast and slow particles,
   coloured on the CD temperature scale). Below it the info text "Immer
   dasselbe" (heat, water, current, wind – the former comparison screen) and a
   topic on why the particles never sort back (entropy). Square stage.
-- **Stage 2 – Seewind** (`#stufe-2`): a cross-section through sea, coast and
-  air, with a low ground line so most of the picture is air. Time runs by
-  itself; the time-of-day slider sets it (time pauses briefly while the
-  slider is used). Isobars, arrows, smoke and air particles are always shown.
-  The instrument bar shows wind direction, Beaufort and Δp. Stays 3:2.
-- **Stage 3 – Wetterkarte** (`#stufe-3`): one map surface with the coastlines
+- **Stage 2 – Land-See-Wind** (`#stufe-2`): a cross-section through sea,
+  coast and air in a tall picture (900 × 690) with a low ground line, so most
+  of it is air. Time moves on with **+1 Stunde** (glides one hour on) or by
+  itself while the **Tagesverlauf** switch is on (off by default). Isobars,
+  arrows, smoke and air particles are always shown.
+- **Stage 3 – Hoch und Tief** (`#stufe-3`): one map surface with the coastlines
   of Europe and the North Atlantic as a backdrop (synoptic scale); it starts
   with an Iceland low and an Azores high. Tools: **H** and **T** paint highs
   and lows (each with its own size, H larger by default; pressure rises
   gently while the finger is held down). The **wind vane** places a
-  measuring station (wind arrow, m/s, Beaufort, "aus SW") that stays and
+  small measuring station (wind arrow, "7,6 m/s aus SO") that stays and
   keeps measuring while new highs and lows are painted; drag it to move it,
   tap it to remove it. There is no automatic readout – visitors measure
-  themselves. Below the map in one row: view dropdown (from above / from the
-  side, with a slider for where to cut), an on/off switch for Earth's
-  rotation and a pause button that stops the pressure balance.
+  themselves. Below the map in one row: a two-icon toggle for the view (circles =
+  from above, layers = from the side, with a slider for where to cut) and
+  on/off switches for Earth's rotation and for the pressure balance
+  ("Ausgleich"; off = frozen).
   The side view is a west–east cross-section (x–z) along one latitude:
   surfaces of equal pressure bulge up over highs and dip over lows; air flows
   from high to low at the ground and back aloft, sinks in the high (sun) and
@@ -33,13 +35,12 @@ bars, Δp between sea and land); stage 3 is measured by the visitor.
 
 Each stage has an "Anleitung" button (how-to popup with all explanations)
 and an "Aufgaben" button (tasks popup, with a progress count; the button
-flashes when a task is solved). Solving them unlocks the
-"Merke" box:
+flashes when a task is solved). There are no Merke boxes.
 
 | Stage | Tasks (success condition) |
 |---|---|
-| 1 | In both experiments, open the wall and bring the difference below 10 %. |
-| 2 | Start the task and bring the sailing boat to the shore within 30 s (time stands still during the task, only the slider moves it); observe land breeze at night (after 21:00, land at least 2 °C cooler than the sea). |
+| 1 | In both experiments, open the wall and put it back while the difference shows 1 % or less. |
+| 2 | Start the task and bring the sailing boat to the shore within 30 s (time stands still during the task, only "+1 Stunde" moves it); observe land breeze at night (after 21:00, land at least 2 °C cooler than the sea). |
 | 3 | Wind force 8 measured with the visitor's own station; wind circling a strong low (rotation on, a low below −10 hPa); paint a strong high or low and wait until it has evened out (difference below 5 %). |
 
 Longer explanations and one sentence on what each model simplifies sit in

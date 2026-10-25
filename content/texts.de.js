@@ -16,11 +16,9 @@ window.TEXTS = {
     fullscreenEnter: 'Vollbild',
     fullscreenExit: 'Vollbild beenden',
     infoAria: 'Erklärung anzeigen',
-    merke: 'Merke',
     tasks: 'Aufgaben',
     close: 'Schließen',
     howto: 'Anleitung',
-    merkeLocked: 'Löse die Aufgaben – dann erscheint hier, was du herausgefunden hast.',
     devLink: 'Dev-Modus',
     devTitle: 'Dev-Modus'
   },
@@ -28,9 +26,9 @@ window.TEXTS = {
   nav: {
     aria: 'Teile der Simulation',
     home: 'Zur Startseite',
-    s1: 'Prinzip',
-    s2: 'Seewind',
-    s3: 'Wetterkarte'
+    s1: 'Ausgleichsströme',
+    s2: 'Land-See-Wind',
+    s3: 'Hoch und Tief'
   },
 
 
@@ -41,14 +39,6 @@ window.TEXTS = {
     none: '–'
   },
 
-  // The small instrument bar above the sea-breeze drawing.
-  hud: {
-    dirAria: 'Windrichtung',
-    bftAria: 'Windstärke (Beaufort 0–12)',
-    dpAria: 'Druckunterschied zwischen Meer und Land',
-    bft: b => 'Bft\u00a0' + b,
-    hpa: v => v + '\u00a0hPa'
-  },
 
   // ---- Start page ----------------------------------------------------------
   start: {
@@ -57,9 +47,9 @@ window.TEXTS = {
     lead: 'Überall, wo es einen Unterschied gibt, kommt etwas in Bewegung – so lange, bis der Unterschied verschwunden ist. Das gilt für Teilchen in einem Kasten, für den Wind an der Küste und für das Wetter auf der ganzen Welt.',
     partsTitle: 'Drei Stufen',
     parts: {
-      s1: '<b>1 Teilchenkasten</b> – Zieh die Trennwand weg und sieh zu, wie sich Teilchen und Wärme verteilen.',
-      s2: '<b>2 Seewind</b> – Stell die Tageszeit ein. Die Sonne heizt das Land schneller als das Meer – und es weht.',
-      s3: '<b>3 Wetterkarte</b> – Mal selbst Hochs und Tiefs auf die Karte von Europa und schalte die Erdrotation ein.'
+      s1: '<b>1 Ausgleichsströme</b> – Zieh die Trennwand weg und sieh zu, wie sich Teilchen und Wärme verteilen.',
+      s2: '<b>2 Land-See-Wind</b> – Lass die Stunden vergehen. Die Sonne heizt das Land schneller als das Meer – und es weht.',
+      s3: '<b>3 Hoch und Tief</b> – Mal selbst Hochs und Tiefs auf die Karte von Europa und schalte die Erdrotation ein.'
     },
     next: 'Los geht’s: Stufe 1 →'
   },
@@ -67,8 +57,8 @@ window.TEXTS = {
   // ---- Stage 1: particle box -----------------------------------------------
   s1: {
     kicker: 'Stufe 1 von 3 · Das Prinzip',
-    headline: 'Teilchen–<br>kasten',
-    lead: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Was passiert, wenn du die Trennwand wegziehst?',
+    headline: 'Ausgleichsströme',
+    lead: 'Wo ein Unterschied ist, fließt etwas – bis alles gleich ist.',
     modesAria: 'Versuch wählen',
     modes: { dichte: 'Dichte', waerme: 'Warm & kalt' },
     meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p>',
@@ -90,13 +80,12 @@ window.TEXTS = {
     },
     tasks: {
       title: 'Aufgabe',
-      intro: 'Bring in beiden Versuchen den Unterschied unter 10 %.',
+      intro: 'Zieh die Wand weg und setz sie wieder ein, sobald der Unterschied bei 1\u00a0% oder darunter liegt.',
       dichte: 'Dichte: viele und wenige Teilchen',
       waerme: 'Wärme: schnelle und langsame Teilchen',
       one: 'Geschafft! Probier den anderen Versuch.',
       all: 'Beide geschafft!'
     },
-    merke: 'Alles strebt ins Gleichgewicht: Die Natur gleicht Unterschiede immer von selbst aus – ob Dichte oder Wärme. Von allein kehrt sich das nie um: Die Teilchen sammeln sich nie wieder alle auf einer Seite.',
     // Info text: the same principle everywhere (replaces the former comparison screen).
     same: {
       title: 'Immer dasselbe',
@@ -116,23 +105,23 @@ window.TEXTS = {
         body: '<p>Die Teilchen sind hier riesig, und es sind nur wenige. In einem einzigen Kubikzentimeter Luft stecken etwa 25 Trillionen Teilchen, und sie fliegen mit rund 500 m/s viel schneller. Darum dauert der Ausgleich hier Sekunden – in einem echten Zimmer mischt sich Luft vor allem durch Luftbewegungen.</p>'
       }
     },
-    next: 'Weiter zu Stufe 2: Seewind →'
+    next: 'Weiter zu Stufe 2: Land-See-Wind →'
   },
 
   // ---- Stage 2: sea breeze -------------------------------------------------
   s2: {
     kicker: 'Stufe 2 von 3 · Wie Wind entsteht',
-    headline: 'See–<br>wind',
-    lead: 'Ein Schnitt durch Meer, Küste und Luft. Die Sonne heizt das Land schneller als das Wasser. Was macht die Luft darüber?',
+    headline: 'Land-See-Wind',
     canvasAria: 'Querschnitt durch Küste, Meer und Luft',
-    badge: 'Schieb die Tageszeit',
-    time: 'Tageszeit',
+    badge: 'Klick auf +1 Stunde',
+    step: '+1 Stunde',
+    auto: 'Tagesverlauf',
     clock: (hh, mm) => hh + ':' + mm + ' Uhr',
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     showAria: 'Was die Zeichnung zeigt',
     show: { arrows: 'Pfeile', isobars: 'Isobaren', smoke: 'Rauch', tracers: 'Luftteilchen' },
-    howto: '<p>Die Zeit läuft von selbst. Mit dem Regler <b>Tageszeit</b> stellst du sie selbst ein.</p><p>Die violetten Linien sind <b>Isobaren</b>, Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p><p>Die Leiste über der Zeichnung zeigt die <b>Windrichtung</b> (Pfeil), die <b>Windstärke</b> nach Beaufort (0 bis 12 Striche) und den <b>Druckunterschied Δp</b> zwischen Meer und Land.</p>',
+    howto: '<p>Ein Schnitt durch Meer, Küste und Luft. Die Sonne heizt das Land schneller als das Wasser.</p><p>Mit <b>+1 Stunde</b> lässt du die Uhr eine Stunde weiterlaufen. Schaltest du <b>Tagesverlauf</b> ein, läuft der Tag von selbst.</p><p>Die violetten Linien sind <b>Isobaren</b>, Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p><p>Die Fahne an der Küste und das Segel zeigen, wohin der Wind weht.</p>',
     canvas: {
       isobars: 'ISOBAREN',
       high: 'H',
@@ -150,7 +139,7 @@ window.TEXTS = {
     },
     tasks: {
       title: 'Aufgabe',
-      intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b> Die Zeit steht dabei still – nur du kannst sie mit dem Regler verstellen.',
+      intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b> Die Zeit steht still – nur mit <b>+1 Stunde</b> geht es weiter.',
       start: 'Aufgabe starten',
       boat: 'Segler ans Ufer gebracht',
       night: 'Nachts Landwind beobachtet (Zeit nach 21 Uhr)',
@@ -159,7 +148,6 @@ window.TEXTS = {
       success: s => 'Geschafft! Noch ' + s + ' s übrig.',
       timeout: 'Zeit um! Tipp: Wann ist das Land wärmer als das Meer?'
     },
-    merke: 'Wind ist Luft, die einen Druckunterschied ausgleicht. Tagsüber weht er vom kühlen Meer zum warmen Land (Seewind), nachts umgekehrt (Landwind).',
     topics: {
       why: {
         title: 'Warum wird das Land schneller warm als das Meer?',
@@ -170,14 +158,13 @@ window.TEXTS = {
         body: '<p>Ein ganzer Tag dauert hier nur 48 Sekunden, und die Luft kreist in einer einzigen gleichmäßigen Walze. In Wirklichkeit reicht der Seewind meist nur einige Hundert Meter hoch und einige Kilometer weit ins Land. Temperaturen, Druck und Windstärke sind grob vereinfacht.</p>'
       }
     },
-    next: 'Weiter zu Stufe 3: Wetterkarte →'
+    next: 'Weiter zu Stufe 3: Hoch und Tief →'
   },
 
   // ---- Stage 3: weather map ------------------------------------------------
   s3: {
     kicker: 'Stufe 3 von 3 · Das große Bild',
-    headline: 'Wetter–<br>karte',
-    lead: 'Mal mit dem Finger Hochs und Tiefs auf die Karte von Europa und dem Nordatlantik. Je enger die Isobaren liegen, desto stärker weht der Wind.',
+    headline: 'Hoch und Tief',
     viewAria: 'Blickrichtung wählen',
     viewTop: 'Von oben',
     viewSide: 'Von der Seite',
@@ -189,9 +176,8 @@ window.TEXTS = {
     toolLow: 'Tief malen (Luft weg)',
     toolProbe: 'Windmesser: Wind messen',
     size: 'Größe',
-    pause: 'Pause',
-    resume: 'Weiter',
-    pauseAria: 'Druckausgleich anhalten oder fortsetzen',
+    balance: 'Ausgleich',
+    balanceAria: 'Druckausgleich: Luft strömt vom Hoch ins Tief und gleicht den Druck aus. Aus = eingefroren.',
     speed: 'Ausgleich-Tempo',
     speedVal: v => v + '×',
     canvasAria: 'Wetterkarte zum Malen von Hochs und Tiefs',
@@ -200,7 +186,7 @@ window.TEXTS = {
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     arrows: 'Pfeile',
-    howto: '<p>Wähle <b>H</b> oder <b>T</b> und halte den Finger auf die Karte: Mit H häufst du Luft an (Hoch), mit T nimmst du sie weg (Tief). Mit <b>Größe</b> stellst du ein, wie groß das Hoch oder Tief wird.</p><p>Mit dem <b>Windmesser</b> (Fähnchen) stellst du eine Messstation auf: Tipp auf die Karte, und sie misst dort Windrichtung und Windstärke. Du kannst sie verschieben, danach wieder H oder T wählen und weitermalen – die Station misst weiter. Tippst du mit dem Windmesser auf die Station, verschwindet sie.</p><p>Die Linien sind <b>Isobaren</b>: Je enger sie liegen, desto stärker weht der Wind.</p><p><b>Erdrotation</b>: Auf der Nordhalbkugel wird der Wind nach rechts abgelenkt. Er kreist dann gegen den Uhrzeigersinn um das Tief – und das Tief füllt sich langsamer.</p><p>Bei <b>Ansicht</b> kannst du <b>von der Seite</b> auf die Luft schauen und wählen, wo geschnitten wird: Im Hoch sinkt die Luft ab und der Himmel wird klar, im Tief steigt sie auf und es bilden sich Wolken.</p><p>Mit <b>Pause</b> frierst du den Druckausgleich ein, um in Ruhe zu messen.</p>',
+    howto: '<p>Wähle <b>H</b> oder <b>T</b> und halte den Finger auf die Karte: Mit H häufst du Luft an (Hoch), mit T nimmst du sie weg (Tief). Mit <b>Größe</b> stellst du ein, wie groß das Hoch oder Tief wird.</p><p>Mit dem <b>Windmesser</b> (Fähnchen) stellst du eine Messstation auf: Tipp auf die Karte, und sie misst dort Windrichtung und Windstärke. Du kannst sie verschieben, danach wieder H oder T wählen und weitermalen – die Station misst weiter. Tippst du mit dem Windmesser auf die Station, verschwindet sie.</p><p>Die Linien sind <b>Isobaren</b>: Je enger sie liegen, desto stärker weht der Wind.</p><p><b>Erdrotation</b>: Auf der Nordhalbkugel wird der Wind nach rechts abgelenkt. Er kreist dann gegen den Uhrzeigersinn um das Tief – und das Tief füllt sich langsamer.</p><p>Mit dem Ansicht-Schalter (Kreise = von oben, Schichten = von der Seite) schaust du <b>von der Seite</b> auf die Luft und wählst, wo geschnitten wird: Im Hoch sinkt die Luft ab und der Himmel wird klar, im Tief steigt sie auf und es bilden sich Wolken.</p><p>Schaltest du den <b>Ausgleich</b> aus, frierst du den Druckausgleich ein und kannst in Ruhe messen.</p>',
     canvas: {
       high: 'H',
       low: 'T',
@@ -213,9 +199,8 @@ window.TEXTS = {
       sideIsobars: 'LINIEN GLEICHEN DRUCKS',
       sinking: 'LUFT SINKT AB',
       rising: 'LUFT STEIGT AUF',
-      paused: 'AUSGLEICH ANGEHALTEN',
-      probeMs: v => v + ' m/s',
-      probeBft: (b, dir) => 'Bft ' + b + (dir ? ' · aus ' + dir : ''),
+      paused: 'AUSGLEICH AUS',
+      probe: (ms, dir) => ms + ' m/s' + (dir ? ' aus ' + dir : ''),
       probeCalm: 'WINDSTILL',
       probeRising: 'LUFT STEIGT',
       probeSinking: 'LUFT SINKT',
@@ -227,13 +212,12 @@ window.TEXTS = {
     },
     tasks: {
       title: 'Aufgaben',
-      sturm: 'Mal ein Hoch und ein Tief nah beieinander und miss dazwischen mit dem Windmesser einen Sturm (Windstärke 8).',
+      sturm: 'Mal ein Hoch und ein Tief nah beieinander und miss dazwischen mit dem Windmesser einen Sturm (mindestens 17 m/s).',
       wirbel: 'Schalte die Erdrotation ein und lass den Wind um ein kräftiges Tief kreisen.',
       still: 'Mal ein kräftiges Hoch oder Tief und warte, bis sich alles ausgeglichen hat (Windstille).',
       one: 'Geschafft!',
       all: 'Alle Aufgaben geschafft!'
     },
-    merke: 'Die Sonne erzeugt ständig neue Unterschiede, die Natur gleicht sie ständig aus. Wetter ist genau dieses Wechselspiel.',
     topics: {
       rot: {
         title: 'Warum kreist der Wind um das Tief?',
