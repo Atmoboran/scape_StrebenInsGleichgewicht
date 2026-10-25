@@ -90,13 +90,13 @@ whenever the number of digits changes (a "layout shift").
 
 ## Layout
 
-Sticky header with the numbered stage buttons (1 Prinzip · 2 Seewind ·
-3 Wetterkarte) and the view toggle; every part ends with a
+Sticky header with the numbered stage buttons (1 Ausgleichsströme · 2 Land-See-Wind ·
+3 Hoch und Tief) and the view toggle; every part ends with a
 "Weiter zu … →" button. Phone: selection, the simulation with its
-meter at full width, controls, "Anleitung" and "Aufgaben" buttons, Merke, topics. Desktop
+meter at full width, controls, "Anleitung" and "Aufgaben" buttons, topics. Desktop
 (automatic from 1000 px, or via the "Desktop-/Handy-Ansicht" toggle,
 remembered for this app only): the simulation on the left, sized to fit the
-screen; selection, controls, "Anleitung"/"Aufgaben" buttons and Merke on the right. Every
+screen; selection, controls, "Anleitung"/"Aufgaben" buttons on the right. Every
 simulation has a fullscreen button; in fullscreen the drawing keeps its shape
 and is centred.
 
