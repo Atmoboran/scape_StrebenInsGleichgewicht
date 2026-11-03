@@ -58,12 +58,24 @@ window.TEXTS = {
   s1: {
     kicker: 'Stufe 1 von 3 · Das Prinzip',
     headline: 'Ausgleichsströme',
-    lead: 'Wo ein Unterschied ist, fließt etwas – bis alles gleich ist.',
+    lead: 'Was sich verteilen kann, verteilt sich meistens. Was sich vermischen kann, vermischt sich meistens.',
     modesAria: 'Versuch wählen',
-    modes: { dichte: 'Dichte', waerme: 'Warm & kalt' },
-    meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p>',
-    canvasAria: 'Teilchenkasten mit Trennwand',
-    badge: 'Zieh die Wand weg',
+    modes: { tinte: 'Tinte in Wasser', dichte: 'Dichte', waerme: 'Warm & kalt' },
+    meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p><p>Der Balken <b>Möglichkeiten</b> zählt, auf wie viele Arten sich die Teilchen so anordnen können, wie sie gerade verteilt sind. Ein Tropfen Tinte, der beisammen bleibt, ist nur auf sehr wenige Arten möglich. Gleichmäßig verteilte Tinte ist auf unvorstellbar viele Arten möglich – darum landet sie fast immer dort.</p>',
+    waysLabel: 'Möglichkeiten',
+    waysAria: 'Auf wie viele Arten die jetzige Verteilung möglich ist',
+    waysExact: n => n + (n === 1 ? ' Art' : ' Arten'),
+    waysPow: e => '≈ 10' + e + ' Arten',
+    ways: {
+      title: 'Wenige Arten – viele Arten',
+      lead: 'Die Natur entwickelt sich häufig von Zuständen, die nur auf wenige Arten möglich sind, zu Zuständen, die auf sehr viele Arten möglich sind.',
+      aria: 'Vier Teilchen in zwei Hälften: alle 16 Arten, sie zu verteilen',
+      split: (l, r) => l + ' | ' + r,
+      note: 'Vier Teilchen, zwei Hälften: Alle links geht nur auf <b>1</b> Art, halb-halb auf <b>6</b> Arten. Bei den 120 Tintenteilchen im Glas stehen „alle beisammen“ schon unvorstellbar viele Arten „gut verteilt“ gegenüber – darum vermischt sich die Tinte und entmischt sich nie wieder von selbst.'
+    },
+    canvasAria: 'Glas mit Wasser und Tinte, oder Teilchenkasten mit Trennwand',
+    badge: 'Tipp ins Wasser',
+    dropAgain: 'Neuer Tropfen',
     left: 'LINKS',
     right: 'RECHTS',
     wallOpen: 'Wand wegziehen',
@@ -71,25 +83,28 @@ window.TEXTS = {
     reset: 'Neu starten',
     resetSub: 'Teilchen und Wand zurück',
     hints: {
+      tinte: 'Ein Tropfen Tinte fällt ins Wasser. Die winzigen Wasserteilchen stoßen die Tintenteilchen herum, bis das ganze Glas gleich gefärbt ist. Tipp ins Wasser, um einen neuen Tropfen hineinzugeben.',
       dichte: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Zieh die Wand weg (oder tippe auf die Wand)!',
       waerme: 'Wärme ist Bewegung: Links flitzen schnelle, warme Teilchen (rot), rechts trödeln langsame, kalte (blau). Wenn sie zusammenstoßen, geben die schnellen Schwung ab.'
     },
     readout: {
+      tinte: '120 Tintenteilchen · 320 Wasserteilchen',
       dichte: (l, r) => 'Links ' + l + ' Teilchen · rechts ' + r + ' Teilchen',
       waerme: (l, r) => 'Tempo links Ø ' + l + ' · rechts Ø ' + r
     },
     tasks: {
       title: 'Aufgabe',
-      intro: 'Zieh die Wand weg und setz sie wieder ein, sobald der Unterschied bei 1\u00a0% oder darunter liegt.',
+      intro: 'Bei Dichte und Wärme: Zieh die Wand weg und setz sie wieder ein, sobald der Unterschied bei 1\u00a0% oder darunter liegt.',
+      tinte: 'Tinte: Warte, bis die Tinte gleichmäßig verteilt ist (Unterschied höchstens 5\u00a0%).',
       dichte: 'Dichte: viele und wenige Teilchen',
       waerme: 'Wärme: schnelle und langsame Teilchen',
-      one: 'Geschafft! Probier den anderen Versuch.',
-      all: 'Beide geschafft!'
+      one: 'Geschafft! Probier den nächsten Versuch.',
+      all: 'Alle drei geschafft!'
     },
     // Info text: the same principle everywhere (replaces the former comparison screen).
     same: {
       title: 'Immer dasselbe',
-      lead: 'Alles strebt ins Gleichgewicht. Die Natur ist immer bestrebt, Unterschiede auszugleichen – überall fließt etwas vom Mehr zum Weniger, bis der Unterschied weg ist:',
+      lead: 'Die Natur hat die Tendenz, Unterschiede auszugleichen und Gleichgewichtszustände herzustellen. Überall fließt etwas vom Mehr zum Weniger, bis der Unterschied weg ist:',
       heat: { title: 'Wärme', text: 'fließt von warm nach kalt, bis alles gleich warm ist.' },
       water: { title: 'Wasser', text: 'fließt bergab, bis alle Becken gleich hoch stehen.' },
       current: { title: 'Strom', text: 'fließt von + nach −, bis die Spannung weg ist.' },
@@ -98,7 +113,7 @@ window.TEXTS = {
     topics: {
       back: {
         title: 'Warum sortieren sich die Teilchen nie zurück?',
-        body: '<p>Jedes Teilchen fliegt einfach geradeaus, bis es an die Wand oder an ein anderes Teilchen stößt. Keines „weiß“, wo es hin soll. Trotzdem verteilen sie sich gleichmäßig – weil es viel mehr Möglichkeiten gibt, gemischt zu sein, als sortiert.</p><p>Dass sich alle Teilchen zufällig wieder auf einer Seite sammeln, ist zwar nicht verboten, aber so unwahrscheinlich, dass man es nie beobachtet.</p><p>Physikerinnen und Physiker haben dafür ein Wort: <b>Entropie</b>. Sie misst, wie viele Möglichkeiten es gibt, die Teilchen anzuordnen – grob gesagt, wie gut etwas durchmischt ist. Der <b>zweite Hauptsatz der Thermodynamik</b> sagt: Von selbst nimmt die Entropie nur zu, nie ab. Darum werden Unterschiede von selbst kleiner und nicht größer.</p>'
+        body: '<p>Jedes Teilchen fliegt einfach geradeaus, bis es an die Wand oder an ein anderes Teilchen stößt. Keines „weiß“, wo es hin soll. Trotzdem verteilen sie sich gleichmäßig – weil es viel mehr Möglichkeiten gibt, gemischt zu sein, als sortiert.</p><p>Die Natur entwickelt sich häufig von Zuständen, die nur auf wenige Arten möglich sind, zu Zuständen, die auf sehr viele Arten möglich sind. Kurz: Was sich verteilen kann, verteilt sich meistens. Was sich vermischen kann, vermischt sich meistens.</p><p>Dass sich alle Teilchen zufällig wieder auf einer Seite sammeln, ist zwar nicht verboten, aber so unwahrscheinlich, dass man es nie beobachtet.</p><p>Physikerinnen und Physiker haben dafür ein Wort: <b>Entropie</b>. Sie misst, wie viele Möglichkeiten es gibt, die Teilchen anzuordnen – grob gesagt, wie gut etwas durchmischt ist. Der <b>zweite Hauptsatz der Thermodynamik</b> sagt: Von selbst nimmt die Entropie nur zu, nie ab. Darum werden Unterschiede von selbst kleiner und nicht größer.</p>'
       },
       model: {
         title: 'Was ist an dem Modell vereinfacht?',

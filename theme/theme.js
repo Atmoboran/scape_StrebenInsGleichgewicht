@@ -57,8 +57,11 @@ THEME.streben = {
   ink: '#000000',              // outlines, text, the wall
   paper: '#FFFFFF',            // margins around the drawings, light text
   // Stage 1 – particle box
-  box: { dichte: '#CFE6CE', waerme: '#FFFFFF' },   // box background per experiment
+  box: { tinte: '#D4EDF8', dichte: '#CFE6CE', waerme: '#FFFFFF' },   // box background per experiment
   particle: '#442683',         // particles (density experiment)
+  water: '#80C0DA',            // water particles (ink experiment)
+  ink2: '#28348B',             // ink particles
+  waysA: '#E41513', waysB: '#3274BA', waysC: '#E09F00', waysD: '#00983A',   // the 4 particles in the ways diagram
   // Stage 2 – sea breeze cross-section
   sky: { day: '#D4EDF8', dawn: '#F8E1E6', night: '#28348B', noSun: '#E0E5F5' },
   inkNight: '#FFFFFF',         // text and arrows on the night sky

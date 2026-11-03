@@ -45,6 +45,22 @@
 .parts a { display: block; padding: 14px 0; font-size: 16.5px; text-decoration: none; }
 :root[data-view="desktop"] .parts a:hover { background: var(--accent-pale); }
 
+/* ---- stage 1: second bar "Möglichkeiten" and the ways diagram ---- */
+.meter.ways .meter-fill { background: var(--c-purple-2, #523E91); }
+.meter.ways.is-zero .meter-val { background: none; color: inherit; padding: 0; }
+.meter.ways .meter-val { min-width: 7.5em; }
+.ways-box { margin: 30px 0 6px; max-width: 900px; padding-top: 20px; border-top: var(--line-width) solid var(--line); }
+.ways-chart { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: end; }
+.ways-col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: var(--line-width) solid transparent; text-align: center; }
+.ways-col.most { border-color: var(--line); background: var(--accent-pale); }
+.ways-stack { display: flex; flex-direction: column; gap: 4px; }
+.ways-stack svg { width: 62px; height: 30px; display: block; }
+.ways-col b { font-size: 13px; letter-spacing: .04em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.ways-col span { font-size: 14px; }
+.ways-note { font-size: 16px; line-height: 1.45; max-width: 40em; }
+:root[data-view="mobile"] .ways-stack svg { width: 48px; height: 23px; }
+:root[data-view="mobile"] .ways-chart { gap: 2px; }
+
 /* ---- stage 1: "Immer dasselbe" info text ---- */
 .same { margin: 30px 0 6px; max-width: 900px; padding-top: 20px; border-top: var(--line-width) solid var(--line); }
 .same-lead { font-size: 18px; line-height: 1.45; max-width: 40em; margin: 0 0 14px; }
@@ -127,4 +143,6 @@
   .meter-fill { transition: none; }
 }
 :root[data-view="mobile"] .seg .btn { font-size: 12px; padding: 6px; letter-spacing: .02em; }
-@media (max-width: 370px) { 
+/* stage 1 has two bars above the drawing */
+:root[data-view="desktop"] #f1.fit { --fit-offset: 352px; }
+#f1 .hint-badge { top: calc(2 * var(--meter-h) + 10px); }

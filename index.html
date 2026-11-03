@@ -67,7 +67,8 @@
       <div class="lab-pre">
         <div class="row">
           <div class="seg" role="group" data-t-aria="s1.modesAria" id="s1modes">
-            <button type="button" class="btn" data-mode="dichte" aria-pressed="true" data-t="s1.modes.dichte"></button>
+            <button type="button" class="btn" data-mode="tinte" aria-pressed="true" data-t="s1.modes.tinte"></button>
+            <button type="button" class="btn" data-mode="dichte" aria-pressed="false" data-t="s1.modes.dichte"></button>
             <button type="button" class="btn" data-mode="waerme" aria-pressed="false" data-t="s1.modes.waerme"></button>
           </div>
         </div>
@@ -75,6 +76,7 @@
       <div class="lab-stage">
         <div class="stage-frame square fit sim-frame" id="f1">
           <div class="meter" id="m1"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
+          <div class="meter ways" id="w1" data-t-title="s1.waysAria"><span class="meter-label" data-t="s1.waysLabel"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
           <canvas id="c1" data-t-aria="s1.canvasAria"></canvas>
         </div>
       </div>
@@ -101,6 +103,7 @@
             <h3 data-t="s1.tasks.title"></h3>
             <p class="task-intro" data-t="s1.tasks.intro"></p>
             <ul>
+              <li data-task="tinte"><span class="box"></span><span data-t="s1.tasks.tinte"></span></li>
               <li data-task="dichte"><span class="box"></span><span data-t="s1.tasks.dichte"></span></li>
               <li data-task="waerme"><span class="box"></span><span data-t="s1.tasks.waerme"></span></li>
             </ul>
@@ -109,6 +112,12 @@
           <button type="button" class="btn big" data-close data-t="kit.close"></button>
         </dialog>
       </div>
+    </div>
+    <div class="ways-box">
+      <h2 class="h2-short" data-t="s1.ways.title"></h2>
+      <p class="same-lead" data-t="s1.ways.lead"></p>
+      <ol class="ways-chart" id="s1waysChart" data-t-aria="s1.ways.aria"></ol>
+      <p class="ways-note" data-t-html="s1.ways.note"></p>
     </div>
     <div class="same">
       <h2 class="h2-short" data-t="s1.same.title"></h2>
