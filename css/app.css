@@ -146,3 +146,11 @@
 /* stage 1 has two bars above the drawing */
 :root[data-view="desktop"] #f1.fit { --fit-offset: 352px; }
 #f1 .hint-badge { top: calc(2 * var(--meter-h) + 10px); }
+
+/* ---- phone header: logo and view toggle in one line, the three chapters in one line below ---- */
+:root[data-view="mobile"] .top { flex-wrap: wrap; align-items: center; gap: 10px 8px; }
+:root[data-view="mobile"] .top .top-right { display: contents; }
+:root[data-view="mobile"] .top .view-toggle { order: 1; margin-left: auto; min-height: 36px; padding: 4px 8px; font-size: 10px; }
+:root[data-view="mobile"] .top .nav { order: 2; flex: 1 1 100%; flex-wrap: nowrap; gap: 4px; }
+:root[data-view="mobile"] .top .nav a { flex: 1 1 auto; min-width: 0; justify-content: center; padding: 6px 3px; min-height: 38px; font-size: clamp(9px, 2.8vw, 11.5px); letter-spacing: 0; white-space: nowrap; }
+:root[data-view="mobile"] .top .nav .num { margin-right: 3px; }
