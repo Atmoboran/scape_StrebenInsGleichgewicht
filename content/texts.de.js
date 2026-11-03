@@ -61,11 +61,8 @@ window.TEXTS = {
     lead: 'Was sich verteilen kann, verteilt sich meistens. Was sich vermischen kann, vermischt sich meistens.',
     modesAria: 'Versuch wählen',
     modes: { waerme: 'Warm & kalt', tinte: 'Tinte in Wasser' },
-    meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p><p>Der Balken <b>Möglichkeiten</b> zählt, auf wie viele Arten sich die Teilchen so anordnen können, wie sie gerade verteilt sind. Ein Tropfen Tinte, der beisammen bleibt, ist nur auf sehr wenige Arten möglich. Gleichmäßig verteilte Tinte ist auf unvorstellbar viele Arten möglich – darum landet sie fast immer dort.</p>',
-    waysLabel: 'Möglichkeiten',
-    waysAria: 'Auf wie viele Arten die jetzige Verteilung möglich ist',
+    meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p>',
     waysExact: n => n + (n === 1 ? ' Art' : ' Arten'),
-    waysPow: e => '≈ 10' + e + ' Arten',
     ways: {
       title: 'Wenige Arten – viele Arten',
       lead: 'Die Natur entwickelt sich häufig von Zuständen, die nur auf wenige Arten möglich sind, zu Zuständen, die auf sehr viele Arten möglich sind.',

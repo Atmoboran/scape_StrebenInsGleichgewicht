@@ -13,11 +13,10 @@ adds one short line).
   open, fast particles carry heat across and an arrow "Wärmestrom" points
   from warm to cold until both are "lauwarm". **Tinte in Wasser**: a drop of
   ink spreads through the glass (tap the water for a new drop).
-  Two bars above the drawing: **Unterschied** (falls) and **Möglichkeiten**
-  (rises: in how many ways the present distribution can come about, e.g.
-  "≈ 10¹²⁸ Arten" – counted as microstates). Below: the diagram "Wenige
-  Arten – viele Arten" (4 particles in 2 halves, all 16 ways: 1 – 4 – 6 – 4 –
-  1), the info text "Immer dasselbe" and a topic on entropy. Square stage.
+  The "Wärmestrom" arrow disappears for good once the blocks are balanced
+  (no flicker from the random wobble). Below: the info text "Immer
+  dasselbe" and topics, among them "Wenige Arten – viele Arten" (4 particles
+  in 2 halves, all 16 ways: 1 – 4 – 6 – 4 – 1) and entropy. Square stage.
 - **Stage 2 – Land-See-Wind** (`#stufe-2`): a cross-section through sea,
   coast and air in a tall picture (900 × 690) with a low ground line, so most
   of it is air. Time moves on with **+1 Stunde** (glides one hour on) or by

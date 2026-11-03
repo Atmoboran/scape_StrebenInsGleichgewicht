@@ -45,11 +45,7 @@
 .parts a { display: block; padding: 14px 0; font-size: 16.5px; text-decoration: none; }
 :root[data-view="desktop"] .parts a:hover { background: var(--accent-pale); }
 
-/* ---- stage 1: second bar "Möglichkeiten" and the ways diagram ---- */
-.meter.ways .meter-fill { background: var(--c-purple-2, #523E91); }
-.meter.ways.is-zero .meter-val { background: none; color: inherit; padding: 0; }
-.meter.ways .meter-val { min-width: 7.5em; }
-.ways-box { margin: 30px 0 6px; max-width: 900px; padding-top: 20px; border-top: var(--line-width) solid var(--line); }
+/* ---- stage 1: the ways diagram (in a topic) ---- */
 .ways-chart { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: end; }
 .ways-col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: var(--line-width) solid transparent; text-align: center; }
 .ways-col.most { border-color: var(--line); background: var(--accent-pale); }
@@ -143,9 +139,6 @@
   .meter-fill { transition: none; }
 }
 :root[data-view="mobile"] .seg .btn { font-size: 12px; padding: 6px; letter-spacing: .02em; }
-/* stage 1 has two bars above the drawing */
-:root[data-view="desktop"] #f1.fit { --fit-offset: 352px; }
-#f1 .hint-badge { top: calc(2 * var(--meter-h) + 10px); }
 
 /* ---- phone header: logo and view toggle in one line, the three chapters in one line below ---- */
 :root[data-view="mobile"] .top { flex-wrap: wrap; align-items: center; gap: 10px 8px; }

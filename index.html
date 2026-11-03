@@ -75,7 +75,6 @@
       <div class="lab-stage">
         <div class="stage-frame square fit sim-frame" id="f1">
           <div class="meter" id="m1"><span class="meter-label" data-t="meter.label"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
-          <div class="meter ways" id="w1" data-t-title="s1.waysAria"><span class="meter-label" data-t="s1.waysLabel"></span><div class="meter-track"><div class="meter-fill"></div><div class="meter-zero"></div></div><span class="meter-val"></span></div>
           <canvas id="c1" data-t-aria="s1.canvasAria"></canvas>
         </div>
       </div>
@@ -111,12 +110,6 @@
         </dialog>
       </div>
     </div>
-    <div class="ways-box">
-      <h2 class="h2-short" data-t="s1.ways.title"></h2>
-      <p class="same-lead" data-t="s1.ways.lead"></p>
-      <ol class="ways-chart" id="s1waysChart" data-t-aria="s1.ways.aria"></ol>
-      <p class="ways-note" data-t-html="s1.ways.note"></p>
-    </div>
     <div class="same">
       <h2 class="h2-short" data-t="s1.same.title"></h2>
       <p class="same-lead" data-t="s1.same.lead"></p>
@@ -128,6 +121,11 @@
       </ul>
     </div>
     <div class="topics">
+      <details class="topic"><summary data-t="s1.ways.title"></summary><div class="topic-body">
+        <p data-t="s1.ways.lead"></p>
+        <ol class="ways-chart" id="s1waysChart" data-t-aria="s1.ways.aria"></ol>
+        <p data-t-html="s1.ways.note"></p>
+      </div></details>
       <details class="topic"><summary data-t="s1.topics.back.title"></summary><div class="topic-body" data-t-html="s1.topics.back.body"></div></details>
       <details class="topic"><summary data-t="s1.topics.model.title"></summary><div class="topic-body" data-t-html="s1.topics.model.body"></div></details>
     </div>

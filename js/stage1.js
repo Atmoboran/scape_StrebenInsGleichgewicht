@@ -3,9 +3,9 @@
 // Elastic collisions between equal particles. In warm & cold a gate in the
 // channel can be opened; the fast (warm) particles then carry heat across,
 // and an arrow "Wärmestrom" shows the flow from warm to cold.
-// Besides the difference meter a second bar counts in how many ways the
-// current state can come about (microstates, W): ordered states are possible
-// in few ways, mixed ones in very many – that is why things mix.
+// For the ink the difference is measured by counting in how many ways the
+// present distribution can come about (microstates over 4 × 4 fields).
+// The topic "Wenige Arten – viele Arten" shows this with 4 particles.
 (() => {
   'use strict';
   const { $, $$, clamp, rnd, makeView, Meter, text } = Streben;
@@ -13,7 +13,7 @@
 
   const W = 600, H = 600, M = 22, WX = 300, WT = 8, CELL = 16;
   const view = makeView($('#c1'), W, H), ctx = view.ctx;
-  const meter = new Meter($('#m1')), ways = new Meter($('#w1'));
+  const meter = new Meter($('#m1'));
   const wallBtn = $('#s1wall'), read = $('#s1read'), hint = $('#s1hint'), status = $('#s1status');
   const tasks = SCAPE.tasks($('#s1tasks'));
   const hideBadge = Streben.firstHint($('#f1'), 's1.badge');
@@ -26,6 +26,10 @@
   const CH = { x0: BL.x1, x1: BR.x0, y0: 236, y1: 364 };
   const GLASS = { x0: M, x1: W - M, y0: M, y1: H - M };
   let gateBottom = CH.y1, keHot = 1, keCold = 0;
+  // smoothed side temperatures; the heat-flow arrow shows while heat flows and stays off once the
+  // balance is reached (the random wobble around 0 % must not make it flicker)
+  let tlS = 60, trS = 10, flowOn = false, balanced = false;
+  const BALANCED = 0.06;   // difference (0…1) below which the blocks count as balanced
   const inBox = (b, x, y, r) => x >= b.x0 + r && x <= b.x1 - r && y >= b.y0 + r && y <= b.y1 - r;
   // where a particle of radius r may be
   const ok = (x, y, r) => mode === 'tinte'
@@ -36,8 +40,6 @@
   const LNF = [0];
   for (let n = 1; n <= 2000; n++) LNF[n] = LNF[n - 1] + Math.log(n);
   const lnChoose = (n, k) => LNF[n] - LNF[k] - LNF[n - k];
-  const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
-  const sup = n => String(n).split('').map(d => SUP[+d]).join('');
 
   const spawn = (n, b, smin, smax, kind, r, tag = false) => {
     for (let i = 0; i < n; i++) {
@@ -100,6 +102,7 @@
     else {
       spawn(110, BL, 210, 270, 'p', 6, true); spawn(110, BR, 35, 70, 'p', 6);
       [keHot, keCold] = sideKE();
+      tlS = 60; trS = 10; flowOn = false; balanced = false;
     }
     d0 = Math.max(1e-6, measure()); frac = 1;
     wallBtn.textContent = t(ink ? 's1.dropAgain' : 's1.wallOpen');
@@ -205,14 +208,14 @@
   const OUTLINE = [[BL.x0, BL.y0], [BL.x1, BL.y0], [BL.x1, CH.y0], [BR.x0, CH.y0], [BR.x0, BR.y0], [BR.x1, BR.y0], [BR.x1, BR.y1], [BR.x0, BR.y1], [BR.x0, CH.y1], [BL.x1, CH.y1], [BL.x1, BL.y1], [BL.x0, BL.y1]];
 
   const drawWarmCold = () => {
-    const [kl, kr] = sideKE(), tl = celsius(kl), tr = celsius(kr);
+    const tl = tlS, tr = trS;
     const col = c => THEME.tempColor((c - 10) / 50 * 0.9 + 0.05);
     // blocks in the colour of their temperature, the channel half and half
     ctx.fillStyle = pale(col(tl)); ctx.fillRect(BL.x0, BL.y0, BL.x1 - BL.x0, BL.y1 - BL.y0); ctx.fillRect(CH.x0, CH.y0, WX - CH.x0, CH.y1 - CH.y0);
     ctx.fillStyle = pale(col(tr)); ctx.fillRect(BR.x0, BR.y0, BR.x1 - BR.x0, BR.y1 - BR.y0); ctx.fillRect(WX, CH.y0, CH.x1 - WX, CH.y1 - CH.y0);
-    // heat flow arrow above the channel: from warm to cold, as long as there is a difference and the gate is open
+    // heat flow arrow above the channel: from warm to cold, only while the gate is open and the difference is clear
     const d = tl - tr;
-    if (wallOpen && Math.abs(d) > 1.5) {
+    if (wallOpen && flowOn) {
       const len = 40 + Math.min(1, Math.abs(d) / 40) * 70, dir = Math.sign(d), y = CH.y0 - 52;
       ctx.fillStyle = K.ink;
       ctx.beginPath();
@@ -230,7 +233,7 @@
     ctx.strokeStyle = K.ink; ctx.lineWidth = 4; ctx.lineJoin = 'miter';
     ctx.beginPath(); OUTLINE.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.stroke();
     // labels: WARM / KALT (LAUWARM once balanced) and the model temperature
-    const lab = (tt, other) => t(Math.abs(tt - other) < 2 ? 's1.canvas.even' : tt > other ? 's1.canvas.warm' : 's1.canvas.cold');
+    const lab = (tt, other) => t(!flowOn && wallOpen ? 's1.canvas.even' : tt > other ? 's1.canvas.warm' : 's1.canvas.cold');
     const lx = (BL.x0 + BL.x1) / 2, rx = (BR.x0 + BR.x1) / 2;
     text(ctx, lab(tl, tr), lx, BL.y0 - 44, 30, K.ink, 300, 'center');
     text(ctx, lab(tr, tl), rx, BR.y0 - 44, 30, K.ink, 300, 'center');
@@ -255,14 +258,7 @@
 
   const readout = () => {
     if (mode === 'tinte') return t('s1.readout.tinte');
-    const [kl, kr] = sideKE();
-    return t('s1.readout.waerme', Math.round(celsius(kl)), Math.round(celsius(kr)));
-  };
-  // "≈ 10⁶⁶ Arten", small numbers exactly
-  const waysLabel = lnW => {
-    const e = lnW / Math.LN10;
-    if (e < 3) { const n = Math.round(Math.exp(lnW)); return t('s1.waysExact', n); }
-    return t('s1.waysPow', sup(Math.floor(e)));
+    return t('s1.readout.waerme', Math.round(tlS), Math.round(trS));
   };
 
   let readT = 0;
@@ -272,14 +268,15 @@
     const raw = measure() / d0;
     frac += (Math.min(1, raw) - frac) * Math.min(1, dt * 4);
     meter.set(frac);
+    if (mode === 'waerme') {
+      const [kl, kr] = sideKE(), k = Math.min(1, dt * 2);
+      tlS += (celsius(kl) - tlS) * k; trS += (celsius(kr) - trS) * k;
+      if (wallOpen && frac < BALANCED) balanced = true;
+      flowOn = !balanced;
+    }
     draw();
     readT -= dt;
-    if (readT <= 0) {
-      readT = 0.25;
-      read.textContent = readout();
-      const [lnW, lnMax] = lnWays();
-      ways.set(lnMax ? lnW / lnMax : 0, waysLabel(lnW));
-    }
+    if (readT <= 0) { readT = 0.25; read.textContent = readout(); }
     // task (ink): wait until the ink is spread evenly
     if (mode === 'tinte' && !inkDone && Math.round(frac * 100) <= 5) { inkDone = true; if (tasks.done('tinte')) taskStatus(); }
   };
