@@ -1,6 +1,8 @@
-// Stage 1 – Ausgleichsströme: ink in water (the classic), density and heat
-// (fast/slow particles). Elastic collisions between equal particles; for
-// density and heat a wall that can be pulled away.
+// Stage 1 – Ausgleichsströme: warm & cold (two blocks joined by a channel,
+// like the classic "Hot → heat flow → Cold" picture) and ink in water.
+// Elastic collisions between equal particles. In warm & cold a gate in the
+// channel can be opened; the fast (warm) particles then carry heat across,
+// and an arrow "Wärmestrom" shows the flow from warm to cold.
 // Besides the difference meter a second bar counts in how many ways the
 // current state can come about (microstates, W): ordered states are possible
 // in few ways, mixed ones in very many – that is why things mix.
@@ -18,7 +20,17 @@
   const GW = Math.ceil(W / CELL), GH = Math.ceil(H / CELL);
   const grid = Array.from({ length: GW * GH }, () => []);
   const INK_CELLS = 4;                 // the glass is cut into 4 × 4 fields for counting the ways
-  let mode = 'tinte', P = [], wallOpen = false, wallBottom = H - M, d0 = 1, frac = 1, inkDone = false;
+  let mode = 'waerme', P = [], wallOpen = false, d0 = 1, frac = 1, inkDone = false;
+  // warm & cold: two blocks and the channel between them; the gate sits in the channel at x = WX
+  const BL = { x0: M, x1: 236, y0: 96, y1: 504 }, BR = { x0: 364, x1: W - M, y0: 96, y1: 504 };
+  const CH = { x0: BL.x1, x1: BR.x0, y0: 236, y1: 364 };
+  const GLASS = { x0: M, x1: W - M, y0: M, y1: H - M };
+  let gateBottom = CH.y1, keHot = 1, keCold = 0;
+  const inBox = (b, x, y, r) => x >= b.x0 + r && x <= b.x1 - r && y >= b.y0 + r && y <= b.y1 - r;
+  // where a particle of radius r may be
+  const ok = (x, y, r) => mode === 'tinte'
+    ? inBox(GLASS, x, y, r)
+    : inBox(BL, x, y, r) || inBox(BR, x, y, r) || (x >= CH.x0 - 30 && x <= CH.x1 + 30 && y >= CH.y0 + r && y <= CH.y1 - r);
 
   // ln(n!) table for counting the ways
   const LNF = [0];
@@ -27,10 +39,10 @@
   const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
   const sup = n => String(n).split('').map(d => SUP[+d]).join('');
 
-  const spawn = (n, x0, x1, smin, smax, kind, r, tag = false) => {
+  const spawn = (n, b, smin, smax, kind, r, tag = false) => {
     for (let i = 0; i < n; i++) {
       const a = rnd(0, Math.PI * 2), s = rnd(smin, smax);
-      P.push({ x: rnd(x0 + r + 2, x1 - r - 2), y: rnd(M + r + 2, H - M - r - 2), vx: Math.cos(a) * s, vy: Math.sin(a) * s, r, kind, tag, px: 0 });
+      P.push({ x: rnd(b.x0 + r + 2, b.x1 - r - 2), y: rnd(b.y0 + r + 2, b.y1 - r - 2), vx: Math.cos(a) * s, vy: Math.sin(a) * s, r, kind, tag, px: 0, py: 0 });
     }
   };
   // a drop of ink: a tight cluster that falls into the water
@@ -44,7 +56,7 @@
     d0 = Math.max(1e-6, measure()); frac = 1; inkDone = false;
   };
 
-  // how mixed: counts per field (ink) or per half (density, heat)
+  // how mixed: counts per field (ink) or per side (warm & cold)
   const inkCounts = () => {
     const n = new Array(INK_CELLS * INK_CELLS).fill(0), size = (W - 2 * M) / INK_CELLS;
     for (const p of P) if (p.kind === 'd') {
@@ -61,30 +73,34 @@
       let lnMax = LNF[N]; for (let i = 0; i < k; i++) lnMax -= LNF[Math.floor(N / k) + (i < N % k ? 1 : 0)];
       return [lnW, lnMax];
     }
-    // density: which particles are on the left; heat: where the (formerly) warm ones are
-    const set = mode === 'dichte' ? P : P.filter(p => p.tag);
+    // warm & cold: where the (formerly) warm particles are
+    const set = P.filter(p => p.tag);
     let l = 0; for (const p of set) if (p.x < WX) l++;
     return [lnChoose(set.length, l), lnChoose(set.length, Math.floor(set.length / 2))];
   };
   const measure = () => {
     if (mode === 'tinte') { const [a, b] = lnWays(); return 1 - a / b; }
-    if (mode === 'dichte') {
-      let l = 0; for (const p of P) if (p.x < WX) l++;
-      return Math.abs(l - (P.length - l)) / P.length;
-    }
     let el = 0, nl = 0, er = 0, nr = 0;
     for (const p of P) { const e = p.vx * p.vx + p.vy * p.vy; if (p.x < WX) { el += e; nl++; } else { er += e; nr++; } }
     el /= Math.max(1, nl); er /= Math.max(1, nr);
     return Math.abs(el - er) / (el + er || 1);
   };
+  // mean kinetic energy per side → model temperature in °C (warm side 60 °C, cold side 10 °C at the start)
+  const sideKE = () => {
+    let el = 0, nl = 0, er = 0, nr = 0;
+    for (const p of P) { const e = p.vx * p.vx + p.vy * p.vy; if (p.x < WX) { el += e; nl++; } else { er += e; nr++; } }
+    return [el / Math.max(1, nl), er / Math.max(1, nr)];
+  };
+  const celsius = ke => 10 + 50 * (ke - keCold) / (keHot - keCold || 1);
   const reset = () => {
     P = [];
     const ink = mode === 'tinte';
-    wallOpen = ink; wallBottom = ink ? M : H - M;
-    const L0 = M, L1 = WX - WT / 2, R0 = WX + WT / 2, R1 = W - M;
-    if (mode === 'tinte') { spawn(320, M, W - M, 60, 110, 'w', 4); spawn(120, M, W - M, 60, 110, 'd', 4); drop(W / 2, 140); }
-    if (mode === 'dichte') { spawn(250, L0, L1, 70, 150, 'p', 6); spawn(40, R0, R1, 70, 150, 'p', 6); }
-    if (mode === 'waerme') { spawn(130, L0, L1, 210, 270, 'p', 6, true); spawn(130, R0, R1, 35, 70, 'p', 6); }
+    wallOpen = ink; gateBottom = CH.y1;
+    if (ink) { spawn(320, GLASS, 60, 110, 'w', 4); spawn(120, GLASS, 60, 110, 'd', 4); drop(W / 2, 140); }
+    else {
+      spawn(110, BL, 210, 270, 'p', 6, true); spawn(110, BR, 35, 70, 'p', 6);
+      [keHot, keCold] = sideKE();
+    }
     d0 = Math.max(1e-6, measure()); frac = 1;
     wallBtn.textContent = t(ink ? 's1.dropAgain' : 's1.wallOpen');
     hint.textContent = t('s1.hints.' + mode);
@@ -98,22 +114,29 @@
     wallBtn.textContent = t(wallOpen ? 's1.wallClose' : 's1.wallOpen');
   };
   const taskStatus = () => {
-    const all = ['tinte', 'dichte', 'waerme'].every(tasks.isDone);
+    const all = ['waerme', 'tinte'].every(tasks.isDone);
     status.textContent = t(all ? 's1.tasks.all' : 's1.tasks.one');
   };
 
   const step = dt => {
-    const target = wallOpen ? M : H - M;
-    wallBottom += clamp(target - wallBottom, -900 * dt, 900 * dt);
-    const wallOn = wallBottom > M + 1;
+    // the gate slides up into the channel roof when opened
+    const target = wallOpen ? CH.y0 : CH.y1;
+    gateBottom += clamp(target - gateBottom, -400 * dt, 400 * dt);
+    const wallOn = mode !== 'tinte' && gateBottom > CH.y0 + 1;
     for (const p of P) {
-      p.px = p.x;
+      p.px = p.x; p.py = p.y;
       p.x += p.vx * dt; p.y += p.vy * dt;
-      if (p.x < M + p.r) { p.x = M + p.r; p.vx = Math.abs(p.vx); }
-      if (p.x > W - M - p.r) { p.x = W - M - p.r; p.vx = -Math.abs(p.vx); }
-      if (p.y < M + p.r) { p.y = M + p.r; p.vy = Math.abs(p.vy); }
-      if (p.y > H - M - p.r) { p.y = H - M - p.r; p.vy = -Math.abs(p.vy); }
-      if (wallOn && p.y - p.r < wallBottom) {
+      // bounce off the outline: try undoing x, then y, then both
+      if (!ok(p.x, p.y, p.r)) {
+        if (ok(p.px, p.y, p.r)) { p.x = p.px; p.vx = -p.vx; }
+        else if (ok(p.x, p.py, p.r)) { p.y = p.py; p.vy = -p.vy; }
+        else { p.x = p.px; p.y = p.py; p.vx = -p.vx; p.vy = -p.vy; }
+        if (!ok(p.x, p.y, p.r)) {   // pushed out by a collision: back into its block
+          const b = mode === 'tinte' ? GLASS : p.x < WX ? BL : BR;
+          p.x = clamp(p.x, b.x0 + p.r, b.x1 - p.r); p.y = clamp(p.y, b.y0 + p.r, b.y1 - p.r);
+        }
+      }
+      if (wallOn && p.y - p.r < gateBottom && p.y + p.r > CH.y0) {
         const half = WT / 2 + p.r;
         if (p.px < WX && p.x > WX - half) { p.x = WX - half; p.vx = -Math.abs(p.vx); }
         else if (p.px >= WX && p.x < WX + half) { p.x = WX + half; p.vx = Math.abs(p.vx); }
@@ -138,7 +161,7 @@
           const dx = b.x - a.x, dy = b.y - a.y, rr = a.r + b.r, d2 = dx * dx + dy * dy;
           if (d2 >= rr * rr || d2 === 0) continue;
           // no collisions through the wall
-          if (wallOn && (a.x < WX) !== (b.x < WX) && Math.min(a.y, b.y) < wallBottom) continue;
+          if (wallOn && (a.x < WX) !== (b.x < WX)) continue;
           const d = Math.sqrt(d2), nx = dx / d, ny = dy / d;
           const rel = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
           if (rel > 0) { a.vx -= rel * nx; a.vy -= rel * ny; b.vx += rel * nx; b.vy += rel * ny; }
@@ -177,8 +200,47 @@
     ctx.drawImage(inkCv, M, M, W - 2 * M, H - 2 * M);
   };
 
+  // a lighter version of a temperature colour for the block fill
+  const pale = (rgb, f = 0.55) => 'rgb(' + rgb.match(/\d+/g).map(v => Math.round(+v + (255 - v) * f)).join(',') + ')';
+  const OUTLINE = [[BL.x0, BL.y0], [BL.x1, BL.y0], [BL.x1, CH.y0], [BR.x0, CH.y0], [BR.x0, BR.y0], [BR.x1, BR.y0], [BR.x1, BR.y1], [BR.x0, BR.y1], [BR.x0, CH.y1], [BL.x1, CH.y1], [BL.x1, BL.y1], [BL.x0, BL.y1]];
+
+  const drawWarmCold = () => {
+    const [kl, kr] = sideKE(), tl = celsius(kl), tr = celsius(kr);
+    const col = c => THEME.tempColor((c - 10) / 50 * 0.9 + 0.05);
+    // blocks in the colour of their temperature, the channel half and half
+    ctx.fillStyle = pale(col(tl)); ctx.fillRect(BL.x0, BL.y0, BL.x1 - BL.x0, BL.y1 - BL.y0); ctx.fillRect(CH.x0, CH.y0, WX - CH.x0, CH.y1 - CH.y0);
+    ctx.fillStyle = pale(col(tr)); ctx.fillRect(BR.x0, BR.y0, BR.x1 - BR.x0, BR.y1 - BR.y0); ctx.fillRect(WX, CH.y0, CH.x1 - WX, CH.y1 - CH.y0);
+    // heat flow arrow above the channel: from warm to cold, as long as there is a difference and the gate is open
+    const d = tl - tr;
+    if (wallOpen && Math.abs(d) > 1.5) {
+      const len = 40 + Math.min(1, Math.abs(d) / 40) * 70, dir = Math.sign(d), y = CH.y0 - 52;
+      ctx.fillStyle = K.ink;
+      ctx.beginPath();
+      ctx.moveTo(WX - dir * len / 2, y - 14); ctx.lineTo(WX + dir * (len / 2 - 18), y - 14); ctx.lineTo(WX + dir * (len / 2 - 18), y - 24);
+      ctx.lineTo(WX + dir * len / 2 + dir * 10, y); ctx.lineTo(WX + dir * (len / 2 - 18), y + 24); ctx.lineTo(WX + dir * (len / 2 - 18), y + 14);
+      ctx.lineTo(WX - dir * len / 2, y + 14); ctx.closePath(); ctx.fill();
+      text(ctx, t('s1.canvas.flow'), WX, CH.y0 - 14, 13, K.ink, 500, 'center');
+    }
+    // particles
+    ctx.strokeStyle = K.ink; ctx.lineWidth = 1;
+    for (const p of P) { ctx.fillStyle = heatColor(p); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+    // the gate
+    if (gateBottom > CH.y0 + 1) { ctx.fillStyle = K.ink; ctx.fillRect(WX - WT / 2, CH.y0, WT, gateBottom - CH.y0); }
+    // outline of both blocks and the channel
+    ctx.strokeStyle = K.ink; ctx.lineWidth = 4; ctx.lineJoin = 'miter';
+    ctx.beginPath(); OUTLINE.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.stroke();
+    // labels: WARM / KALT (LAUWARM once balanced) and the model temperature
+    const lab = (tt, other) => t(Math.abs(tt - other) < 2 ? 's1.canvas.even' : tt > other ? 's1.canvas.warm' : 's1.canvas.cold');
+    const lx = (BL.x0 + BL.x1) / 2, rx = (BR.x0 + BR.x1) / 2;
+    text(ctx, lab(tl, tr), lx, BL.y0 - 44, 30, K.ink, 300, 'center');
+    text(ctx, lab(tr, tl), rx, BR.y0 - 44, 30, K.ink, 300, 'center');
+    text(ctx, t('s1.canvas.temp', Math.round(tl)), lx, BL.y0 - 14, 18, K.ink, 500, 'center');
+    text(ctx, t('s1.canvas.temp', Math.round(tr)), rx, BR.y0 - 14, 18, K.ink, 500, 'center');
+  };
+
   const draw = () => {
     ctx.fillStyle = K.paper; ctx.fillRect(0, 0, W, H);
+    if (mode === 'waerme') { drawWarmCold(); return; }
     ctx.fillStyle = K.box[mode]; ctx.fillRect(M, M, W - 2 * M, H - 2 * M);
     if (mode === 'tinte') {
       // the ink as a soft colour field (ink per field of a coarse grid, smoothed), then the particles
@@ -187,38 +249,14 @@
       for (const p of P) if (p.kind === 'w') dot(p.x, p.y, 2.5);
       ctx.fillStyle = K.ink2;
       for (const p of P) if (p.kind === 'd') dot(p.x, p.y, 3);
-    } else if (mode === 'waerme') {
-      ctx.strokeStyle = K.ink; ctx.lineWidth = 1;
-      for (const p of P) {
-        ctx.fillStyle = heatColor(p);
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      }
-    } else {
-      ctx.fillStyle = K.particle;
-      for (const p of P) dot(p.x, p.y, p.r);
-    }
-    // the wall
-    if (wallBottom > M + 1) {
-      ctx.fillStyle = K.ink; ctx.fillRect(WX - WT / 2, M, WT, wallBottom - M);
-      ctx.fillRect(WX - 16, wallBottom - 6, 32, 6);
     }
     ctx.strokeStyle = K.ink; ctx.lineWidth = 4; ctx.strokeRect(M, M, W - 2 * M, H - 2 * M);
-    if (mode !== 'tinte') {
-      text(ctx, t('s1.left'), M + 12, M + 28, 16, K.ink);
-      text(ctx, t('s1.right'), W - M - 12, M + 28, 16, K.ink, 500, 'right');
-    }
   };
 
   const readout = () => {
-    let l = 0, r = 0;
     if (mode === 'tinte') return t('s1.readout.tinte');
-    if (mode === 'dichte') {
-      for (const p of P) if (p.x < WX) l++;
-      return t('s1.readout.dichte', l, P.length - l);
-    }
-    let nl = 0, nr = 0;
-    for (const p of P) { const s = Math.hypot(p.vx, p.vy); if (p.x < WX) { l += s; nl++; } else { r += s; nr++; } }
-    return t('s1.readout.waerme', Math.round(l / Math.max(1, nl) / 10), Math.round(r / Math.max(1, nr) / 10));
+    const [kl, kr] = sideKE();
+    return t('s1.readout.waerme', Math.round(celsius(kl)), Math.round(celsius(kr)));
   };
   // "≈ 10⁶⁶ Arten", small numbers exactly
   const waysLabel = lnW => {
@@ -256,7 +294,7 @@
   view.canvas.addEventListener('pointerdown', e => {
     const p = view.local(e);
     if (mode === 'tinte') { hideBadge(); drop(p.x, p.y); }           // tap: a new drop right there
-    else if (Math.abs(p.x - WX) < 60) toggleWall();
+    else if (Math.abs(p.x - WX) < 70 && p.y > CH.y0 - 20 && p.y < CH.y1 + 20) toggleWall();   // tap the gate
   });
 
   // ---- the little diagram: 4 particles, 2 halves, all 16 ways ------------

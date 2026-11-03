@@ -6,16 +6,18 @@ differences. Stage 1 has a difference meter; in stage 3 the visitor measures
 the wind with their own station. Stage headers are slim: title only (stage 1
 adds one short line).
 
-- **Stage 1 – Ausgleichsströme** (`#stufe-1`): three experiments – **ink in
-  water** (the classic: a drop of ink spreads through the glass; tap the
-  water for a new drop), density and heat (each with a wall to pull away).
+- **Stage 1 – Ausgleichsströme** (`#stufe-1`): two experiments.
+  **Warm & kalt** (first): a warm and a cold block joined by a channel with a
+  gate, like the classic "Hot → heat flow → Cold" picture. Block colours show
+  their (model) temperature, 60 °C and 10 °C at the start; when the gate is
+  open, fast particles carry heat across and an arrow "Wärmestrom" points
+  from warm to cold until both are "lauwarm". **Tinte in Wasser**: a drop of
+  ink spreads through the glass (tap the water for a new drop).
   Two bars above the drawing: **Unterschied** (falls) and **Möglichkeiten**
   (rises: in how many ways the present distribution can come about, e.g.
-  "≈ 10¹²⁸ Arten" – counted as microstates over 4 × 4 fields for the ink,
-  left/right for density and heat). Below: the diagram "Wenige Arten – viele
-  Arten" (4 particles in 2 halves, all 16 ways: 1 – 4 – 6 – 4 – 1), the info
-  text "Immer dasselbe" (heat, water, current, wind) and a topic on why the
-  particles never sort back (entropy). Square stage.
+  "≈ 10¹²⁸ Arten" – counted as microstates). Below: the diagram "Wenige
+  Arten – viele Arten" (4 particles in 2 halves, all 16 ways: 1 – 4 – 6 – 4 –
+  1), the info text "Immer dasselbe" and a topic on entropy. Square stage.
 - **Stage 2 – Land-See-Wind** (`#stufe-2`): a cross-section through sea,
   coast and air in a tall picture (900 × 690) with a low ground line, so most
   of it is air. Time moves on with **+1 Stunde** (glides one hour on) or by
@@ -44,7 +46,7 @@ flashes when a task is solved). There are no Merke boxes.
 
 | Stage | Tasks (success condition) |
 |---|---|
-| 1 | Ink: wait until the difference is 5 % or less. Density and heat: open the wall and put it back while the difference shows 1 % or less. |
+| 1 | Warm & kalt: open the gate and close it again while the difference shows 1 % or less. Ink: wait until the difference is 5 % or less. |
 | 2 | Start the task and bring the sailing boat to the shore within 30 s (time stands still during the task, only "+1 Stunde" moves it); observe land breeze at night (after 21:00, land at least 2 °C cooler than the sea). |
 | 3 | Wind force 8 measured with the visitor's own station; wind circling a strong low (rotation on, a low below −10 hPa); paint a strong high or low and wait until it has evened out (difference below 5 %). |
 

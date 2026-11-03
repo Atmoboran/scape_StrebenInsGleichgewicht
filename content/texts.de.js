@@ -60,7 +60,7 @@ window.TEXTS = {
     headline: 'Ausgleichsströme',
     lead: 'Was sich verteilen kann, verteilt sich meistens. Was sich vermischen kann, vermischt sich meistens.',
     modesAria: 'Versuch wählen',
-    modes: { tinte: 'Tinte in Wasser', dichte: 'Dichte', waerme: 'Warm & kalt' },
+    modes: { waerme: 'Warm & kalt', tinte: 'Tinte in Wasser' },
     meterNote: '<p>Das Messgerät <b>Unterschied</b> zeigt, wie verschieden die linke und die rechte Seite noch sind. 100 % heißt: so verschieden wie am Anfang. 0 % heißt: alles ist ausgeglichen.</p><p>Der Balken <b>Möglichkeiten</b> zählt, auf wie viele Arten sich die Teilchen so anordnen können, wie sie gerade verteilt sind. Ein Tropfen Tinte, der beisammen bleibt, ist nur auf sehr wenige Arten möglich. Gleichmäßig verteilte Tinte ist auf unvorstellbar viele Arten möglich – darum landet sie fast immer dort.</p>',
     waysLabel: 'Möglichkeiten',
     waysAria: 'Auf wie viele Arten die jetzige Verteilung möglich ist',
@@ -73,33 +73,35 @@ window.TEXTS = {
       split: (l, r) => l + ' | ' + r,
       note: 'Vier Teilchen, zwei Hälften: Alle links geht nur auf <b>1</b> Art, halb-halb auf <b>6</b> Arten. Bei den 120 Tintenteilchen im Glas stehen „alle beisammen“ schon unvorstellbar viele Arten „gut verteilt“ gegenüber – darum vermischt sich die Tinte und entmischt sich nie wieder von selbst.'
     },
-    canvasAria: 'Glas mit Wasser und Tinte, oder Teilchenkasten mit Trennwand',
-    badge: 'Tipp ins Wasser',
+    canvasAria: 'Ein warmer und ein kalter Block, verbunden durch einen Kanal mit Tor – oder ein Glas Wasser mit Tinte',
+    badge: 'Öffne das Tor',
     dropAgain: 'Neuer Tropfen',
-    left: 'LINKS',
-    right: 'RECHTS',
-    wallOpen: 'Wand wegziehen',
-    wallClose: 'Wand einsetzen',
+    canvas: {
+      warm: 'WARM',
+      cold: 'KALT',
+      even: 'LAUWARM',
+      flow: 'WÄRMESTROM',
+      temp: c => c + ' °C'
+    },
+    wallOpen: 'Tor öffnen',
+    wallClose: 'Tor schließen',
     reset: 'Neu starten',
-    resetSub: 'Teilchen und Wand zurück',
+    resetSub: 'Alles wieder auf Anfang',
     hints: {
       tinte: 'Ein Tropfen Tinte fällt ins Wasser. Die winzigen Wasserteilchen stoßen die Tintenteilchen herum, bis das ganze Glas gleich gefärbt ist. Tipp ins Wasser, um einen neuen Tropfen hineinzugeben.',
-      dichte: 'Links drängeln sich viele Teilchen, rechts sind nur wenige. Zieh die Wand weg (oder tippe auf die Wand)!',
-      waerme: 'Wärme ist Bewegung: Links flitzen schnelle, warme Teilchen (rot), rechts trödeln langsame, kalte (blau). Wenn sie zusammenstoßen, geben die schnellen Schwung ab.'
+      waerme: 'Wärme ist Bewegung: Im warmen Block flitzen schnelle Teilchen (rot), im kalten trödeln langsame (blau). Öffne das Tor im Kanal (oder tippe darauf): Die Teilchen stoßen sich gegenseitig an, Wärme strömt von warm nach kalt, bis beide Blöcke gleich warm sind.'
     },
     readout: {
       tinte: '120 Tintenteilchen · 320 Wasserteilchen',
-      dichte: (l, r) => 'Links ' + l + ' Teilchen · rechts ' + r + ' Teilchen',
-      waerme: (l, r) => 'Tempo links Ø ' + l + ' · rechts Ø ' + r
+      waerme: (l, r) => 'Links ' + l + ' °C · rechts ' + r + ' °C (Modell)'
     },
     tasks: {
       title: 'Aufgabe',
-      intro: 'Bei Dichte und Wärme: Zieh die Wand weg und setz sie wieder ein, sobald der Unterschied bei 1\u00a0% oder darunter liegt.',
+      intro: 'Probier beide Versuche aus.',
       tinte: 'Tinte: Warte, bis die Tinte gleichmäßig verteilt ist (Unterschied höchstens 5\u00a0%).',
-      dichte: 'Dichte: viele und wenige Teilchen',
-      waerme: 'Wärme: schnelle und langsame Teilchen',
-      one: 'Geschafft! Probier den nächsten Versuch.',
-      all: 'Alle drei geschafft!'
+      waerme: 'Warm & kalt: Öffne das Tor und schließ es wieder, sobald der Unterschied bei 1\u00a0% oder darunter liegt.',
+      one: 'Geschafft! Probier den anderen Versuch.',
+      all: 'Beide geschafft!'
     },
     // Info text: the same principle everywhere (replaces the former comparison screen).
     same: {
