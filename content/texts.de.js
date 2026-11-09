@@ -78,7 +78,8 @@ window.TEXTS = {
       cold: 'KALT',
       even: 'LAUWARM',
       flow: 'WÄRMESTROM',
-      temp: c => c + ' °C'
+      temp: c => c + ' °C',
+      pressure: p => 'Druck ' + p + ' hPa'
     },
     wallOpen: 'Tor öffnen',
     wallClose: 'Tor schließen',
@@ -86,11 +87,11 @@ window.TEXTS = {
     resetSub: 'Alles wieder auf Anfang',
     hints: {
       tinte: 'Ein Tropfen Tinte fällt ins Wasser. Die winzigen Wasserteilchen stoßen die Tintenteilchen herum, bis das ganze Glas gleich gefärbt ist. Tipp ins Wasser, um einen neuen Tropfen hineinzugeben.',
-      waerme: 'Wärme ist Bewegung: Im warmen Block flitzen schnelle Teilchen (rot), im kalten trödeln langsame (blau). Öffne das Tor im Kanal (oder tippe darauf): Die Teilchen stoßen sich gegenseitig an, Wärme strömt von warm nach kalt, bis beide Blöcke gleich warm sind.'
+      waerme: 'Wärme ist Bewegung: Im warmen Block flitzen schnelle Teilchen (rot), im kalten trödeln langsame (blau). Öffne das Tor im Kanal (oder tippe darauf): Die Teilchen stoßen sich gegenseitig an, Wärme strömt von warm nach kalt, bis beide Blöcke gleich warm sind. Auch der <b>Druck</b> gleicht sich aus: Schnelle Teilchen prallen öfter und härter gegen die Wände, darum ist der Druck im warmen Block erst höher. Nach dem Öffnen strömen zuerst Teilchen in den kalten Block, bis der Druck fast gleich ist – die Temperatur gleicht sich langsamer aus.'
     },
     readout: {
       tinte: '120 Tintenteilchen · 320 Wasserteilchen',
-      waerme: (l, r) => 'Links ' + l + ' °C · rechts ' + r + ' °C (Modell)'
+      waerme: (l, r, pl, pr) => 'Links ' + l + ' °C, ' + pl + ' hPa · rechts ' + r + ' °C, ' + pr + ' hPa (Modell)'
     },
     tasks: {
       title: 'Aufgabe',

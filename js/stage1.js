@@ -28,7 +28,7 @@
   let gateBottom = CH.y1, keHot = 1, keCold = 0;
   // smoothed side temperatures; the heat-flow arrow shows while heat flows and stays off once the
   // balance is reached (the random wobble around 0 % must not make it flicker)
-  let tlS = 60, trS = 10, flowOn = false, balanced = false;
+  let tlS = 60, trS = 10, plS = 1013, prS = 1013, flowOn = false, balanced = false;
   const BALANCED = 0.06;   // difference (0…1) below which the blocks count as balanced
   const inBox = (b, x, y, r) => x >= b.x0 + r && x <= b.x1 - r && y >= b.y0 + r && y <= b.y1 - r;
   // where a particle of radius r may be
@@ -94,6 +94,15 @@
     return [el / Math.max(1, nl), er / Math.max(1, nr)];
   };
   const celsius = ke => 10 + 50 * (ke - keCold) / (keHot - keCold || 1);
+  // pressure per block = what the walls feel: number of particles × their mean kinetic energy
+  // (the sum of all kinetic energy on that side). Shown on a model scale like the temperature:
+  // 1013 hPa once everything is balanced, ±80 hPa per 100 % deviation from that.
+  const sidePressure = () => {
+    let el = 0, er = 0;
+    for (const p of P) { const e = p.vx * p.vx + p.vy * p.vy; if (p.x < WX) el += e; else er += e; }
+    const even = (el + er) / 2;
+    return [1013 + 80 * (el / even - 1), 1013 + 80 * (er / even - 1)];
+  };
   const reset = () => {
     P = [];
     const ink = mode === 'tinte';
@@ -102,11 +111,11 @@
     else {
       spawn(110, BL, 210, 270, 'p', 6, true); spawn(110, BR, 35, 70, 'p', 6);
       [keHot, keCold] = sideKE();
-      tlS = 60; trS = 10; flowOn = false; balanced = false;
+      tlS = 60; trS = 10; [plS, prS] = sidePressure(); flowOn = false; balanced = false;
     }
     d0 = Math.max(1e-6, measure()); frac = 1;
     wallBtn.textContent = t(ink ? 's1.dropAgain' : 's1.wallOpen');
-    hint.textContent = t('s1.hints.' + mode);
+    hint.innerHTML = t('s1.hints.' + mode);
   };
   const toggleWall = () => {
     hideBadge();
@@ -235,10 +244,12 @@
     // labels: WARM / KALT (LAUWARM once balanced) and the model temperature
     const lab = (tt, other) => t(!flowOn && wallOpen ? 's1.canvas.even' : tt > other ? 's1.canvas.warm' : 's1.canvas.cold');
     const lx = (BL.x0 + BL.x1) / 2, rx = (BR.x0 + BR.x1) / 2;
-    text(ctx, lab(tl, tr), lx, BL.y0 - 44, 30, K.ink, 300, 'center');
-    text(ctx, lab(tr, tl), rx, BR.y0 - 44, 30, K.ink, 300, 'center');
-    text(ctx, t('s1.canvas.temp', Math.round(tl)), lx, BL.y0 - 14, 18, K.ink, 500, 'center');
-    text(ctx, t('s1.canvas.temp', Math.round(tr)), rx, BR.y0 - 14, 18, K.ink, 500, 'center');
+    text(ctx, lab(tl, tr), lx, BL.y0 - 60, 28, K.ink, 300, 'center');
+    text(ctx, lab(tr, tl), rx, BR.y0 - 60, 28, K.ink, 300, 'center');
+    text(ctx, t('s1.canvas.temp', Math.round(tl)), lx, BL.y0 - 34, 17, K.ink, 500, 'center');
+    text(ctx, t('s1.canvas.temp', Math.round(tr)), rx, BR.y0 - 34, 17, K.ink, 500, 'center');
+    text(ctx, t('s1.canvas.pressure', Math.round(plS)), lx, BL.y0 - 12, 15, K.ink, 500, 'center');
+    text(ctx, t('s1.canvas.pressure', Math.round(prS)), rx, BR.y0 - 12, 15, K.ink, 500, 'center');
   };
 
   const draw = () => {
@@ -258,7 +269,7 @@
 
   const readout = () => {
     if (mode === 'tinte') return t('s1.readout.tinte');
-    return t('s1.readout.waerme', Math.round(tlS), Math.round(trS));
+    return t('s1.readout.waerme', Math.round(tlS), Math.round(trS), Math.round(plS), Math.round(prS));
   };
 
   let readT = 0;
@@ -271,6 +282,7 @@
     if (mode === 'waerme') {
       const [kl, kr] = sideKE(), k = Math.min(1, dt * 2);
       tlS += (celsius(kl) - tlS) * k; trS += (celsius(kr) - trS) * k;
+      const [pl, pr] = sidePressure(); plS += (pl - plS) * k; prS += (pr - prS) * k;
       if (wallOpen && frac < BALANCED) balanced = true;
       flowOn = !balanced;
     }

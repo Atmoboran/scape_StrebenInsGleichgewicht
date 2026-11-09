@@ -9,7 +9,9 @@ adds one short line).
 - **Stage 1 – Ausgleichsströme** (`#stufe-1`): two experiments.
   **Warm & kalt** (first): a warm and a cold block joined by a channel with a
   gate, like the classic "Hot → heat flow → Cold" picture. Block colours show
-  their (model) temperature, 60 °C and 10 °C at the start; when the gate is
+  their (model) temperature, 60 °C and 10 °C at the start, plus the (model)
+  pressure per block (particles × kinetic energy; 1013 hPa when balanced –
+  it evens out much faster than the temperature); when the gate is
   open, fast particles carry heat across and an arrow "Wärmestrom" points
   from warm to cold until both are "lauwarm". **Tinte in Wasser**: a drop of
   ink spreads through the glass (tap the water for a new drop).
