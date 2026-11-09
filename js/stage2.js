@@ -1,7 +1,12 @@
 // Stage 2 – sea breeze / land breeze: a cross-section through sea, coast and
 // air. One circulation cell driven by the temperature difference between
-// land and sea. Time moves on with the "+1 Stunde" button, or by itself when
-// the "Tagesverlauf" switch is on. Sun and display toggles only in dev mode.
+// land and sea.
+// What the visitor decides: only the time of day – by dragging the sun (or
+// the moon at night) across the sky, or with the day bar below the picture;
+// the "Zeit läuft" switch lets the day run by itself. Everything else follows:
+// land and sea warm up at different speeds, the air circulates, smoke, flag
+// and boat react. A banner names the wind and its cause in plain words;
+// thermometers compare land and sea. Sun and display toggles only in dev mode.
 (() => {
   'use strict';
   const { $, $$, clamp, rnd, fmt, makeView, text, arrow, pressToggle } = Streben;
@@ -9,13 +14,14 @@
 
   const W = 900, H = 690, BASE = 595, HC = 555, COAST = 450;   // tall picture, low ground line: most of it is air
   const view = makeView($('#c2'), W, H), ctx = view.ctx;
-  const clock = $('#s2clock'), status = $('#s2status');
+  const clock = $('#s2clock'), status = $('#s2status'), dayBar = $('#s2day');
   const tasks = SCAPE.tasks($('#s2tasks'));
   const hideBadge = Streben.firstHint($('#f2'), 's2.badge');
   const SUN = ['s2.sunOn', 's2.sunOff'];
   const show = { arrows: true, isobars: true, smoke: true, tracers: true };
-  const DAY_RATE = 0.5, STEP_RATE = 3;   // hours per second: day cycle, and the glide after "+1 Stunde"
-  let time = 13, target = 13, auto = false, sunOn = true;
+  const DAY_RATE = 0.5;                  // hours per second while "Zeit läuft" is on
+  const ARC_Y = BASE - 70, ARC_RX = 390, ARC_RY = 380;   // path of sun and moon across the sky
+  let time = 13, auto = false, sunOn = true, drag = null;
   let Tl = 24, Ts = 17;
   let dT = 0;
   const tracers = Array.from({ length: 150 }, () => ({ x: rnd(0, W), z: rnd(0, HC) }));
@@ -38,12 +44,9 @@
   };
 
   const update = dt => {
-    // time: glide to the target hour after "+1 Stunde"; the day cycle runs by itself (not during the boat task)
-    if (auto && !task.active) target += DAY_RATE * dt;
-    const dh = Math.min(STEP_RATE * dt, target - time);
-    time += Math.max(0, dh);
-    if (time >= 24) { time -= 24; target -= 24; }
-    clock.textContent = fmtTime(time);
+    // time runs by itself only with "Zeit läuft" (not while dragging or during the boat task)
+    if (auto && !drag && !task.active) time = (time + DAY_RATE * dt) % 24;
+    showTime();
     const s = sunOn ? sunF(time) : 0;
     const TlEq = sunOn ? 11 + 16 * s : 16, TsEq = sunOn ? 16 + 1.5 * s : 16;
     Tl += (TlEq - Tl) * Math.min(1, dt / 0.7);   // land reacts fast
@@ -92,12 +95,12 @@
 
     // sun, or moon and stars
     if (sunOn && s > 0) {
-      const a = Math.PI * (time - 6) / 12, sx = 450 - 390 * Math.cos(a), sy = BASE - 90 - 400 * Math.sin(a);
+      const a = Math.PI * (time - 6) / 12, sx = 450 - ARC_RX * Math.cos(a), sy = ARC_Y - ARC_RY * Math.sin(a);
       ctx.fillStyle = K.sun; ctx.beginPath(); ctx.arc(sx, sy, 32, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = K.sunRay; ctx.lineWidth = 2;
       for (let i = 0; i < 8; i++) { const r = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(sx + Math.cos(r) * 42, sy + Math.sin(r) * 42); ctx.lineTo(sx + Math.cos(r) * 56, sy + Math.sin(r) * 56); ctx.stroke(); }
     } else if (night) {
-      const h = (time + 6) % 24, a = Math.PI * h / 12, mx = 450 - 390 * Math.cos(a), my = BASE - 90 - 400 * Math.sin(a);
+      const h = (time + 6) % 24, a = Math.PI * h / 12, mx = 450 - ARC_RX * Math.cos(a), my = ARC_Y - ARC_RY * Math.sin(a);
       ctx.fillStyle = K.moon; ctx.beginPath(); ctx.arc(mx, my, 24, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = K.sky.night; ctx.beginPath(); ctx.arc(mx + 10, my - 6, 21, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = K.star; ctx.lineWidth = 1.5;
@@ -191,21 +194,53 @@
       const hl = (isLow, x, y, size) => text(ctx, t(isLow ? 's2.canvas.low' : 's2.canvas.high'), x, y, size, isLow ? D.low : D.high, 500, 'center', 'alphabetic', K.paper);
       hl(!landLow, 340, BASE - 26, 64);
       hl(landLow, 620, BASE - 40, 64);
-      hl(landLow, 340, 150, 34);
-      hl(!landLow, 620, 150, 34);
+      hl(landLow, 340, 240, 34);
+      hl(!landLow, 620, 240, 34);
       if (Math.abs(dT) > 2) {
         text(ctx, t('s2.canvas.rising'), landLow ? 620 : 225, BASE - 250, 15, ink, 500, 'center');
         text(ctx, t('s2.canvas.sinking'), landLow ? 225 : 620, BASE - 250, 15, ink, 500, 'center');
       }
     }
 
-    // temperatures
-    text(ctx, t('s2.canvas.sea', fmt(Ts, 0)), 225, BASE + 58, 24, K.ink, 500, 'center');
-    text(ctx, t('s2.canvas.land', fmt(Tl, 0)), 665, BASE + 52, 24, K.ink, 500, 'center');
+    // thermometers: land and sea side by side, so the difference is seen at a glance
+    thermo(150, BASE + 8, Ts, t('s2.canvas.sea', fmt(Ts, 0)));
+    thermo(570, BASE - 8, Tl, t('s2.canvas.land', fmt(Tl, 0)));
+    banner();
     if (task.active) {
       ctx.fillStyle = K.ink; ctx.fillRect(W - 150, 14, 136, 40);
       text(ctx, t('s2.canvas.timer', Math.ceil(task.time)), W - 82, 42, 22, K.paper, 500, 'center');
     }
+  };
+
+  // a thermometer: tube with a fill in the colour of the temperature (5 … 30 °C)
+  const thermo = (x, top, T, label) => {
+    const h = H - top - 26, f = clamp((T - 5) / 25, 0, 1);
+    ctx.fillStyle = K.paper; ctx.fillRect(x - 7, top, 14, h);
+    ctx.fillStyle = THEME.tempColor(f); ctx.fillRect(x - 7, top + h * (1 - f), 14, h * f);
+    ctx.beginPath(); ctx.arc(x, top + h + 8, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = K.ink; ctx.lineWidth = 2; ctx.strokeRect(x - 7, top, 14, h);
+    ctx.beginPath(); ctx.arc(x, top + h + 8, 12, 0, Math.PI * 2); ctx.stroke();
+    text(ctx, label, x + 26, top + h * 0.5 + 10, 24, K.ink, 500, 'left');
+  };
+  // the banner: which wind blows, and why – in plain words
+  const banner = () => {
+    const calm = Math.abs(dT) < 0.8, sea = dT > 0;
+    const head = t(calm ? 's2.wind.calm' : sea ? 's2.wind.sea' : 's2.wind.land').toUpperCase();
+    const why = t(calm ? 's2.why.calm' : sea ? 's2.why.sea' : 's2.why.land');
+    // sizes grow with the minimum on-screen text size (small phones), so the lines never overlap
+    const m = SCAPE.minFont(ctx), hs = Math.max(28, m * 1.5), ws = Math.max(15, m);
+    ctx.font = '500 ' + ws + 'px ' + THEME.font;
+    const bw = Math.min(W - 20, Math.max(420, ctx.measureText(why).width + 40)), bh = hs + ws + 26;
+    const bx = (W - bw) / 2, by = 12;
+    ctx.fillStyle = K.paper; ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = K.ink; ctx.lineWidth = 2; ctx.strokeRect(bx, by, bw, bh);
+    text(ctx, head, W / 2, by + 8 + hs * 0.85, hs, K.ink, 500, 'center');
+    if (!calm) {   // arrow in the direction of the wind at the ground (sea → land is to the right)
+      ctx.font = '500 ' + hs + 'px ' + THEME.font;
+      const dir = sea ? 1 : -1, ax = W / 2 + dir * (ctx.measureText(head).width / 2 + 50);
+      arrow(ctx, ax - dir * 26, by + 8 + hs * 0.5, dir * 52, 0, K.vane, 6, 16);
+    }
+    text(ctx, why, W / 2, by + bh - 10, ws, K.ink, 500, 'center');
   };
 
   const frame = dt => {
@@ -213,7 +248,31 @@
     update(dt); draw();
   };
 
-  $('#s2step').addEventListener('click', () => { hideBadge(); target = Math.floor(target + 1e-6) + 1; });
+  // ---- time of day: drag the sun / moon across the sky, or use the day bar ----
+  const showTime = () => {
+    clock.textContent = fmtTime(time);
+    if (document.activeElement !== dayBar) dayBar.value = time.toFixed(2);
+    dayBar.classList.toggle('night', time >= 18 || time < 6);
+  };
+  const setTime = h => { time = ((h % 24) + 24) % 24; showTime(); };
+  dayBar.addEventListener('input', () => { hideBadge(); setTime(parseFloat(dayBar.value)); });
+  const cv = view.canvas;
+  cv.addEventListener('pointerdown', e => {
+    const p = view.local(e);
+    if (p.y > BASE - 20) return;   // only the sky
+    hideBadge();
+    drag = { night: time >= 18 || time < 6 };
+    cv.setPointerCapture(e.pointerId);
+    move(e);
+  });
+  // the sun moves across the day sky (6 – 18 h), the moon across the night sky (18 – 6 h)
+  const move = e => {
+    if (!drag) return;
+    const f = clamp((view.local(e).x - 50) / (W - 100), 0, 1);
+    setTime(drag.night ? 18 + 12 * f : 6 + 12 * f);
+  };
+  cv.addEventListener('pointermove', move);
+  ['pointerup', 'pointercancel'].forEach(ev => cv.addEventListener(ev, () => { drag = null; }));
   $('#s2auto').addEventListener('click', e => { hideBadge(); auto = !auto; e.currentTarget.setAttribute('aria-checked', String(auto)); });
   // dev mode: sun and what the drawing shows
   const setShow = (k, on) => {
@@ -228,7 +287,7 @@
   window.addEventListener('scape:dev', e => { if (!e.detail) { setSun(true); Object.keys(show).forEach(k => setShow(k, true)); } });
   $('#s2task').addEventListener('click', () => {
     hideBadge();
-    time = target = 5; setSun(true);
+    setTime(5); setSun(true);
     Tl = 11; Ts = 16; dT = Tl - Ts;
     boat.x = 160; task.active = true; task.time = 30;
     status.textContent = t('s2.tasks.go', 30);

@@ -18,10 +18,14 @@ adds one short line).
   dasselbe" and topics, among them "Wenige Arten – viele Arten" (4 particles
   in 2 halves, all 16 ways: 1 – 4 – 6 – 4 – 1) and entropy. Square stage.
 - **Stage 2 – Land-See-Wind** (`#stufe-2`): a cross-section through sea,
-  coast and air in a tall picture (900 × 690) with a low ground line, so most
-  of it is air. Time moves on with **+1 Stunde** (glides one hour on) or by
-  itself while the **Tagesverlauf** switch is on (off by default). Isobars,
-  arrows, smoke and air particles are always shown.
+  coast and air in a tall picture (900 × 690). The visitor decides only the
+  **time of day**: drag the sun (at night the moon) across the sky, or use
+  the day bar (night | morning | midday | evening | night, with a sun/moon
+  knob); the "Zeit läuft" switch lets the day run by itself (off by
+  default). Everything else follows on its own: land and sea warm up at
+  different speeds, the air circulates, smoke, flag and boat react. A banner
+  names the wind and its cause in plain words ("SEEWIND →" / "Das Land ist
+  wärmer als das Meer"); thermometers compare land and sea.
 - **Stage 3 – Hoch und Tief** (`#stufe-3`): one map surface with the coastlines
   of Europe and the North Atlantic as a backdrop (synoptic scale); it starts
   with an Iceland low and an Azores high. Tools: **H** and **T** paint highs
@@ -46,7 +50,7 @@ flashes when a task is solved). There are no Merke boxes.
 | Stage | Tasks (success condition) |
 |---|---|
 | 1 | Warm & kalt: open the gate and close it again while the difference shows 1 % or less. Ink: wait until the difference is 5 % or less. |
-| 2 | Start the task and bring the sailing boat to the shore within 30 s (time stands still during the task, only "+1 Stunde" moves it); observe land breeze at night (after 21:00, land at least 2 °C cooler than the sea). |
+| 2 | Start the task and bring the sailing boat to the shore within 30 s (time stands still during the task; the visitor drags the sun or the day bar); observe land breeze at night (after 21:00, land at least 2 °C cooler than the sea). |
 | 3 | Wind force 8 measured with the visitor's own station; wind circling a strong low (rotation on, a low below −10 hPa); paint a strong high or low and wait until it has evened out (difference below 5 %). |
 
 Longer explanations and one sentence on what each model simplifies sit in

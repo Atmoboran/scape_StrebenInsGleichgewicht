@@ -127,15 +127,16 @@ window.TEXTS = {
     kicker: 'Stufe 2 von 3 · Wie Wind entsteht',
     headline: 'Land-See-Wind',
     canvasAria: 'Querschnitt durch Küste, Meer und Luft',
-    badge: 'Klick auf +1 Stunde',
-    step: '+1 Stunde',
-    auto: 'Tagesverlauf',
+    badge: 'Zieh die Sonne über den Himmel',
+    auto: 'Zeit läuft',
+    dayAria: 'Tageszeit',
+    day: { night: 'Nacht', morning: 'Morgen', noon: 'Mittag', evening: 'Abend' },
     clock: (hh, mm) => hh + ':' + mm + ' Uhr',
     sunOn: 'Sonne an',
     sunOff: 'Sonne aus',
     showAria: 'Was die Zeichnung zeigt',
     show: { arrows: 'Pfeile', isobars: 'Isobaren', smoke: 'Rauch', tracers: 'Luftteilchen' },
-    howto: '<p>Ein Schnitt durch Meer, Küste und Luft. Die Sonne heizt das Land schneller als das Wasser.</p><p>Mit <b>+1 Stunde</b> lässt du die Uhr eine Stunde weiterlaufen. Schaltest du <b>Tagesverlauf</b> ein, läuft der Tag von selbst.</p><p>Die violetten Linien sind <b>Isobaren</b>, Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p><p>Die Fahne an der Küste und das Segel zeigen, wohin der Wind weht.</p>',
+    howto: '<p>Ein Schnitt durch Meer, Küste und Luft. Die Sonne heizt das Land schneller als das Wasser.</p><p><b>Du bestimmst die Tageszeit:</b> Zieh die Sonne über den Himmel (nachts den Mond) – oder schieb den Regler unter der Uhr. Schaltest du <b>Zeit läuft</b> ein, vergeht der Tag von selbst.</p><p><b>Alles andere passiert von allein:</b> Land und Meer werden unterschiedlich schnell warm, die Luft kommt in Bewegung, Rauch, Fahne und Segler zeigen den Wind. Oben steht, welcher Wind gerade weht und warum. Die Thermometer vergleichen Land und Meer.</p><p>Die violetten Linien sind <b>Isobaren</b>, Linien gleichen Luftdrucks. Über dem warmen Boden steigt die Luft auf, unten entsteht ein <b>Tief (T)</b>, über dem kühleren Boden ein <b>Hoch (H)</b>. Am Boden weht der Wind vom Hoch zum Tief.</p><p>Die Fahne an der Küste und das Segel zeigen, wohin der Wind weht.</p>',
     canvas: {
       isobars: 'ISOBAREN',
       high: 'H',
@@ -151,9 +152,14 @@ window.TEXTS = {
       sea: 'Seewind',
       land: 'Landwind'
     },
+    why: {
+      calm: 'Land und Meer sind gleich warm',
+      sea: 'Das Land ist wärmer als das Meer',
+      land: 'Das Land ist kühler als das Meer'
+    },
     tasks: {
       title: 'Aufgabe',
-      intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b> Die Zeit steht still – nur mit <b>+1 Stunde</b> geht es weiter.',
+      intro: 'Es ist frühmorgens, der Landwind treibt den Segler aufs Meer hinaus. <b>Bring ihn in 30 Sekunden ans Ufer!</b> Die Zeit steht still – zieh die Sonne (oder den Mond) oder schieb den Regler.',
       start: 'Aufgabe starten',
       boat: 'Segler ans Ufer gebracht',
       night: 'Nachts Landwind beobachtet (Zeit nach 21 Uhr)',
